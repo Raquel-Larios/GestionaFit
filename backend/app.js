@@ -27,9 +27,11 @@ app.get("/", (req, res) => {
   res.status(200).send("Health Check");
 });
 
-const PORT = process.env.PORT || 5000;
-const ENV = process.env.NODE_ENV || null;
+const PORT = process.env.PORT;
+const ENV = process.env.NODE_ENV;
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT} using ${ENV} env.`);
 });
+
+module.exports = app; 
