@@ -19,6 +19,6 @@ router.post("/users", (req, res) => {
     });
 });
 
-router.put("/:userId", userController.update_user);
+router.put("/:userId", userController.updateUserControl);
 
 module.exports = router;

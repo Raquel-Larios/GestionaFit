@@ -1,8 +1,10 @@
-const { updateUser } = require("../services/userService");
+const { updateUser } = require("../models/userModel");
 
-exports.update_user = async (req, res, next) => {
+exports.updateUserControl = async (req, res, next) => {
   const { userId } = req.params;
   const { nombre, apellidos, email, contraseña } = req.body;
+
+  //Invoca al método del modelo y dependiendo del resultado lanza la respuesta HTTP
 
   updateUser({ userId, nombre, apellidos, email, contraseña })
     .then((result) => {

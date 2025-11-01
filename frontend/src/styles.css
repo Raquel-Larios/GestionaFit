@@ -1,0 +1,23 @@
+background-color{ color: #0768A9;}
+
+.logo{
+    margin: 23.5px;
+    size: 47px;
+    border-radius: 2px;
+    border: solid 2px #D9D9D9;
+}
+
+.inline{
+    display: inline;
+}
+
+.flex-cont{
+    display: flex;
+}
+
+.user-icon{
+    margin: 23.5px;
+    size: 47px;
+    border-radius: 23.5px;
+    border: solid 1px #0768A9;
+}

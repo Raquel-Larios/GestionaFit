@@ -1,0 +1,30 @@
+background-color{color: #FFFFFF;}
+
+.letter-font{
+    font-family: "Oswald", oswald;
+    font-weight: bold;
+    color: #0768A9;
+}
+
+.title{
+    size: 40px;
+}
+
+.header{
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 256px;
+}
+
+.header-logo{
+    flex: 1;
+}
+.header-menu{
+    flex: 2;
+    
+}
+.header-user{
+    flex: 1;
+    
+}

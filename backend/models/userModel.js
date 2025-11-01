@@ -2,6 +2,7 @@ const { updateUserValidation } = require("../middleware/validation");
 const db = require("../database/db");
 const md5 = require("md5");
 
+// Llama al método de validación para saber si el objeto que le han pasado es del tipo que usa el método y si es correcto consulta a la db.
 exports.updateUser = async (params) => {
   const { error } = updateUserValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };

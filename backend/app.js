@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Router index
 const indexRouter = require("./routes/index");
-app.use("/", indexRouter);
+app.use("/api", indexRouter);
 
 // Health check
 app.get("/", (req, res) => {
