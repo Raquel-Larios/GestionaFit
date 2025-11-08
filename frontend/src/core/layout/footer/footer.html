@@ -1,1 +1,13 @@
-<p>footer works!</p>
+<footer>
+    <div style="display: block;">
+        <div class="footer-logo">
+            <img src={{logoUrl}} class="logo" alt="Logo">
+        </div>
+        <nav class="icon-box">
+            <a *ngFor="let link of links" [href]="link.url" target="_blank">
+            <img [src]="'https://www.google.com/s2/favicons?domain=' + getDomain(link.url) + '&sz=32'" [alt]="link.name" class="media-icon">
+            </a>
+        </nav>
+    </div>
+</footer>
+

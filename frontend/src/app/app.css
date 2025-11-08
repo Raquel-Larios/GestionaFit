@@ -1,0 +1,22 @@
+
+.flex-cont{
+    display: flex;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+}
+
+.user-profile img {
+    width: 47px;
+    height: 47px;
+    border-radius: 50%;
+    border: solid 1px #0768A9;
+}
+
+.content {
+    padding-top: 99px; /* Altura del header */
+    min-height: 200vh; /* Para scroll de prueba */
+}
+

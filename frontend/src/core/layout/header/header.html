@@ -1,18 +1,18 @@
 <header>
-    <div class="flex-cont header">
+    <div class="flex-cont">
         <div class="header-logo">
-            <img src="A:\Descargas\Uni\TFG\Logo\Logo GestionaFit.png" class="Logo inline">
-            <h1 class="letter-font title">GestionaFit</h1>
+            <img src={{logoUrl}} class="logo" alt="Logo">
+            <span class="letter-font title" alt="nombre aplicación">GestionaFit</span>
         </div>
-        <!--if loggeado-->
-        <div class="header-menu">
-            <!--Componente menu dinamico-->
+        <!--
+        <div *ngIf="usuario !== null">
+            <div class="header-menu">
+                <app-menu-dinamico></app-menu-dinamico>
+            </div>
+            <div class="header-user">
+                <img class="user-icon" src=[{usuario.foto_perfil}] alt="Usuario">
+            </div>
         </div>
-        <div class="header-user">
-            <img class="user-icon">
-            <!--src de imagen necesita un script para automatizar la foto con la que genera por defecto o la que ha puesto el usuario-->
-        </div>
-        <!--end if-->
+        -->
     </div>
 </header>
-

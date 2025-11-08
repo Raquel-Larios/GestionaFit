@@ -1,1 +1,33 @@
-background-color{color: #FFFFFF;}
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: snow;
+    color: #111;
+    height: 200px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 0 16px;
+    z-index: 1000;
+}
+
+.footer-logo{
+    margin-top: 5%;
+}
+
+.media-icon{
+    width: 32px; 
+    height: 32px; 
+    flex-shrink: 0;
+}
+
+.icon-box{
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap:10px;
+    margin-top: 5%;
+    margin-right: 2%;
+}

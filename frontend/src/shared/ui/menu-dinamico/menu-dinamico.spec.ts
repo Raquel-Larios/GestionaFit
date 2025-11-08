@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Menu } from './menu';
+import { MenuDinamico } from './menu-dinamico';
 
-describe('Menu', () => {
-  let component: Menu;
-  let fixture: ComponentFixture<Menu>;
+describe('MenuDinamico', () => {
+  let component: MenuDinamico;
+  let fixture: ComponentFixture<MenuDinamico>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Menu]
+      imports: [MenuDinamico]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(Menu);
+    fixture = TestBed.createComponent(MenuDinamico);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
