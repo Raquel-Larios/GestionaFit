@@ -1,9 +1,11 @@
 const {
   loginValidation,
-  registerValidation,
 } = require("../middleware/validation");
 const db = require("../database/db");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const bcrypt = require("bcryptjs");
+const {DEFAULT_ERROR_MESSAGE, DEFAULT_ERROR} = require("../constants");
 
 exports.loginUser = async (params) => {
   const { error } = loginValidation(params);
@@ -13,76 +15,47 @@ exports.loginUser = async (params) => {
 
   return new Promise((resolve, reject) => {
     db.query(
-      "SELECT * FROM usuario WHERE email = ? AND contraseña = ?",
-      [email, contraseña],
-      (err, result) => {
+      "SELECT * FROM usuario WHERE email = ?",
+      [email], async (err, result) => {
         if (err) {
           reject({
             data: err,
-            message: "Algo ha salido mal, por favor pruebe otra vez.",
+            code: DEFAULT_ERROR,
+            message: DEFAULT_ERROR_MESSAGE,
             statusCode: 400,
           });
         }
 
         if (result.length === 0) {
           reject({
-            message: "Credenciales erróneas, por favor pruebe otra vez.",
+            message: "No existe ningún usuario con ese correo electrónico.",
             statusCode: 400,
           });
         }
 
-        if (result.length > 0) {
-          const token = jwt.sign({ data: result }, "secret");
-          resolve({
-            message: "Loggeado correctamente.",
-            data: result,
-            token,
-          });
-        }
-      }
-    );
-  });
-};
+        else{
+          const usuario = result[0];
+          const hashGuardado = usuario.contraseña;
+          const match = await bcrypt.compare(contraseña, hashGuardado);
 
-exports.registerUser = async (params) => {
-  const { error } = registerValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
+          if(!match){
+            return reject({
+              message: "Por favor compruebe que su correo y contraseña estén correctamente introducidos.",
+              statusCode: 400,
+            });
+          }
+          else{
+            const payload = {id: result[0], username: result[2], rol: result[7]}
+            const secretKey = crypto.randomBytes(32).toString('hex');
+            const options = {algorithm: 'HS256', expiresIn: '1h'}
+            const token = jwt.sign(payload, secretKey, options);
 
-  const { email, nombre, apellidos, contraseña} = params;
-
-
-  return new Promise((resolve, reject) => {
-    db.query(
-      `SELECT email FROM usuarios WHERE email = ?`,
-      [email],
-      (err, result) => {
-        if (result.length > 0) {
-          reject({
-            message: "Cuenta de correo en uso, por favor pruebe uno diferente.",
-            statusCode: 400,
-          });
-        } else if (result.length === 0) {
-          db.query(
-            `INSERT INTO usuario (email, nombre, apellidos, contraseña) VALUES (?,?,?,?)`,
-            [email, nombre, apellidos, contraseña],
-            (err, result) => {
-              if (err) {
-                reject({
-                  message: "Algo ha salido mal, por favor pruebe otra vez.",
-                  statusCode: 400,
-                  data: err,
-                });
-              } else {
-                const token = jwt.sign({ data: result }, "secret");
-                resolve({
-                  data: result,
-                  message: "Se ha registrado correctamente.",
-                  token: token,
-                  statusCode: 200,
-                });
-              }
-            }
-          );
+            resolve({
+              message: "Loggeado correctamente.",
+              data: result, 
+              token,
+            });
+          }
         }
       }
     );

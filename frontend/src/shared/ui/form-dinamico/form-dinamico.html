@@ -1,0 +1,67 @@
+<form class="form centered" [formGroup]="form">
+  <div class="form-item"  *ngFor="let field of fields">
+
+    <span class="block item-label">{{field.label}}</span>
+
+    <!--Campos normales-->
+    <input class="form-item" *ngIf="field.type !== 'select' && field.type !== 'nested'"
+      [type]="field.type"
+      [formControlName]="field.name"
+    />
+
+    <!--Select de ejercicios y categorias-->
+    <select class="form-item" *ngIf="field.type === 'select'"
+      [formControlName]="field.name">
+      <option value="">{{field.label}}</option>
+      <option *ngFor="let opt of field.options" [value]="opt.value">
+        {{opt.label}}
+      </option>
+    </select>
+
+    <!--Template-->
+    <div class="form-item" *ngIf="field.type === 'nested'" [formGroupName]="field.name">
+      <h4>{{field.label}}</h4>
+      <ng-container *ngFor="let subField of field.subFields">
+        <input [formControlName]="subField.name" [placeholder]="subField.label" />
+      </ng-container>
+    </div>
+
+    <!--Control de Excepciones-->
+    <div *ngIf="form.get(field.name)?.invalid && form.get(field.name)?.touched">
+    <p class="error">El campo {{field.label | lowercase}} es obligatorio.</p>
+    </div>
+    <!--Formato de contraseña, solo debería aparecer al crear un cliente-->
+    <div *ngIf="form.get('contraseña')?.hasError('pattern') && form.get('contraseña')?.touched">
+      <p class="error">La contraseña debe:
+      * Tener al menos {{field.validators?.minlength}} caracteres.
+      * Ser una combinación de caracteres alfanuméricos (al menos una minúscula, una mayúscula y un número).
+      * No contener espacios.</p>
+    </div>
+  </div>
+
+  <!--Control de errores después de pulsar el botón-->
+  <div *ngIf="hasErrorMessage">
+    <p class="error">{{errorMessage}}</p>
+  </div>
+  
+  <!--Parte de botones-->
+  <div class="form-nav" [ngClass]="backBtnOpt ? 'form-nav-horizontal' : 'form-nav-vertical'">
+    <div *ngIf="backBtnOpt == true" class="left-button medium-button">
+      <app-nav-button [estilo]="'back-button font-18px'" [texto]="'Volver'" [ruta]="'/welcome'"></app-nav-button>
+    </div>
+    <div [class]="divBtnStyle">
+      <app-check-button  [deshabilitado]="form.invalid"
+        (accion)="onSubmit()"
+        [texto]="btnText"
+        [estilo]="btnStyle"></app-check-button>
+    </div>
+    <div *ngIf="cancelBtnOpt == true">
+      <button class="cancelBtn">Cancelar</button>
+    </div>
+  </div>
+</form>
+
+<div *ngIf="hasSuccessMessage">
+  <p class="pop-up">{{successMessage}}</p>
+</div>
+

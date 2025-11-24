@@ -1,15 +1,6 @@
-<div>
-    <h1 class="welcome-msg">
-        ¡Bienvenid@!<br>
-        Comienza en GestionaFit
-    </h1>
+<div style="padding: 3%;">
+    <app-welcome-msg></app-welcome-msg>
 </div>
-<div>
-    <script>
-    const loginButton = crearBoton("Iniciar Sesión", "/auth-view");
-    document.body.appendChild(loginButton);
-
-    const registerButton = crearBoton("Registrarse", "/auth-view");
-    document.body.appendChild(registerButton);
-    </script>
+<div class="centered" style="padding: 7%;">
+    <app-nav-button [estilo]="'login-button font-32px'" [texto]="'Iniciar Sesión'" [ruta]="'/auth'"></app-nav-button>
 </div>

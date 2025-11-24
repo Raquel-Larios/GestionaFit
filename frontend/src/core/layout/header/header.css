@@ -1,11 +1,6 @@
-.letter-font{
-    font-family: "Calibri";
-    font-weight: bold;
-    color: #0768A9;
-}
-
 .title{
     font-size: 50px;
+    color: #0768A9;
 }
 
 .header-logo{

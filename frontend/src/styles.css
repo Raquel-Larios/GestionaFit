@@ -1,5 +1,23 @@
 body{
     background-color: #0768A9;
+    font-family: "Calibri";
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.flex-end{
+    align-items: flex-end;
+    justify-content: flex-end;
+    text-align: end;
+}
+
+.centered{
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 * {
@@ -22,4 +40,57 @@ body{
 
 .block{
     display: block;
+}
+
+.flex{
+    display: flex;
+}
+
+button{
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.right-button{
+    display: flex;
+    box-sizing: border-box;
+    justify-content: flex-end;
+    align-items: flex-end;
+    margin-right: 2%;
+}
+
+.left-button{
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    white-space: nowrap;
+    margin-left: 2%;
+}
+
+.medium-button{
+    width: 50%;
+}
+
+.big-button{
+    width: 80%;
+}
+
+.font-32px{
+    font-size: 32px;
+}
+
+.font-20px{
+    font-size: 20px;
+}
+
+.font-18px{
+    font-size: 18px;
+}
+
+.font-16px{
+    font-size: 16px;
 }

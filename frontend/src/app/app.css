@@ -16,7 +16,7 @@
 }
 
 .content {
-    padding-top: 99px; /* Altura del header */
-    min-height: 200vh; /* Para scroll de prueba */
+    padding-top: 99px;  /*Altura del header*/
+    min-height: 100vh;
+    flex: 1;
 }
-

@@ -1,1 +1,16 @@
-
+<div style="padding: 3%;">
+    <app-welcome-msg></app-welcome-msg>
+</div>
+<div class="centered" style="padding: 3% 0;">
+    <app-form-dinamico 
+    [fields]="loginFields" 
+    [backBtnOpt]="true"
+    [btnText]="'Iniciar Sesión'" 
+    [btnStyle]="'login-button font-20px'" 
+    [divBtnStyle]="'right-button medium-button'" 
+    [errorMessage]="errorMessage"
+    [successMessage]="successMessage"
+    [isDefaultError]="isDefaultError"
+    [token]="token"
+    (formSubmit)="onLogin($event)"></app-form-dinamico>
+</div>

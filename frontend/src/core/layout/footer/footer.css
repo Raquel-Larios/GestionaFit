@@ -1,9 +1,7 @@
 footer {
-    position: fixed;
     bottom: 0;
     width: 100%;
     background: snow;
-    color: #111;
     height: 200px;
     display: flex;
     align-items: flex-start;
