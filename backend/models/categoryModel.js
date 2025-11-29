@@ -1,0 +1,372 @@
+const {
+  createCategoryValidation,
+  updateCategoryValidation,
+  deleteCategoryValidation,
+  linkCategoryToExerciseValidation,
+} = require("../middleware/validation");
+const db = require("../database/db");
+const { DEFAULT_ERROR } = require("../constants");
+
+//CREAR CATEGORÍA
+exports.createCategory = (params) => {
+  const { error } = createCategoryValidation(params);
+  if (error) throw { message: error.details[0].message, statusCode: 400 };
+
+  const { nombre } = params;
+  const nombreMinusculas = String(nombre).toLowerCase();
+
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT nombre_categoria FROM categoria WHERE nombre_categoria = ?`,
+      [nombreMinusculas],
+      (err, result) => {
+        if (result.length > 0) {
+          return reject({
+            message:
+              "Ya hay una categoría con este nombre, por favor escoja uno distinto.",
+            statusCode: 400,
+          });
+        } else if (result.length === 0) {
+          db.query(
+            `INSERT INTO categoria (nombre_categoria) VALUE (?)`,
+            [nombreMinusculas],
+            (err, result) => {
+              if (err) {
+                return reject({
+                  data: err,
+                  code: DEFAULT_ERROR,
+                  message: "Error al crear la categoría.",
+                  statusCode: 400,
+                });
+              } else {
+                resolve({
+                  data: result,
+                  message: "Categoría creada correctamente.",
+                  statusCode: 200,
+                });
+              }
+            }
+          );
+        }
+      }
+    );
+  });
+};
+
+//ACTUALIZAR CATEGORÍA
+exports.updateCategory = (params) => {
+  const { error } = updateCategoryValidation(params);
+  if (error) throw { message: error.details[0].message, statusCode: 400 };
+
+  const { nombre, categoriaId } = params;
+  const nombreMinusculas = String(nombre).toLowerCase();
+
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT id, nombre_categoria FROM categoria WHERE id = ?`,
+      [categoriaId],
+      (err, result) => {
+        if (err) {
+          return reject({
+            code: DEFAULT_ERROR,
+            message: "Error al buscar la categoría.",
+            statusCode: 500,
+          });
+        }
+
+        if (result.length === 0) {
+          return reject({
+            message: "Categoría no encontrada.",
+            statusCode: 404,
+          });
+        }
+
+        const categoriaSelect = result[0];
+
+        db.query(
+          `SELECT id FROM categoria WHERE nombre_categoria = ? AND id !=?;`,
+          [nombreMinusculas, categoriaId],
+          (err, result) => {
+            if (err) {
+              return reject({
+                code: DEFAULT_ERROR,
+                message: "Error al validar la categoría.",
+                statusCode: 500,
+              });
+            }
+
+            if (result.length > 0) {
+              return reject({
+                message:
+                  "Ya hay una categoría con este nombre, por favor escoja uno distinto.",
+                statusCode: 400,
+              });
+            }
+
+            if (nombreMinusculas === categoriaSelect.nombre_categoria) {
+              return reject({
+                message: "No se ha introducido ningún cambio.",
+                statusCode: 400,
+              });
+            }
+
+            db.query(
+              `UPDATE categoria SET nombre_categoria = '${categoriaId}' WHERE id = ?`,
+              [categoriaId],
+              (err, result) => {
+                if (err) {
+                  return reject({
+                    code: DEFAULT_ERROR,
+                    message:
+                      "Error al actualizar la categoría, inténtelo otra vez.",
+                    statusCode: 500,
+                  });
+                }
+
+                resolve({
+                  data: result,
+                  message: "Categoría actualizada correctamente.",
+                });
+              }
+            );
+          }
+        );
+      }
+    );
+  });
+};
+
+//ELIMINAR CATEGORÍA Y DESVINCULAR DE LAS OTRAS TABLAS EN LA QUE ESTUVIERA
+exports.deleteCategory = (params) => {
+  const { error } = deleteCategoryValidation(params);
+  if (error) throw { message: error.details[0].message, statusCode: 400 };
+
+  const { categoriaId } = params;
+
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT id FROM categoria WHERE id = ?`,
+      [categoriaId],
+      (err, result) => {
+        if (err) {
+          return reject({
+            code: DEFAULT_ERROR,
+            message: "Error al buscar la categoría.",
+            statusCode: 500,
+          });
+        }
+        if (result.length === 0) {
+          return reject({
+            message: "Categoría no encontrada.",
+            statusCode: 404,
+          });
+        }
+
+        db.query(
+          `UPDATE ejercicio SET id_categoria = NULL WHERE id_categoria = ?;
+                    DELETE FROM categoria WHERE id = ?;`,
+          [categoriaId, categoriaId]
+        ),
+          (err, result) => {
+            if (err) {
+              return reject({
+                code: DEFAULT_ERROR,
+                message: "Error al eliminar la categoría.",
+                statusCode: 500,
+              });
+            }
+            resolve({
+              message: "Categoría eliminada correctamente.",
+              statusCode: 200,
+            });
+          };
+      }
+    );
+  });
+};
+
+//ASIGNAR A EJERCICIO-ASIGNAR A CATEGORÍA
+exports.linkCategoryToExercise = (params) => {
+  const { error } = linkCategoryToExerciseValidation(params);
+  if (error) throw { message: error.details[0].message, statusCode: 400 };
+
+  const { categoriaId, ejercicioId } = params;
+
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT id FROM ejercicio WHERE id = ?;
+      SELECT id FROM categoria WHERE id = ?`,
+      [ejercicioId, categoriaId],
+      (err, result) => {
+        if (err) {
+          return reject({
+            code: DEFAULT_ERROR,
+            message: "Error al buscar los ids del ejercicio y categoría seleccionados.",
+            statusCode: 500,
+          });
+        }
+        if (result[0].length === 0) {
+          return reject({
+            message: "Ejercicio a asignar no encontrado.",
+            statusCode: 404,
+          });
+        }
+        if (result[1].length === 0) {
+          return reject({
+            message: "Categoría a asignar no encontrada.",
+            statusCode: 404,
+          });
+        }
+
+        db.query(
+          `SELECT id, id_categoria FROM ejercicio WHERE id = ? AND (id_categoria != ? AND id_categoria IS NOT NULL)`,
+          [ejercicioId, categoriaId],
+          (err, result) => {
+            if (err) {
+              return reject({
+                code: DEFAULT_ERROR,
+                message:
+                  "Error al comprobar si el ejercicio ya está asignado a otra categoría.",
+                statusCode: 500,
+              });
+            }
+            if (result.length > 0) {
+              return reject({
+                message: "Este ejercicio ya está asignado a una categoría.",
+                statusCode: 400,
+              });
+            }
+            if (result.length === 0) {
+              db.query(
+                `SELECT id, id_categoria FROM ejercicio WHERE id = ? AND id_categoria = ?`,
+                [ejercicioId, categoriaId],
+                (err, result) => {
+                  if (err) {
+                    return reject({
+                      code: DEFAULT_ERROR,
+                      message:
+                        "Error al comprobar si la categoría ya está asignada al ejercicio seleccionado.",
+                      statusCode: 500,
+                    });
+                  }
+                  if (result.length > 0) {
+                    return reject({
+                      message:
+                        "Esta categoría ya está asignada al ejercicio seleccionado.",
+                      statusCode: 400,
+                    });
+                  }
+
+                  db.query(
+                    `UPADTE ejercicio SET id_categoria = '${categoriaId}' WHERE id = ?`,
+                    [ejercicioId],
+                    (err, result) => {
+                      if (err) {
+                        return reject({
+                          code: DEFAULT_ERROR,
+                          message:
+                            "Error al realizar la asignación Categoría-Ejercicio seleccionada.",
+                          statusCode: 500,
+                        });
+                      }
+                      resolve({
+                        data: result,
+                        message:
+                          "Asignación Categoría-Ejercicio realizada correctamente.",
+                        statusCode: 200,
+                      });
+                    }
+                  );
+                }
+              );
+            }
+          }
+        );
+      }
+    );
+  });
+};
+
+//ELIMINAR ASIGNACIÓN A EJERCICIO
+exports.unlinkCategoryFormExercise = (params) => {
+  const { error } = linkCategoryToExerciseValidation(params);
+  if (error) throw { message: error.details[0].message, statusCode: 400 };
+
+  const { categoriaId, ejercicioId } = params;
+
+  return new Promise((resolve, reject) => {
+    db.query(`SELECT id FROM ejercicio WHERE id = ?; 
+      SELECT id FROM categoria WHERE id = ?`, [ejercicioId, categoriaId], (err, result) => {
+      if (err){
+        return reject({
+          code: DEFAULT_ERROR,
+          message: "Error al buscar los ids del ejercicio y la categoría seleccionados.",
+          statusCode: 500,
+        });
+      }
+      if(result[0].length === 0){
+        return reject({
+          message: "Ejercicio selecionado no encontrado.",
+          statusCode: 404,
+        });
+      }
+      if(result[1].length === 0){
+        return reject({
+          message: "Categoría selecionada no encontrada.",
+          statusCode: 404,
+        });
+      }
+
+      db.query(`SELECT id, id_categoria FROM ejercicio WHERE id = ? AND id_ categoria = ?`, [ejercicioId, categoriaId], (err, result) => {
+        if(err){return reject({
+          code: DEFAULT_ERROR,
+          message: "Error al buscar la asignación Categoría-Ejercicio.",
+          statusCode: 500,
+        });}
+        if(result.length === 0){
+          return reject({
+            message: "Asignación Categoría-Ejercicio no encontrada.",
+            statusCode: 404,
+          });
+        }
+        db.query(`UPDATE ejercicio SET id_categoria = NULL WHERE id = ?`, [ejercicioId], (err, result) => {
+          if(err){
+            return reject({
+              code: DEFAULT_ERROR,
+              message: "Error al eliminar la asignación Categoría-Ejercicio.",
+              statusCode: 500,
+            });
+          }
+          resolve({
+            data: result,
+            message: "Asignación Categoría-Ejercicio eliminada correctamente.",
+            statusCode: 200,
+          });
+        })
+      })
+    }
+    )
+  });
+};
+
+exports.getLinksCategory_Exercise = () => {
+
+  return new Promise ((resolve, reject) => {
+    db.query(`SELECT ejercicio.*, categoria.id, categoria.nombre_categoria 
+        FROM ejercicio INNER JOIN categoria ON ejercicio.id_categoria = categoria.id
+        WHERE ejercicio.id_categoria IS NOT NULL`, (err, results) => {
+            if(err){
+              return reject({
+                code: DEFAULT_ERROR,
+                message: "No se han podido recuperar las asignaciones Categoría-Ejercicio.",
+                statusCode: 500,
+              })
+            }
+            resolve({
+              data: results,
+              statusCode: 200,
+            })
+            
+        });
+  });
+}

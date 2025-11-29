@@ -7,7 +7,7 @@ const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const {DEFAULT_ERROR_MESSAGE, DEFAULT_ERROR} = require("../constants");
 
-exports.loginUser = async (params) => {
+exports.loginUser = (params) => {
   const { error } = loginValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
@@ -16,9 +16,9 @@ exports.loginUser = async (params) => {
   return new Promise((resolve, reject) => {
     db.query(
       "SELECT * FROM usuario WHERE email = ?",
-      [email], async (err, result) => {
+      [email], (err, result) => {
         if (err) {
-          reject({
+          return reject({
             data: err,
             code: DEFAULT_ERROR,
             message: DEFAULT_ERROR_MESSAGE,
@@ -27,7 +27,7 @@ exports.loginUser = async (params) => {
         }
 
         if (result.length === 0) {
-          reject({
+          return reject({
             message: "No existe ningún usuario con ese correo electrónico.",
             statusCode: 400,
           });
@@ -36,7 +36,7 @@ exports.loginUser = async (params) => {
         else{
           const usuario = result[0];
           const hashGuardado = usuario.contraseña;
-          const match = await bcrypt.compare(contraseña, hashGuardado);
+          const match = bcrypt.compare(contraseña, hashGuardado);
 
           if(!match){
             return reject({
@@ -44,6 +44,7 @@ exports.loginUser = async (params) => {
               statusCode: 400,
             });
           }
+          
           else{
             const payload = {id: result[0], username: result[2], rol: result[7]}
             const secretKey = crypto.randomBytes(32).toString('hex');

@@ -49,7 +49,7 @@ exports.updateUser = async (params) => {
             (err, result) => {
               if (err) throw { message: err, statusCode: 500 };
               resolve({
-                message: "Se han actualizado los datos del usuario.",
+                message: "Cliente actualizado correctamente.",
                 data: result,
               });
             }

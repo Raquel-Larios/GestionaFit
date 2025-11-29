@@ -12,7 +12,7 @@ exports.updateUserControl = async (req, res, next) => {
       res.status(statusCode).send({ message, data });
     })
     .catch((err) => {
-      const { statusCode = 400, message, data } = err;
-      res.status(statusCode).send({ message, data }) && next(err);
+      const { statusCode = 400, message, data , code} = err;
+      res.status(statusCode).send({ message, data , code}) && next(err);
     });
 };
