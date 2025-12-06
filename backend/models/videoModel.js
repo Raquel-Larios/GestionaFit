@@ -254,7 +254,7 @@ exports.linkVideoToExercise = (params) => {
           });
         }
         db.query(
-          `INSERT INTO demostracion (id_ejericicio, id_video) VALUES (?, ?)`,
+          `INSERT INTO demostracion (id_ejercicio, id_video) VALUES (?, ?)`,
           [ejercicioId, videoId],
           (err, result) => {
             if (err) {

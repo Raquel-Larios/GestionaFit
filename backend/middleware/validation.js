@@ -20,6 +20,14 @@ const loginValidation = (data) => {
   return schema.validate(data, options);
 };
 
+const forgottenPassValidation = (data) => {
+  const schema = Joi.object({
+    email: Joi.string().email().required().strict(),
+  });
+
+  return schema.validate(data, options);
+};
+
 //USER VALIDATIONS
 const createUserValidation = (data) => {
   //Solo se usa al ser creados por el admin
@@ -33,6 +41,17 @@ const createUserValidation = (data) => {
 
 const updateUserValidation = (data) => {
   const schema = Joi.object({
+    id: Joi.number().required().strict(),
+    email: Joi.string().email().required().strict(),
+    nombre: Joi.string().required().strict(),
+    apellidos: Joi.string().required().strict(),
+  });
+
+  return schema.validate(data, options);
+};
+
+const updateProfileValidation = (data) => {
+const schema = Joi.object({
     id: Joi.number().required().strict(),
     email: Joi.string().email().required().strict(),
     contraseña: Joi.string().min(8).required().strict(),
@@ -53,7 +72,49 @@ const deleteUserValidation = (data) => {
   return schema.validate(data, options);
 }
 
+const linkUserToTemplateValidation = (data) => {
+  const schema = Joi.object({
+    id_usuario: Joi.number().required().strict(),
+    id_plantilla: Joi.number().required().strict(),
+  });
+
+  return schema.validate(data, options);
+}
+
 //TEMPLATE VALIDATIONS
+const createTemplateValidation = (data) => {
+  const schema = Joi.object ({
+    nombre_plantilla: Joi.string().required().strict(),
+    categoriaId: Joi.number().required().strict(),
+    ejercicioId: Joi.number().required().strict(),
+    repeticiones: Joi.number().required().strict(),
+    series: Joi.number().required().strict(),
+    carga: Joi.number().required().strict(),
+    RPE: Joi.number().required().strict(),
+  })
+  return schema.validate(data, options);
+}
+
+const updateTemplateValidation = (data) => {
+  const schema = Joi.object ({
+    id: Joi.number().required().strict(),
+    nombre_plantilla: Joi.string().required().strict(),
+    categoriaId: Joi.number().required().strict(),
+    ejercicioId: Joi.number().required().strict(),
+    repeticiones: Joi.number().required().strict(),
+    series: Joi.number().required().strict(),
+    carga: Joi.number().required().strict(),
+    RPE: Joi.number().required().strict(),
+  })
+  return schema.validate(data, options);
+}
+
+const deleteTemplateValidation = (data) => {
+  const schema = Joi.object ({
+    id: Joi.number().required().strict(),
+  })
+  return schema.validate(data, options);
+}
 
 //CATEGORY VALIDATIONS
 const createCategoryValidation = (data) => {
@@ -80,8 +141,8 @@ const deleteCategoryValidation = (data) => {
 
 const linkCategoryToExerciseValidation = (data) => {
   const schema = Joi.object ({
-    id: Joi.number().required().strict(),
-    id: Joi.number().required().strict(),
+    id_categoria: Joi.number().required().strict(),
+    id_ejercicio: Joi.number().required().strict(),
   })
   return schema.validate(data, options);
 }
@@ -163,17 +224,20 @@ const deleteVideoValidation = (data) => {
 
 const linkVideoValidation = (data) => {
   const schema = Joi.object ({
-    id: Joi.number().required().strict(),
-    id: Joi.number().required().strict(),
+    id_video: Joi.number().required().strict(),
+    id_ejercicio: Joi.number().required().strict(),
   })
   return schema.validate(data, options);
 }
 
 module.exports = {
   loginValidation,
+  forgottenPassValidation,
   createUserValidation,
   updateUserValidation,
+  updateProfileValidation,
   deleteUserValidation,
+  linkUserToTemplateValidation,
   createCategoryValidation,
   updateCategoryValidation,
   deleteCategoryValidation,

@@ -188,10 +188,13 @@ exports.deleteExercise = (params) => {
         });
       }
 
-      //FALTA VER QUÉ PASA CON LOS ID DE EJERCICIO QUE A SU VEZ TIENEN QUE RECUPERAR SU NOMBRE DE EJERCICIO Y CATEGORIA ASIGNADA
-      //EN LAS TABLAS DEFECTO, LECTURA Y VARIACIÓN YA QUE SON HISTORIALES Y TIENEN QUE MOSTRAR EJERCICIOS QUE PUEDE QUE YA HAYAN SIDO BORRADOS.
-      db.query(`DELETE FROM demostracion WHERE id_ejercicio = ?;
-        DELETE FROM ejercicio WHERE id = ?;`, [ejercicioId, ejercicioId], (err, result) => {
+      //Se borran las apraiciones del id en todas las tablas que no funcionen como historial, es decir,
+      // no se borra de la de lectura ya que estos datos se necesitan para las gráficas.
+      db.query(`
+        DELETE FROM defecto WHERE id_ejercicio = ?;
+        DELETE FROM variacion WHERE id_ejercicio =?;
+        DELETE FROM demostracion WHERE id_ejercicio = ?;
+        DELETE FROM ejercicio WHERE id = ?;`, [ejercicioId, ejercicioId, ejercicioId, ejercicioId], (err, result) => {
         if (err) {
           return reject({
             code: DEFAULT_ERROR,
