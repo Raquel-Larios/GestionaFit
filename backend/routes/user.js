@@ -5,21 +5,21 @@ const userController = require("../controllers/userController");
 const templateController = require("../controllers/templateController");
 
 
-router.get("", (req, res) => {
-    db.query('SELECT * FROM usuario', (err, results) => {
+router.get("/clientes", (req, res) => {
+    db.query('SELECT id, nombre, apellidos, correo FROM usuario WHERE rol = 0', (err, results) => {
         if (err) throw err;
         res.json(results);
     });
 });
 
-router.post("", userController.createUserControl);
-router.put("/:userId", userController.updateUserControl);
+router.post("/clientes", userController.createUserControl);
+router.put("/clientes/:userId", userController.updateUserControl);
 router.put("/:userId/profile", userController.updateProfileControl);
-router.delete("/:userId", userController.deleteUserControl);
+router.delete("/clientes/:userId", userController.deleteUserControl);
 
 //GESTIÓN ASIGNACIÓN A PLANTILLA
-router.get("/:userId/:plantillaId", templateController.getUserTemplatesControl);
-router.put("/:userId/:plantillaId", userController.linkUserToTemplateControl);
-router.delete("/:userId/:plantillaId", userController.unlinkUserFromTemplateControl);
+router.get("/clientes/:userId/:plantillaId", templateController.getUserTemplatesControl);
+router.put("/clientes/:userId/:plantillaId", userController.linkUserToTemplateControl);
+router.delete("/clientes/:userId/:plantillaId", userController.unlinkUserFromTemplateControl);
 
 module.exports = router;

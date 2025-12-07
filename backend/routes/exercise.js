@@ -13,17 +13,17 @@ router.get("", (req, res) => {
 });
 
 router.post("", exerciseController.createExerciseControl);
-router.put("/:exerciseId", exerciseController.updateExerciseControl);
-router.delete("/:exerciseId", exerciseController.deleteExerciseControl);
+router.put("/:ejercicioId", exerciseController.updateExerciseControl);
+router.delete("/:ejercicioId", exerciseController.deleteExerciseControl);
 
 //GESTIÓN ASIGNACIÓN EJERCICIO-CATEGORÍA
 router.get("asignacion-ejercicio-categoria", categoryController.getLinksCategory_ExerciseControl);
 
 router.post("/:ejercicioId/:categoriaId", categoryController.linkCategorytoExerciseControl);
-router.delete("/ejercicioId/:categoriaId", categoryController.unlinkCategoryFromExerciseControl);
+router.delete("/:ejercicioId/:categoriaId", categoryController.unlinkCategoryFromExerciseControl);
 //GESTIÓN ASIGNACIÓN EJERCICIO-VÍDEO
 router.get("asignacion-ejericio-video", videoController.getLinksVideo_ExerciseControl);
-router.post("/ejercicioId/:videoId", videoController.linkVideoToExerciseControl);
+router.post("/:ejercicioId/:videoId", videoController.linkVideoToExerciseControl);
 router.delete("/desasignar/:ejercicioId", exerciseController.unlinkExerciseFromVideoControl);
 
 module.exports = router;

@@ -5,12 +5,25 @@ import { Observable } from "rxjs";
 @Injectable({ providedIn: 'root' })
 
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/api/auth/login';
-  loginData: any = {};
+  private baseApiUrl = 'http://localhost:3000/api/auth';
+  private authData: any = {};
 
   constructor(private http: HttpClient) {}
 
-  login(loginData: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, loginData);
+  public get getAuthData(): any {
+    return this.authData;
   }
+  public set setAuthData(value: any) {
+    this.authData = value;
+  }
+
+  login(): Observable<any> {
+    return this.http.post<any>(this.baseApiUrl+'/login', this.authData);
+  }
+
+  forgottenPass(): Observable<any> {
+    return this.http.put<any>(this.baseApiUrl+'/forgotten-pass', this.authData)
+  }
+
+  
 }
