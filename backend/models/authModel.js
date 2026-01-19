@@ -4,7 +4,6 @@ const {
 } = require("../middleware/validation");
 const db = require("../database/db");
 const jwt = require("jsonwebtoken");
-const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const {DEFAULT_ERROR} = require("../constants");
 const passwordGenerator = require("../middleware/passwordGenerator");
@@ -15,11 +14,11 @@ exports.loginUser = (params) => {
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { email, contraseña } = params;
-  const { emailMinusculas } = String(email).toLowerCase;
+  const  emailMinusculas = String(email).toLowerCase();
 
   return new Promise((resolve, reject) => {
     db.query(
-      "SELECT id, email, contraseña, isPassGenerated FROM usuario WHERE email = ?",
+      "SELECT id, nombre, apellidos, email, contraseña, isPassGenerated, foto_perfil, rol FROM usuario WHERE email = ?",
       [emailMinusculas], (err, result) => {
         if (err) {
           return reject({
@@ -50,14 +49,15 @@ exports.loginUser = (params) => {
           }
           
           else{
-            const payload = {id: result[0], username: result[2], rol: result[8]}
-            const secretKey = crypto.randomBytes(32).toString('hex');
+            const usuario = result[0]
+            const payload = {id: usuario.id, username: usuario.nombre+" "+usuario.apellidos, flagPass: usuario.isPassGenerated, foto_perfil: usuario.foto_perfil, rol: usuario.rol}
+            const secretKey = process.env.JWT_SECRET;
             const options = {algorithm: 'HS256', expiresIn: '1h'}
             const token = jwt.sign(payload, secretKey, options);
 
             resolve({
               message: "Loggeado correctamente.",
-              data: result, 
+              data: result[0], 
               token,
             });
           }
@@ -104,7 +104,7 @@ exports.forgottenPass = (params) => {
             });
 
             resolve({
-              data: result,
+              data: result[0],
               message: "Enviando correo con nueva contraseña.",
               statusCode: 200,
             })

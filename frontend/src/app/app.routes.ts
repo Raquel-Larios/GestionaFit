@@ -8,16 +8,17 @@ import { CategoryView } from '../views/category-view/category-view';
 import { ExerciseView } from '../views/exercise-view/exercise-view';
 import { MaterialView } from '../views/material-view/material-view';
 import { VideoView } from '../views/video-view/video-view';
+import { authGuard } from '../core/guards/auth.guard';
 
 export const routes: Routes = [
     {path: 'welcome', component: WelcomeView},
     {path: 'auth', component: AuthView},
-    {path: 'home', component: HomeView},
-    {path: 'clientes', component: UserlistView},
-    {path: 'plantillas', component: TemplateView}, //Admin
-    {path: 'categorias', component: CategoryView},
-    {path: 'ejercicios', component: ExerciseView},
-    {path: 'rutinas-clientes', component: TemplateView},
+    {path: 'home', component: HomeView, canActivate: [authGuard]},
+    {path: 'clientes', component: UserlistView, canActivate: [authGuard]},
+    {path: 'plantillas', component: TemplateView, canActivate: [authGuard]}, //Admin
+    {path: 'categorias', component: CategoryView, canActivate: [authGuard]},
+    {path: 'ejercicios', component: ExerciseView, canActivate: [authGuard]},
+    {path: 'rutinas-clientes', component: TemplateView, canActivate: [authGuard]},
     {path: 'mis-rutinas', component: TemplateView}, //Cliente
     //{path: 'estadisticas', component: },
     {path: 'materiales', component: MaterialView},
