@@ -52,13 +52,19 @@
           "defaultConfiguration": "production"
         },
         "serve": {
+          "options": {
+            "hmr": true,
+            "host": "localhost",
+            "port": 4200
+          },
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
               "buildTarget": "frontend:build:production"
             },
             "development": {
-              "buildTarget": "frontend:build:development"
+              "buildTarget": "frontend:build:development",
+              "hmr": true
             }
           },
           "defaultConfiguration": "development"

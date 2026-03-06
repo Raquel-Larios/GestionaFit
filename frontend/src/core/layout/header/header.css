@@ -3,31 +3,62 @@
     color: #0768A9;
 }
 
+.grid-container{
+    display: grid;
+    grid-template-areas: "h-logo h-menu h-user";
+    grid-template-columns: 1fr 3fr 1fr;
+    align-items: center;
+    gap: 10px;
+    height: 100%;
+    width: 100%;
+}
+
 .header-logo{
-    flex: 1fr;
+    grid-area: h-logo;
     display: flex;
     align-items: center; 
     justify-content: center;
+    gap: 10px;
+    
 }
 
 .header-menu{
-    flex: 2fr;
+    grid-area: h-menu;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+    height: 100%;
+    padding-bottom: 5px;
 }
 
 .header-user{
-    flex: 1fr;
+    grid-area: h-user;
+    display: flex;
+    align-items: center;
+    justify-self: end;
+    padding: 0 10px;
 }
 
 header {
     position: fixed;
     top: 0;
+    left: 0;
     width: 100%;
     background: snow;
     height: 99px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
     padding: 0 16px;
     z-index: 1000;
+    border-bottom: 1px solid #0768A9;
+    box-sizing: border-box;
+}
+
+.user-icon {
+    height: 47px;
+    width: 47px;
+    border-radius: 50%;
+    border: solid 1px #0768A9;
+    object-fit: cover;
 }
 

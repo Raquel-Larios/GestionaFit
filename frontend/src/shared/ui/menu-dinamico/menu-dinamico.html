@@ -1,20 +1,22 @@
 <nav id="main-nav">
     <ul>
-        <li class="admin-only"><a href="#">Home</a></li>              <!--admin-->
-        <li class="admin-only"><a href="#">Gestionar</a></li>         <!--admin-->
-        <li class="user-only"><a href="#">Mis Rutinas</a></li>        <!--cliente-->
-        <li class="user-only"><a href="#">Mis Estadísitcas</a></li>   <!--cliente-->
-        <li  class="admin-only"><a href="#">Estadíasticas</a></li>    <!--admin-->
-        <li><a href="#">Materiales</a></li>
-        <li><a href="#">Demostraciones</a></li>
+        <li *ngIf="isAdmin()"><a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
+        <li *ngIf="isAdmin()" class="dropdown" ><a class="dropdown-toggle" [class.active]="isGestionarActive()" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()" (click)="toggleDropdown()">
+            <span>Gestionar</span><span class="arrow" [class.rotate]="isHovered || isOpen">▼</span></a>                
+            <nav id="gestionar-nav" *ngIf="isAdmin()" class="dropdown-menu">
+                <ul>
+                    <li><a routerLink="/gestionar/clientes">Clientes</a></li>
+                    <li><a routerLink="/gestionar/plantillas">Plantillas</a></li>
+                    <li><a routerLink="/gestionar/categorias">Categorías</a></li>
+                    <li><a routerLink="/gestionar/ejercicios">Ejercicios</a></li>
+                    <li><a routerLink="/gestionar/rutinas-clientes">Rutinas Clientes</a></li>
+                    <li><a routerLink="/demostraciones" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Vídeos de demostración</a></li>
+                </ul>
+            </nav>
+        </li>
+        <li *ngIf="isUser()"><a routerLink="/mis-rutinas" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Mis Rutinas</a></li>
+        <!--<li><a routerLink="/estadisticas" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Estadísticas</a></li>-->
+        <li><a routerLink="/materiales" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Materiales</a></li>
+        <li><a routerLink="/demostraciones" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Demostraciones</a></li>
     </ul>
 </nav>
-<script>
-    // Menú responsive
-    const nav = document.getElementById('main-nav');
-    const toggle = document.createElement('div');
-    toggle.className = 'menu-toggle';
-    toggle.innerHTML = '☰';
-    toggle.onclick = () => nav.classList.toggle('open');
-    document.querySelector('header').appendChild(toggle);
-</script>

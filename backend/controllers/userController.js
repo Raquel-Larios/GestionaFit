@@ -47,6 +47,22 @@ exports.updateProfileControl = (req, res, next) => {
     });
 };
 
+//ACTUALIZAR FOTO DE PERFIL
+exports.updateProfilePhotoControl = (req, res, next) => {
+  const {userId} = req.params;
+  const {foto_perfil} = req.body;
+
+  this.updateProfilePhotoControl({ userId, foto_perfil})
+  .then((result) => {
+    const {statusCode = 200, message, data } = result;
+    res.status(statusCode).send({message, data});
+  })
+  .catch((err) => {
+    const { statusCode, message, data , code} = err;
+    res.status(statusCode).send({ message, data , code}) && next(err);
+  });
+};
+
 //ELIMINAR CLIENTE
 exports.deleteUserControl = (req, res, next) => {
   const { userId } = req.params;
@@ -64,8 +80,8 @@ exports.deleteUserControl = (req, res, next) => {
 
 //ASIGNAR A PLANTILLA
 exports.linkUserToTemplateControl = (req, res, next) => {
-  const { userId } = req.params.userId;
-  const {plantillaId} = req.params.plantillaId;
+  const { userId, plantillaId } = req.params;
+
 
   linkUserToTemplate({ userId, plantillaId })
     .then((result) => {
@@ -80,8 +96,8 @@ exports.linkUserToTemplateControl = (req, res, next) => {
 
 //ELIMINAR ASIGNACIÓN A PLANTILLA
 exports.unlinkUserFromTemplateControl = (req, res, next) => {
-  const { userId } = req.params.userId;
-  const {plantillaId} = req.params.plantillaId;
+  const { userId, plantillaId} = req.params;
+
 
   unlinkUserFromTemplate({ userId, plantillaId })
     .then((result) => {

@@ -1,18 +1,16 @@
 <header>
-    <div class="flex-cont">
+    <div class="grid-container">
         <div class="header-logo">
             <img src={{logoUrl}} class="logo" alt="Logo">
             <span class="title" alt="nombre aplicación">GestionaFit</span>
         </div>
-        <!--
-        <div *ngIf="usuario !== null">
-            <div class="header-menu">
-                <app-menu-dinamico></app-menu-dinamico>
-            </div>
-            <div class="header-user">
-                <img class="user-icon" src=[{usuario.foto_perfil}] alt="Usuario">
-            </div>
+
+        <div class="header-menu" *ngIf= "showMenu === true">
+            <app-menu-dinamico [userRol]="userRol"></app-menu-dinamico>
         </div>
-        -->
+
+        <div class="header-user" *ngIf="showMenu === true">
+            <img class="user-icon" [src]= "userPhoto" alt="Usuario">
+        </div>
     </div>
 </header>

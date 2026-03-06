@@ -217,6 +217,51 @@ exports.updateProfile = (params) => {
   });
 }
 
+//ACTUALIZAR FOTO PERFIL
+exports.updateProfilePhoto = (params) => {
+  const { error } = updateProfilePhotoValidation(params);
+  if (error) throw { message: error.details[0].message, statusCode: 400 };
+
+  const { userId, foto_perfil} = params;
+
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT id, foto_perfil FROM usuario WHERE id = ?`,
+      [userId],
+      (err, result) => {
+        if (err) return reject({ code: DEFAULT_ERROR, message: "Error al buscar el cliente.", statusCode: 500 });
+
+        if (result.length === 0) {
+          return reject({
+            message: "Cliente no encontrado.",
+            statusCode: 404,
+          });
+        } else {
+          if (foto_perfil === result[0].foto_perfil) {
+            return reject({
+              message: "No se ha introducido ningún cambio.",
+              statusCode: 400,
+            });
+          }
+        
+          db.query(
+            `UPDATE usuario SET foto_perfil = ? WHERE id = ?`,
+            [foto_perfil, userId],
+            (err, result) => {
+              if (err) return reject({ code: DEFAULT_ERROR, message: "Error al actualizar la foto de perfil.", statusCode: 500 }) ;
+              return resolve({
+                message: "Foto de perfil actualizada correctamente.",
+                data: result,
+                statusCode: 200,
+              });
+            }
+          );
+        }
+      }
+    );
+  });
+}
+
 //ELIMINAR CLIENTE (ADMIN ONLY) 
 exports.deleteUser = (params) => {
   const { error } = deleteUserValidation(params);

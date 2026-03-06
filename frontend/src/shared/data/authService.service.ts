@@ -22,7 +22,22 @@ export class AuthService {
   isLoggedIn$ = this.isLoggedInSubject.asObservable();
   isAdmin = false;
 
+  private currentUserSubject = new BehaviorSubject<any>(this.getUserFromToken());
+  public currentUser$ = this.currentUserSubject.asObservable();
+
   constructor(private http: HttpClient) {}
+
+  private getUserFromToken(): any {
+    const token = localStorage.getItem('token');
+    if (token && !this.jwtHelper.isTokenExpired(token)) {
+      return this.jwtHelper.decodeToken(token);
+    }
+    return null;
+  }
+
+  public get currentUserValue(): any {
+    return this.currentUserSubject.value;
+  }
 
   public get getAuthData(): any {
     return this.authData;
@@ -32,15 +47,14 @@ export class AuthService {
   }
 
   login(): Observable<any> {
-
     return this.http.post<any>(this.baseApiUrl+'/login', this.authData).pipe(
       tap (res => {
-        console.log('Respuesta completa:', res);
         const token = res.token;
         if (token && !this.jwtHelper.isTokenExpired(token)) {
           localStorage.setItem('token', token);
-          console.log('Token guardado:', localStorage.getItem('token')); // Verifica aquí
+          const decoded = this.jwtHelper.decodeToken(token);
           this.isLoggedInSubject.next(true);
+          this.currentUserSubject.next(decoded);
         } else {
           console.error('No se recibió token');
         }
@@ -54,6 +68,7 @@ export class AuthService {
   logout() {
     localStorage.removeItem('token');
     this.isLoggedInSubject.next(false);
+    this.currentUserSubject.next(null);
   }
 
   

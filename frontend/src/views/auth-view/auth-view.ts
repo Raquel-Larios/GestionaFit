@@ -4,6 +4,7 @@ import { FormDinamico } from "../../shared/ui/form-dinamico/form-dinamico";
 import { AuthService } from '../../shared/data/authService.service';
 import { WelcomeMsgComponent } from "../../shared/ui/welcome-msg.component/welcome-msg.component";
 import { Router } from '@angular/router';
+import { UserService } from '../../shared/data/userService.service';
 
 @Component({
   selector: 'app-auth-view',
@@ -25,27 +26,27 @@ export class AuthView {
   token = "";
 
 
-  constructor(private authService: AuthService, private router: Router, private cd: ChangeDetectorRef){
+  constructor(private authService: AuthService, private userService: UserService, private router: Router, private cd: ChangeDetectorRef){
   };
 
   onLogin(datos: any){
-    this.authService.loginData = datos;
-    this.authService.login(this.authService.loginData).subscribe({
+    this.authService.setAuthData = datos;
+    this.authService.login().subscribe({
       next: (res) => {
+        const decoded = this.authService.currentUserValue;
+        this.userService.loadUserData(decoded.id)
         this.successMessage = res.message; 
-        const userData = res.data[0];
         this.token= res.data.token;
-        const rol = userData.rol;
 
         this.cd.detectChanges();
 
         setTimeout(() => {
         this.successMessage = ""; 
         this.cd.detectChanges();
-          if (rol === 1) {
+          if (decoded.rol === 1) {
             this.router.navigate(['/home']);
           } 
-          else if (rol === 0) {
+          else if (decoded.rol === 0) {
             this.router.navigate(['/mis-rutinas']);
           }
         }, 2000);

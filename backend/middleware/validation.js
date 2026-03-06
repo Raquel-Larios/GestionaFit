@@ -51,13 +51,21 @@ const updateUserValidation = (data) => {
 };
 
 const updateProfileValidation = (data) => {
-const schema = Joi.object({
+  const schema = Joi.object({
     id: Joi.number().required().strict(),
     email: Joi.string().email().required().strict(),
     contraseña: Joi.string().min(8).required().strict(),
     nombre: Joi.string().required().strict(),
     apellidos: Joi.string().required().strict(),
     peso: Joi.string().optional().allow(null),
+    foto_perfil: Joi.string().optional().allow(null),
+  });
+
+  return schema.validate(data, options);
+};
+const updateProfilePhotoValidation = (data) => {
+const schema = Joi.object({
+    id: Joi.number().required().strict(),
     foto_perfil: Joi.string().optional().allow(null),
   });
 
@@ -236,6 +244,7 @@ module.exports = {
   createUserValidation,
   updateUserValidation,
   updateProfileValidation,
+  updateProfilePhotoValidation,
   deleteUserValidation,
   linkUserToTemplateValidation,
   createCategoryValidation,
