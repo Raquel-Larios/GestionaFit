@@ -5,7 +5,7 @@ import { Observable } from "rxjs";
 @Injectable({ providedIn: 'root' })
 
 export class CategoryService {
-  private baseApiUrl = 'http://localhost:3000/api/categories';
+  private baseApiUrl = 'http://localhost:3000/api/categorias';
   private categoryData: any = {};
 
   constructor(private http: HttpClient) {}
@@ -22,16 +22,20 @@ export class CategoryService {
     return this.http.get<any>(this.baseApiUrl, this.categoryData);
   }
 
-  crearCategoria(): Observable<any>{
-    return this.http.post<any>(this.baseApiUrl, this.categoryData);
+  getCategoriaById(id: number): Observable<any> {
+    return this.http.get<any>(this.baseApiUrl+'/'+id)
   }
 
-  actualizarCategoria(): Observable<any>{
-    return this.http.put<any>(this.baseApiUrl+'/'+this.categoryData.categoriaId, this.categoryData);
+  crearCategoria(data: any): Observable<any>{
+    return this.http.post<any>(this.baseApiUrl, data);
   }
 
-  borrarCategoria(): Observable<any>{
-    return this.http.delete<any>(this.baseApiUrl+'/'+this.categoryData.categoriaId, this.categoryData);
+  actualizarCategoria(data: any): Observable<any>{
+    return this.http.put<any>(this.baseApiUrl+'/'+data.id, data);
+  }
+
+  borrarCategoria(id: number): Observable<any>{
+    return this.http.delete<any>(this.baseApiUrl+'/'+id);
   }
 
   getAsignacionCategoria_Ejercicio(): Observable<any>{
@@ -43,7 +47,7 @@ export class CategoryService {
   }
 
   eliminarAsignacionCategoria_Ejercicio(): Observable<any>{
-    return this.http.delete<any>(this.baseApiUrl+'/'+this.categoryData.categoriaId+'/'+this.categoryData.ejercicioId, this.categoryData);
+    return this.http.delete<any>(this.baseApiUrl+'/'+this.categoryData.categoriaId+'/'+this.categoryData.ejercicioId);
   }
 
 }

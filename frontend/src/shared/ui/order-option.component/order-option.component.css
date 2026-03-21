@@ -1,0 +1,21 @@
+button, select{
+    color: #0768A9;
+    border: 1px solid #0768A9;
+}
+
+.options{
+    display: flex;
+    gap: none;
+    height: 35px;
+    text-align: center;
+    justify-content: flex-end;
+}
+
+.order-option{
+    font-weight: bolder;
+}
+
+.asc-option{
+    font-weight: normal;
+    padding: 0 4px;
+}

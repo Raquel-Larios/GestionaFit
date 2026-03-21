@@ -4,10 +4,12 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators} from '@angular
 import { FormField } from '../../../assets/models/form-field.interface';
 import { CheckButtonComponent } from "../check-button.component/check-button.component";
 import { NavButtonComponent } from "../nav-button.component/nav-button.component";
+import { ModalService } from '../../data/modalService.service';
+import { PrimeraLetraPipe } from '../../utils/primeraLetraPipe';
 
 @Component({
   selector: 'app-form-dinamico',
-  imports: [CommonModule, ReactiveFormsModule, CheckButtonComponent, NavButtonComponent],
+  imports: [CommonModule, ReactiveFormsModule, CheckButtonComponent, NavButtonComponent ],
   templateUrl: './form-dinamico.html',
   styleUrl: './form-dinamico.css',
 })
@@ -17,11 +19,12 @@ export class FormDinamico implements OnChanges{
   @Input() cancelBtnOpt: boolean = false;
   @Input() btnStyle: string = "";
   @Input() fields: FormField[] = [];
+  @Input() data: any[] = [];
   @Input() btnText: string = "";
   @Input() divBtnStyle: string = "";
   @Output() formSubmit = new EventEmitter<void>();
-  @Input() errorMessage: string = "";
-  @Input() successMessage: string = "";
+  @Input() errorMessage: string | null= "";
+  @Input() successMessage: string | null= "";
   @Input() isDefaultError: boolean = true;
   @Input() token: string = "";
   get hasSuccessMessage(): boolean {
@@ -33,11 +36,15 @@ export class FormDinamico implements OnChanges{
   form: FormGroup;
 
 
-  constructor(private fb: FormBuilder){
+  constructor(private fb: FormBuilder, private modalService: ModalService, private primeraLetraPipe: PrimeraLetraPipe){
     this.form = this.fb.group({});
   };
 
-
+  ngOnInit(): void {
+    this.modalService.errorMessage$.subscribe(msg => this.errorMessage = msg);
+    this.modalService.successMessage$.subscribe(msg => this.successMessage = msg);
+    this.modalService.isDefaultError$.subscribe(isDefault => this.isDefaultError = isDefault);
+  }
 
   getValidators(validatorsConfig: any) {
     const fieldValidators = [];
@@ -52,12 +59,13 @@ export class FormDinamico implements OnChanges{
 
     if (validatorsConfig.pattern){
       fieldValidators.push(Validators.pattern(validatorsConfig.pattern));
-    } 
+    }
 
     return fieldValidators;
 }
 
   ngOnChanges(){
+
     const group: any = {};
     this.fields.forEach(field => {
       const fieldValidators = this.getValidators(field.validators || {});
@@ -80,6 +88,16 @@ export class FormDinamico implements OnChanges{
     });
 
     this.form = this.fb.group(group);
+
+    if (this.data) {
+      const formattedData = { ...this.data[0] };
+      Object.keys(formattedData).forEach(key => {
+      if (typeof formattedData[key] === 'string' && key !== 'contraseña') {
+        formattedData[key] = this.primeraLetraPipe.transform(formattedData[key]);
+      }
+      });
+      this.form.patchValue(formattedData);
+    }
   }
 
   onSubmit(){
@@ -101,7 +119,7 @@ export class FormDinamico implements OnChanges{
     }
     else{
       this.resetForm();
-      this.resetMessageParams;
+      this.resetMessageParams();
     }
   }
 
@@ -114,7 +132,7 @@ export class FormDinamico implements OnChanges{
     this.successMessage="";
   }
 
-  cerrarModal(){
-
+  closeModal(){
+    this.modalService.closeModal();
   }
 }

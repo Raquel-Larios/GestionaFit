@@ -7,9 +7,10 @@ import { routes } from './app.routes';
 
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faPlus, faFeather, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { PrimeraLetraPipe } from '../shared/utils/primeraLetraPipe';
 
-library.add(faPlus, faFeather, faTrash);
+library.add(faPlus, faEdit, faTrash);
 
 export function tokenGetter() {
   return localStorage.getItem('token');
@@ -30,6 +31,7 @@ export const appConfig: ApplicationConfig = {
         },
       })
     ),
+    PrimeraLetraPipe,
   ]
 };
 

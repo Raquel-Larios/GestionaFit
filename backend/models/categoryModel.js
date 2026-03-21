@@ -9,11 +9,13 @@ const { DEFAULT_ERROR } = require("../constants");
 
 //CREAR CATEGORÍA
 exports.createCategory = (params) => {
+  console.log("Parámetros recibidos en modelo:", params);
   const { error } = createCategoryValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { nombre } = params;
-  const nombreMinusculas = String(nombre).toLowerCase();
+  const { nombre_categoria } = params;
+
+  const nombreMinusculas = String(nombre_categoria).toLowerCase();
 
   return new Promise((resolve, reject) => {
     db.query(
@@ -27,6 +29,7 @@ exports.createCategory = (params) => {
             statusCode: 400,
           });
         } else if (result.length === 0) {
+          console.log("Valor a insertar:", nombreMinusculas);
           db.query(
             `INSERT INTO categoria (nombre_categoria) VALUE (?)`,
             [nombreMinusculas],
@@ -58,13 +61,13 @@ exports.updateCategory = (params) => {
   const { error } = updateCategoryValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { nombre, categoriaId } = params;
-  const nombreMinusculas = String(nombre).toLowerCase();
+  const { nombre_categoria, id } = params;
+  const nombreMinusculas = String(nombre_categoria).toLowerCase();
 
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT id, nombre_categoria FROM categoria WHERE id = ?`,
-      [categoriaId],
+      [id],
       (err, result) => {
         if (err) {
           return reject({
@@ -85,7 +88,7 @@ exports.updateCategory = (params) => {
 
         db.query(
           `SELECT id FROM categoria WHERE nombre_categoria = ? AND id !=?;`,
-          [nombreMinusculas, categoriaId],
+          [nombreMinusculas, id],
           (err, result) => {
             if (err) {
               return reject({
@@ -111,8 +114,8 @@ exports.updateCategory = (params) => {
             }
 
             db.query(
-              `UPDATE categoria SET nombre_categoria = '${categoriaId}' WHERE id = ?`,
-              [categoriaId],
+              `UPDATE categoria SET nombre_categoria = '${nombreMinusculas}' WHERE id = ?`,
+              [id],
               (err, result) => {
                 if (err) {
                   return reject({
@@ -141,12 +144,12 @@ exports.deleteCategory = (params) => {
   const { error } = deleteCategoryValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { categoriaId } = params;
+  const { id } = params;
 
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT id FROM categoria WHERE id = ?`,
-      [categoriaId],
+      [id],
       (err, result) => {
         if (err) {
           return reject({
@@ -165,8 +168,7 @@ exports.deleteCategory = (params) => {
         db.query(
           `UPDATE ejercicio SET id_categoria = NULL WHERE id_categoria = ?;
                     DELETE FROM categoria WHERE id = ?;`,
-          [categoriaId, categoriaId]
-        ),
+          [id, id],
           (err, result) => {
             if (err) {
               return reject({
@@ -179,7 +181,7 @@ exports.deleteCategory = (params) => {
               message: "Categoría eliminada correctamente.",
               statusCode: 200,
             });
-          };
+          });
       }
     );
   });

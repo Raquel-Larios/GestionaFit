@@ -8,9 +8,9 @@ const {
 
 //CREAR CATEGORÍA
 exports.createCategoryControl = (req, res, next) => {
-  const { nombre } = req.body;
+  const { nombre_categoria } = req.body;
 
-  createCategory({ nombre })
+  createCategory({nombre_categoria})
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -23,10 +23,10 @@ exports.createCategoryControl = (req, res, next) => {
 
 //ACTUALIZAR CATEGORÍA
 exports.updateCategoryControl = (req, res, next) => {
-  const { nombre } = req.body;
-  const categoriaId = req.params.id;
+  const { nombre_categoria } = req.body;
+  const id = parseInt(req.params.id, 10);
 
-  updateCategory({ nombre, categoriaId })
+  updateCategory({ nombre_categoria, id })
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -39,9 +39,9 @@ exports.updateCategoryControl = (req, res, next) => {
 
 //ELIMINAR CATEGORÍA
 exports.deleteCategoryControl = (req, res, next) => {
-  const categoriaId = req.params.id;
+  const id = parseInt(req.params.id, 10);
 
-  deleteCategory({ categoriaId })
+  deleteCategory({ id })
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -54,8 +54,7 @@ exports.deleteCategoryControl = (req, res, next) => {
 
 //ASIGNAR A EJERCICIO
 exports.linkCategorytoExerciseControl = (req, res, next) => {
-  const categoriaId = req.params.categoriaId;
-  const ejercicioId = req.params.ejercicioId;
+  const {categoriaId, ejercicioId} = req.params;
 
   linkCategoryToExercise({ categoriaId, ejercicioId })
     .then((result) => {
@@ -70,8 +69,7 @@ exports.linkCategorytoExerciseControl = (req, res, next) => {
 
 //ELIMINAR ASIGNACIÓN A EJERCICIO
 exports.unlinkCategoryFromExerciseControl = (req, res, next) => {
-  const categoriaId = req.params.categoriaId;
-  const ejercicioId = req.params.ejercicioId;
+   const {categoriaId, ejercicioId} = req.params;
 
   unlinkCategoryFromExercise({ categoriaId, ejercicioId })
     .then((result) => {

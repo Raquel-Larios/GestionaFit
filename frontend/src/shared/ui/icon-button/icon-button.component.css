@@ -1,0 +1,29 @@
+button{
+    display: inline;
+    box-sizing: border-box;
+    border-radius: 8px;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 6px;
+    min-width: max-content;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+}
+
+.modify-button{
+    background-color: #FFDC51;
+    color: #0768A9;
+    border: 1px solid #DEA300;
+}
+
+.delete-button{
+    background-color: #D32929;
+    color: snow;
+    border: 1px solid #A10000;
+}
+
+.add-button{
+    background-color: #3F95CF;
+    color: snow;
+    border: 1px solid #0768A9;
+}

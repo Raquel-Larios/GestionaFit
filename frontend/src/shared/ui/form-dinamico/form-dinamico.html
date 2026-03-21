@@ -1,4 +1,4 @@
-<form class="form centered" [formGroup]="form">
+<form class="form centered" [ngClass]="{'form-con-max-width': backBtnOpt}" [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="form" >
   <div class="form-item"  *ngFor="let field of fields">
 
     <span class="block item-label">{{field.label}}</span>
@@ -22,7 +22,7 @@
     <div class="form-item" *ngIf="field.type === 'nested'" [formGroupName]="field.name">
       <h4>{{field.label}}</h4>
       <ng-container *ngFor="let subField of field.subFields">
-        <input [formControlName]="subField.name" [placeholder]="subField.label" />
+        <input [formControlName]="subField.name" [placeholder]="subField.label"/>
       </ng-container>
     </div>
 
@@ -30,7 +30,8 @@
     <div *ngIf="form.get(field.name)?.invalid && form.get(field.name)?.touched">
     <p class="error">El campo {{field.label | lowercase}} es obligatorio.</p>
     </div>
-    <!--Formato de contraseña, solo debería aparecer al crear un cliente-->
+    
+    <!--Formato de contraseña, solo debería aparecer al crear un cliente y cuando el mismo cambia la contraseña-->
     <div *ngIf="form.get('contraseña')?.hasError('pattern') && form.get('contraseña')?.touched">
       <p class="error">La contraseña debe:
       * Tener al menos {{field.validators?.minlength}} caracteres.
@@ -53,10 +54,11 @@
       <app-check-button  [deshabilitado]="form.invalid"
         (accion)="onSubmit()"
         [texto]="btnText"
-        [estilo]="btnStyle"></app-check-button>
+        [estilo]="btnStyle + ' font-18px'"
+        type=></app-check-button>
     </div>
     <div *ngIf="cancelBtnOpt == true">
-      <button class="cancelBtn">Cancelar</button>
+      <button class="cancelBtn font-18px" type="button" (click)="closeModal()">Cancelar</button>
     </div>
   </div>
 </form>

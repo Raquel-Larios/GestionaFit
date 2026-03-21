@@ -1,0 +1,8 @@
+<div class="options">
+    <select class="order-option font-20px" [(ngModel)]="orderOptionSelected" (change)="onOrderChange()">
+        <option *ngFor="let option of orderOptions" [value]="option">
+        {{option}}
+        </option>
+    </select>
+    <button class="asc-option" type="button" (click)="toggleAsc()">{{ascLabel}}</button>
+</div>

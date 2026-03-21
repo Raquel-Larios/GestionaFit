@@ -1,5 +1,17 @@
-<div class="modal-overlay" (click)="closeModal()" *ngIf="isOpen">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-        <ng-content></ng-content>
+<div class="modal-overlay" *ngIf="isOpen">
+    <div class="modal-content">
+        <app-form-dinamico
+        [fields]="dataFields"
+        [data]= "config?.data"
+        [cancelBtnOpt]="true"
+        [btnStyle]="'save-button'"
+        [divBtnStyle]="'centered-button big-button'"
+        [btnText]="'Guardar'"
+        [errorMessage]="'errorMessage'"
+        [successMessage]="'successMessage'"
+        [isDefaultError]="isDefaultError"
+        (formSubmit)="onFormSubmit($event)"
+        >
+        </app-form-dinamico>
     </div>
 </div>

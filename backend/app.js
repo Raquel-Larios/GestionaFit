@@ -17,6 +17,10 @@ app.use(cors());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use((req, res, next) => {
+  console.log("Request recibida:", req.method, req.path);
+  next();
+});
 
 // Router index
 const indexRouter = require("./routes/index");

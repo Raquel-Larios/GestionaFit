@@ -59,6 +59,5 @@ export class AuthView {
         this.cd.detectChanges();
       }
     });
-    
   }
 }

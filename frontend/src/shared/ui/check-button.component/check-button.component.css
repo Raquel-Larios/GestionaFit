@@ -6,13 +6,13 @@ button{
     border-radius: 8px;
     padding: 2% 4%;
     min-width: max-content;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.3);
     cursor: pointer;
 }
 
 .login-button{
     background-color: #FFDC51;
     border: 1px solid #DEA300;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.3);
     color: #1E1E1E;
     margin-right: 2.25%;
     position: absolute;
@@ -21,7 +21,11 @@ button{
 }
 
 .save-button{
+    width: 100%;
+    text-align: center;
     background-color: #0768A9;
     border: 1px solid #767676;
+    border-radius: 5px;
     color: snow;
+    padding: 20px 150px;
 }
