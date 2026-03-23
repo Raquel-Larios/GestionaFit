@@ -9,7 +9,7 @@ import { PrimeraLetraPipe } from '../../utils/primeraLetraPipe';
 
 @Component({
   selector: 'app-form-dinamico',
-  imports: [CommonModule, ReactiveFormsModule, CheckButtonComponent, NavButtonComponent ],
+  imports: [CommonModule, ReactiveFormsModule, CheckButtonComponent, NavButtonComponent, PrimeraLetraPipe],
   templateUrl: './form-dinamico.html',
   styleUrl: './form-dinamico.css',
 })

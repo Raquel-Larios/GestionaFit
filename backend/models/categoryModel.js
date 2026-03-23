@@ -61,13 +61,13 @@ exports.updateCategory = (params) => {
   const { error } = updateCategoryValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { nombre_categoria, id } = params;
+  const { nombre_categoria, id_categoria } = params;
   const nombreMinusculas = String(nombre_categoria).toLowerCase();
 
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT id, nombre_categoria FROM categoria WHERE id = ?`,
-      [id],
+      [id_categoria],
       (err, result) => {
         if (err) {
           return reject({
@@ -88,7 +88,7 @@ exports.updateCategory = (params) => {
 
         db.query(
           `SELECT id FROM categoria WHERE nombre_categoria = ? AND id !=?;`,
-          [nombreMinusculas, id],
+          [nombreMinusculas, id_categoria],
           (err, result) => {
             if (err) {
               return reject({
@@ -115,7 +115,7 @@ exports.updateCategory = (params) => {
 
             db.query(
               `UPDATE categoria SET nombre_categoria = '${nombreMinusculas}' WHERE id = ?`,
-              [id],
+              [id_categoria],
               (err, result) => {
                 if (err) {
                   return reject({
@@ -192,13 +192,13 @@ exports.linkCategoryToExercise = (params) => {
   const { error } = linkCategoryToExerciseValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { categoriaId, ejercicioId } = params;
+  const { id_categoria, id_ejercicio } = params;
 
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT id FROM ejercicio WHERE id = ?;
       SELECT id FROM categoria WHERE id = ?`,
-      [ejercicioId, categoriaId],
+      [id_ejercicio, id_categoria],
       (err, result) => {
         if (err) {
           return reject({
@@ -222,7 +222,7 @@ exports.linkCategoryToExercise = (params) => {
 
         db.query(
           `SELECT id, id_categoria FROM ejercicio WHERE id = ? AND (id_categoria != ? AND id_categoria IS NOT NULL)`,
-          [ejercicioId, categoriaId],
+          [id_ejercicio, id_categoria],
           (err, result) => {
             if (err) {
               return reject({
@@ -241,7 +241,7 @@ exports.linkCategoryToExercise = (params) => {
             if (result.length === 0) {
               db.query(
                 `SELECT id, id_categoria FROM ejercicio WHERE id = ? AND id_categoria = ?`,
-                [ejercicioId, categoriaId],
+                [id_ejercicio, id_categoria],
                 (err, result) => {
                   if (err) {
                     return reject({
@@ -260,8 +260,8 @@ exports.linkCategoryToExercise = (params) => {
                   }
 
                   db.query(
-                    `UPADTE ejercicio SET id_categoria = '${categoriaId}' WHERE id = ?`,
-                    [ejercicioId],
+                    `UPADTE ejercicio SET id_categoria = '${id_categoria}' WHERE id = ?`,
+                    [id_ejercicio],
                     (err, result) => {
                       if (err) {
                         return reject({
@@ -294,11 +294,11 @@ exports.unlinkCategoryFormExercise = (params) => {
   const { error } = linkCategoryToExerciseValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { categoriaId, ejercicioId } = params;
+  const { id_categoria, id_ejercicio } = params;
 
   return new Promise((resolve, reject) => {
     db.query(`SELECT id FROM ejercicio WHERE id = ?; 
-      SELECT id FROM categoria WHERE id = ?`, [ejercicioId, categoriaId], (err, result) => {
+      SELECT id FROM categoria WHERE id = ?`, [id_ejercicio, id_categoria], (err, result) => {
       if (err){
         return reject({
           code: DEFAULT_ERROR,
@@ -319,7 +319,7 @@ exports.unlinkCategoryFormExercise = (params) => {
         });
       }
 
-      db.query(`SELECT id, id_categoria FROM ejercicio WHERE id = ? AND id_ categoria = ?`, [ejercicioId, categoriaId], (err, result) => {
+      db.query(`SELECT id, id_categoria FROM ejercicio WHERE id = ? AND id_ categoria = ?`, [id_ejercicio, id_categoria], (err, result) => {
         if(err){return reject({
           code: DEFAULT_ERROR,
           message: "Error al buscar la asignación Categoría-Ejercicio.",
@@ -331,7 +331,7 @@ exports.unlinkCategoryFormExercise = (params) => {
             statusCode: 404,
           });
         }
-        db.query(`UPDATE ejercicio SET id_categoria = NULL WHERE id = ?`, [ejercicioId], (err, result) => {
+        db.query(`UPDATE ejercicio SET id_categoria = NULL WHERE id = ?`, [id_ejercicio], (err, result) => {
           if(err){
             return reject({
               code: DEFAULT_ERROR,

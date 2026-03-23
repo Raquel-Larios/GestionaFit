@@ -22,16 +22,20 @@ export class ExerciseService {
     return this.http.get<any>(this.baseApiUrl, this.exerciseData);
   }
 
-  crearEjercicio(): Observable<any>{
-    return this.http.post<any>(this.baseApiUrl, this.exerciseData);
+  getEjercicioById(id: number): Observable<any> {
+    return this.http.get<any>(this.baseApiUrl+'/'+id)
   }
 
-  actualizarEjercicio(): Observable<any>{
-    return this.http.put<any>(this.baseApiUrl+'/'+this.exerciseData.ejercicioId, this.exerciseData);
+  crearEjercicio(data: any): Observable<any>{
+    return this.http.post<any>(this.baseApiUrl, data);
   }
 
-  borrarEjercicio(): Observable<any>{
-    return this.http.delete<any>(this.baseApiUrl+'/'+this.exerciseData.ejercicioId, this.exerciseData);
+  actualizarEjercicio(data: any): Observable<any>{
+    return this.http.put<any>(this.baseApiUrl+'/'+data.id, data);
+  }
+
+  borrarEjercicio(id: number): Observable<any>{
+    return this.http.delete<any>(this.baseApiUrl+'/'+id);
   }
 
   getAsignacionEjercicio_Categoria(): Observable<any>{

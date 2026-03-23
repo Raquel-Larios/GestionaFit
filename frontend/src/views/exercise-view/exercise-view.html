@@ -1,1 +1,26 @@
-<p>exercise-view works!</p>
+<div class="content-container block font-20px">
+        <div class= "flex section-header-container">
+            <h2 class="section-name">Ejercicios</h2>
+            <div class="flex flex-end section-tools">
+                <app-icon-button [icon]="iconoAdd" [estilo]="'add-button'" (accion)="abrirModal('create')"></app-icon-button>
+                <app-order-option
+                [orderOptions]="ejercicioOrderOptions.orderOptions"
+                [ascOptions]="ejercicioOrderOptions.ascOptions"
+                [descOptions]="ejercicioOrderOptions.descOptions"
+                [listaItems] ="listaEjercicios"
+                (itemsReversed)="onItemsReversed($event)">
+                </app-order-option>
+            </div>
+        </div>
+    
+    <div class="block">
+        <div class="ejercicio-item flex" *ngFor="let ejercicio of listaEjercicios">
+            <p>{{ejercicio.nombre_ejercicio | primeraLetra}}</p>
+            <!--Asignar a categoria, desplegable-->
+            <div class="section-tools button-box flex-end">
+                <app-icon-button [icon]="iconoModify" [estilo]="'modify-button'" (accion)="abrirModal('edit', ejercicio.id)"></app-icon-button>
+                <app-icon-button [icon]="iconoDelete" [estilo]="'delete-button'" (accion)="deleteEjercicio(ejercicio.id)"></app-icon-button>
+            </div>
+        </div> 
+    </div>
+</div>

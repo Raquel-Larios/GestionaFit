@@ -1,0 +1,33 @@
+.ejercicio-item{
+    width: auto;
+    height: 50px;
+    background-color: #FFF2CC;
+    color: #313131;
+    border: 1px solid #313131;
+    margin: 1% 2%;
+    padding: 1%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: bold;
+    font-family: "Arial";
+}
+
+.section-header-container{
+    justify-content: space-between; 
+    width: 100%; 
+    align-items: center; 
+    padding: 10px;
+}
+
+.section-tools{
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 2px;
+}
+
+.button-box{
+    width: 10%;
+}

@@ -12,9 +12,8 @@
     <!--Select de ejercicios y categorias-->
     <select class="form-item" *ngIf="field.type === 'select'"
       [formControlName]="field.name">
-      <option value="">{{field.label}}</option>
       <option *ngFor="let opt of field.options" [value]="opt.value">
-        {{opt.label}}
+        {{opt.label | primeraLetra}}
       </option>
     </select>
 

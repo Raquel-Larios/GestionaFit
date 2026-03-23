@@ -22,7 +22,7 @@ export class CategoryView implements OnInit{
  categoriaOrderOptions = CategoriaOrderOptions;
  listaCategorias: Categoria[] = [];
  categoriaFields: FormField[] = [{
-  name: 'nombre_categoria', type: 'text', label: "Nombre de la categoría", validators:{required: true, titlecase: true}
+  name: 'nombre_categoria', type: 'text', label: "Nombre de la categoría", validators:{required: true}
  }]
  iconoAdd = faPlus;
  iconoModify = faEdit;
@@ -37,7 +37,7 @@ export class CategoryView implements OnInit{
         this.cd.detectChanges();
       },
       error: (err) => {
-        console.error('Error al obtener la categorias.', err);
+        console.error('Error al obtener las categorias.', err);
       }
     });
   }

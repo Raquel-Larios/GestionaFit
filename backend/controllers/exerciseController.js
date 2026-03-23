@@ -7,9 +7,13 @@ const {
 
 //CREAR EJERCICIO
 exports.createExerciseControl = (req, res, next) => {
-  const { nombre, categoriaId } = req.body;
+  const { nombre_ejercicio, id_categoria } = req.body;
+  const params = {
+  nombre_ejercicio,
+  id_categoria: id_categoria ? parseInt(id_categoria, 10) : null
+  };
 
-  createExercise({ nombre, categoriaId })
+  createExercise(params)
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -22,10 +26,14 @@ exports.createExerciseControl = (req, res, next) => {
 
 //ACTUALIZAR EJERCICIO
 exports.updateExerciseControl = (req, res, next) => {
-  const { nombre, categoriaId } = req.body;
-  const ejercicioId = req.params.id;
+  const { nombre_ejercicio, id_categoria } = req.body;
+  const params = {
+    nombre_ejercicio,
+    id_categoria: id_categoria ? parseInt(id_categoria, 10) : null
+  }
+  const id_ejercicio = parseInt(req.params.id_ejercicio, 10);
 
-  updateExercise({ nombre, categoriaId, ejercicioId })
+  updateExercise({...params, id_ejercicio})
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -38,9 +46,9 @@ exports.updateExerciseControl = (req, res, next) => {
 
 //ELIMINAR EJERCICIO
 exports.deleteExerciseControl = (req, res, next) => {
-  const ejercicioId = req.params.id;
+  const id_ejercicio = parseInt(req.params.id_ejercicio, 10);
 
-  deleteExercise({ ejercicioId })
+  deleteExercise({ id_ejercicio })
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -53,9 +61,9 @@ exports.deleteExerciseControl = (req, res, next) => {
 
 //ELIMINAR ASIGNACIÓN EJERCICIO-VIDEO
 exports.unlinkExerciseFromVideoControl = (req, res, next) => {
-    const ejercicioId = req.params.id;
+    const id_ejercicio = parseInt(req.params.id_ejercicio, 10);
 
-  unlinkExerciseFromVideo({ ejercicioId })
+  unlinkExerciseFromVideo({ id_ejercicio })
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });

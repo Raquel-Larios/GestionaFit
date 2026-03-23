@@ -6,7 +6,6 @@ export interface FormField{
     subFields?: FormField[]; 
     validators?: {
         required?: boolean;
-        titlecase?: boolean;
         pattern?: string;
         minlength?: number;
     }

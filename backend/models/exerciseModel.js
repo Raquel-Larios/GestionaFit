@@ -11,8 +11,8 @@ exports.createExercise = (params) => {
   const { error } = createExerciseValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { nombre, categoriaId } = params;
-  const nombreMinusculas = String(nombre).toLowerCase();
+  const { nombre_ejercicio, id_categoria } = params;
+  const nombreMinusculas = String(nombre_ejercicio).toLowerCase();
 
   return new Promise((resolve, reject) => {
     db.query(
@@ -34,17 +34,19 @@ exports.createExercise = (params) => {
           });
         } 
 
-        let query = "";
-        if(categoriaId === null){
-            query = `(nombre_ejercicio) VALUE ('${nombreMinusculas}')`;
+        let query, values;
+        if(id_categoria === null){
+            query = 'INSERT INTO ejercicio (nombre_ejercicio) VALUES (?)';
+            values = [nombreMinusculas];
         }
         else{
-            query = `(nombre_ejercicio, id_categoria) VALUES ('${nombreMinusculas}','${categoriaId}')`
+            query = 'INSERT INTO ejercicio (nombre_ejercicio, id_categoria) VALUES (?, ?)';
+            values = [nombreMinusculas, id_categoria];
         }
 
         if (result.length === 0){
           db.query(
-            `INSERT INTO ejercicio '${query}'`,
+            query, values,
             (err, result) => {
               if (err) {
                 return reject({
@@ -71,13 +73,13 @@ exports.updateExercise = (params) => {
   const { error } = updateExerciseValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { nombre, categoriaId, ejercicioId } = params;
-  const nombreMinusculas = String(nombre).toLowerCase();
+  const { nombre_ejercicio, id_categoria, id_ejercicio } = params;
+  const nombreMinusculas = String(nombre_ejercicio).toLowerCase();
 
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT id FROM ejercicio WHERE id = ?`,
-      [ejercicioId],
+      [id_ejercicio],
       (err, result) => {
         if (err) {
           return reject({
@@ -98,7 +100,7 @@ exports.updateExercise = (params) => {
 
         db.query(
           `SELECT id FROM ejercicio WHERE nombre_ejercicio = ? AND id !=?;`,
-          [nombreMinusculas, ejercicioId],
+          [nombreMinusculas, id_ejercicio],
           (err, result) => {
             if (err) {
               return reject({
@@ -116,29 +118,31 @@ exports.updateExercise = (params) => {
               });
             }
 
-            if((categoriaId === null || categoriaId === ejercicioSelect.id_categoria) && nombreMinusculas === ejercicioSelect.nombre_ejercicio){
-                //categoriaId es null por defecto y no se puede poner a null desde el formulario, luego si es null es porque no se ha cambiado
+            if((id_categoria === null || id_categoria === ejercicioSelect.id_categoria) && nombreMinusculas === ejercicioSelect.nombre_ejercicio){
+                //id_categoria es null por defecto y no se puede poner a null desde el formulario, luego si es null es porque no se ha cambiado
                 return reject({
                     message: "No se ha introducido ningún cambio.",
                     statusCode: 400,
                 });
             }
 
-            let query = "";
+            let query, values;
 
-            if(nombreMinusculas !== ejercicioSelect.nombre_ejercicio && categoriaId !== ejercicioSelect.id_categoria){
-                query = `nombre_ejercicio = '${nombreMinusculas}', id_categoria = '${categoriaId}'`;
+            if(nombreMinusculas !== ejercicioSelect.nombre_ejercicio && id_categoria !== ejercicioSelect.id_categoria){
+                query = 'UPDATE ejercicio SET nombre_ejercicio = ? , id_categoria = ? WHERE id = ?';
+                values = [nombreMinusculas, id_categoria, id_ejercicio]
             }
-            else if(nombreMinusculas !== ejercicioSelect.nombre_ejercicio && categoriaId === ejercicioSelect.id_categoria){
-                query = `nombre_ejercicio = '${nombreMinusculas}'`;
+            else if(nombreMinusculas !== ejercicioSelect.nombre_ejercicio && id_categoria === ejercicioSelect.id_categoria){
+                query = 'UPDATE ejercicio SET nombre_ejercicio = ? WHERE id = ?';
+                values = [nombreMinusculas, id_ejercicio]
             }
             else{
-                query = `id_categoria = '${categoriaId}'`;
+                query = 'UPDATE ejercicio SET id_categoria = ? WHERE id = ?';
+                values = [id_categoria, id_ejercicio]
             }
 
                 db.query(
-                  `UPDATE ejercicio SET ${query} where id = ?`,
-                  [ejercicioId],
+                  query, values,
                   (err, result) => {
                     if (err) {
                       return reject({
@@ -170,10 +174,10 @@ exports.deleteExercise = (params) => {
   const { error } = deleteExerciseValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { ejercicioId } = params;
+  const { id_ejercicio } = params;
 
   return new Promise((resolve, reject) => {
-    db.query(`SELECT id FROM ejercicio WHERE id = ?`, [ejercicioId], (err, result) => {
+    db.query(`SELECT id FROM ejercicio WHERE id = ?`, [id_ejercicio], (err, result) => {
       if (err) {
         return reject({
           code: DEFAULT_ERROR,
@@ -194,7 +198,7 @@ exports.deleteExercise = (params) => {
         DELETE FROM defecto WHERE id_ejercicio = ?;
         DELETE FROM variacion WHERE id_ejercicio =?;
         DELETE FROM demostracion WHERE id_ejercicio = ?;
-        DELETE FROM ejercicio WHERE id = ?;`, [ejercicioId, ejercicioId, ejercicioId, ejercicioId], (err, result) => {
+        DELETE FROM ejercicio WHERE id = ?;`, [id_ejercicio, id_ejercicio, id_ejercicio, id_ejercicio], (err, result) => {
         if (err) {
           return reject({
             code: DEFAULT_ERROR,
@@ -216,12 +220,12 @@ exports.unlinkExerciseFromVideo = (params) => {
   const { error } = deleteExrciseValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { ejercicioId } = params;
+  const { id_ejercicio } = params;
 
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT id_ejercicio FROM demostracion WHERE id_ejercicio = ?`,
-      [videoId],
+      [id_ejercicio],
       (err, result) => {
         if (err) {
           return reject({
@@ -238,7 +242,7 @@ exports.unlinkExerciseFromVideo = (params) => {
         }
         db.query(
           `DELETE FROM demostracion WHERE id_ejercicio = ?`,
-          [ejercicioId],
+          [id_ejercicio],
           (err, result) => {
             if (err) {
               return reject({

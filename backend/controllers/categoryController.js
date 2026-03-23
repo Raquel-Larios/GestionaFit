@@ -24,9 +24,9 @@ exports.createCategoryControl = (req, res, next) => {
 //ACTUALIZAR CATEGORÍA
 exports.updateCategoryControl = (req, res, next) => {
   const { nombre_categoria } = req.body;
-  const id = parseInt(req.params.id, 10);
+  const id_categoria = parseInt(req.params.id_categoria, 10);
 
-  updateCategory({ nombre_categoria, id })
+  updateCategory({ nombre_categoria, id_categoria })
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -54,9 +54,9 @@ exports.deleteCategoryControl = (req, res, next) => {
 
 //ASIGNAR A EJERCICIO
 exports.linkCategorytoExerciseControl = (req, res, next) => {
-  const {categoriaId, ejercicioId} = req.params;
+  const {id_categoria, id_ejercicio} = parseInt(req.params, 10);
 
-  linkCategoryToExercise({ categoriaId, ejercicioId })
+  linkCategoryToExercise({ id_categoria, id_ejercicio })
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -69,9 +69,9 @@ exports.linkCategorytoExerciseControl = (req, res, next) => {
 
 //ELIMINAR ASIGNACIÓN A EJERCICIO
 exports.unlinkCategoryFromExerciseControl = (req, res, next) => {
-   const {categoriaId, ejercicioId} = req.params;
+   const {id_categoria, id_ejercicio} = parseInt(req.params, 10);
 
-  unlinkCategoryFromExercise({ categoriaId, ejercicioId })
+  unlinkCategoryFromExercise({ id_categoria, id_ejercicio })
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });

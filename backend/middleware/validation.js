@@ -1,10 +1,9 @@
 const Joi = require("joi");
-const { unlinkExerciseFromVideo } = require("../models/exerciseModel");
 
 var options = {
   errors: {
     wrap: {
-      label: "",
+      label: false,
     },
   },
 };
@@ -134,7 +133,7 @@ const createCategoryValidation = (data) => {
 
 const updateCategoryValidation = (data) => {
   const schema = Joi.object ({
-    id: Joi.number().required().strict(),
+    id_categoria: Joi.number().required().strict(),
     nombre_categoria: Joi.string().required().strict(),
   })
   return schema.validate(data, options);
@@ -142,7 +141,7 @@ const updateCategoryValidation = (data) => {
 
 const deleteCategoryValidation = (data) => {
   const schema = Joi.object ({
-    id: Joi.number().required().strict(),
+    id_categoria: Joi.number().required().strict(),
   })
   return schema.validate(data, options);
 }
@@ -166,7 +165,7 @@ const createExerciseValidation = (data) => {
 
 const updateExerciseValidation = (data) => {
   const schema = Joi.object ({
-    id: Joi.number().required().strict(),
+    id_ejercicio: Joi.number().required().strict(),
     nombre_ejercicio: Joi.string().required().strict(),
     id_categoria: Joi.number().integer().optional().allow(null),
   })
@@ -175,7 +174,7 @@ const updateExerciseValidation = (data) => {
 
 const deleteExerciseValidation = (data) => {
   const schema = Joi.object ({
-    id: Joi.number().required().strict(),
+    id_ejercicio: Joi.number().required().strict(),
   })
   return schema.validate(data, options);
 }
@@ -191,7 +190,7 @@ const createMaterialValidation = (data) => {
 
 const updateMaterialValidation = (data) => {
   const schema = Joi.object ({
-    id: Joi.number().required().strict(),
+    id_material: Joi.number().required().strict(),
     nombre_material: Joi.string().required().strict(),
     contenido: Joi.string().required().strict(),
   })
@@ -200,7 +199,7 @@ const updateMaterialValidation = (data) => {
 
 const deleteMaterialValidation = (data) => {
   const schema = Joi.object ({
-    id: Joi.number().required().strict(),
+    id_material: Joi.number().required().strict(),
   })
   return schema.validate(data, options);
 }
@@ -216,7 +215,7 @@ const createVideoValidation = (data) => {
 
 const updateVideoValidation = (data) => {
   const schema = Joi.object ({
-    id: Joi.number().required().strict(),
+    id_video: Joi.number().required().strict(),
     nombre_video: Joi.string().required().strict(),
     enlace_video: Joi.string().required().strict(),
   })
@@ -225,7 +224,7 @@ const updateVideoValidation = (data) => {
 
 const deleteVideoValidation = (data) => {
   const schema = Joi.object ({
-    id: Joi.number().required().strict(),
+    id_video: Joi.number().required().strict(),
   })
   return schema.validate(data, options);
 }
