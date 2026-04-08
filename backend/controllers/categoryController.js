@@ -39,9 +39,9 @@ exports.updateCategoryControl = (req, res, next) => {
 
 //ELIMINAR CATEGORÍA
 exports.deleteCategoryControl = (req, res, next) => {
-  const id = parseInt(req.params.id, 10);
+  const id_categoria = parseInt(req.params.id_categoria, 10);
 
-  deleteCategory({ id })
+  deleteCategory({ id_categoria })
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });

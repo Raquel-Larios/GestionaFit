@@ -10,7 +10,7 @@ import { MaterialView } from '../views/material-view/material-view';
 import { VideoView } from '../views/video-view/video-view';
 import { authGuard } from '../core/guards/auth.guard';
 import { adminGuard } from '../core/guards/admin.guard';
-import { ErrorView } from '../views/error-view/error-view/error-view';
+import { ErrorView } from '../views/error-view/error-view';
 
 export const routes: Routes = [
     {path: 'welcome', component: WelcomeView},

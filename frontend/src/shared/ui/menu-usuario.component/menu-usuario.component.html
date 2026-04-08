@@ -1,0 +1,11 @@
+<div class="user-trigger" [class.menu-open]="menuDesplegado">
+  <img class="user-icon"  [src]="this.userPhoto" (click)="toggleMenu($event)" alt="Usuario">
+  <div class="user-info">
+    <span class="user-name" [class.visible]="menuDesplegado">{{this.userFullName}}</span>
+  </div>
+</div>
+<div class="dropdown-menu" [class.open]="menuDesplegado">
+    <button class="modal-button" type="button" (click)="onClick()">Modificar datos</button>
+    <app-check-button [texto]="'Cerrar sesión'" [estilo]="'logout-button'" (accion)="cerrarSesion()"></app-check-button>
+</div>
+

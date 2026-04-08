@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './order-option.component.css',
 })
 export class OrderOptionComponent {
-
+  @Output() orderSelected = new EventEmitter<string>();
   @Input() orderOptions: readonly string[] = [];
   @Input() ascOptions: Record<string, string> = {};
   @Input() descOptions: Record<string, string> = {};
@@ -22,11 +22,13 @@ export class OrderOptionComponent {
 ngOnInit() {
   this.orderOptionSelected = this.orderOptions[0];
   this.updateAscLabel();
+  this.itemsReversed.emit(this.listaItems);
 }
 
 onOrderChange() {
   this.isAsc = true;
   this.updateAscLabel();
+  this.orderSelected.emit(this.orderOptionSelected);
 }
 
 toggleAsc() {

@@ -6,6 +6,9 @@
     <!--Campos normales-->
     <input class="form-item" *ngIf="field.type !== 'select' && field.type !== 'nested'"
       [type]="field.type"
+      [min]="field.min"
+      [max]="field.max"
+      [step]="field.step"
       [formControlName]="field.name"
     />
 
@@ -54,7 +57,7 @@
         (accion)="onSubmit()"
         [texto]="btnText"
         [estilo]="btnStyle + ' font-18px'"
-        type=></app-check-button>
+        ></app-check-button>
     </div>
     <div *ngIf="cancelBtnOpt == true">
       <button class="cancelBtn font-18px" type="button" (click)="closeModal()">Cancelar</button>

@@ -4,16 +4,16 @@ const db = require('../database/db');
 const categoryController = require("../controllers/categoryController");
 
 //GESTIÓN CATEGORÍA
-router.get("", (req, res) => {
-    db.query('SELECT * FROM categoria ORDER BY nombre_categoria ASC', (err, results) => {
+router.get("/all", (req, res) => {
+    db.query('SELECT id, nombre_categoria FROM categoria ORDER BY nombre_categoria ASC', (err, results) => {
         if (err) throw err;
         res.json(results);
     });
 });
 
-router.get("/:categoriaId", (req, res) => {
-    const categoriaId = parseInt(req.params.categoriaId, 10);
-    db.query('SELECT * FROM categoria WHERE id = ?', [categoriaId], (err, results) => {
+router.get("/:id_categoria", (req, res) => {
+    const id_categoria = parseInt(req.params.id_categoria, 10);
+    db.query('SELECT * FROM categoria WHERE id = ?', [id_categoria], (err, results) => {
         if (err) throw err;
         res.json(results);
     })
@@ -21,7 +21,7 @@ router.get("/:categoriaId", (req, res) => {
 
 router.post("", categoryController.createCategoryControl);
 router.put("/:id_categoria", categoryController.updateCategoryControl);
-router.delete("/:id", categoryController.deleteCategoryControl);
+router.delete("/:id_categoria", categoryController.deleteCategoryControl);
 
 //GESIÓN ASIGNACIÓN CATEGORÍA-EJERCICIO
 router.get("asignacion-categoria-ejercicio", categoryController.getLinksCategory_ExerciseControl);

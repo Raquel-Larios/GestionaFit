@@ -1,4 +1,4 @@
-const { createUserValidation, updateUserValidation, updateProfileValidation, deleteUserValidation, linkUserToTemplateValidation } = require("../middleware/validation");
+const { getUserByIdValidation, createUserValidation, updateUserValidation, updateProfileValidation, updateProfilePhotoValidation, deleteUserValidation, linkUserToTemplateValidation } = require("../middleware/validation");
 const db = require("../database/db");
 const bcrypt = require("bcryptjs");
 const { DEFAULT_ERROR } = require("../constants");
@@ -11,10 +11,12 @@ exports.createUser = (params) => {
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { email, nombre, apellidos } = params;
-  const { emailMinusculas } = String(email).toLowerCase;
+  const  emailMinusculas = String(email).toLowerCase();
+  const  nombreMinusculas = String(nombre).toLowerCase();
+  const  apellidosMinusculas = String(apellidos).toLowerCase();
 
   return new Promise ((resolve, reject) =>{
-    db.query(`SELECT id, correo, nombre FROM usuario WHERE email = ?`, [emailMinusculas],
+    db.query(`SELECT id, email, nombre, apellidos FROM usuario WHERE email = ?`, [emailMinusculas],
       (err, result) => {
         if (err) return reject({code: DEFAULT_ERROR, message: "Error al comprobar si el cliente ya existe.", statusCode: 500,});
         if (result.length > 0){
@@ -24,9 +26,9 @@ exports.createUser = (params) => {
           });
         }
         const generatedPassword = passwordGenerator.generatePassword(10, false);
-        const hashedPass = bcrypt.hash(generatedPassword, 10);
+        const hashedPass = bcrypt.hashSync(generatedPassword, 10);
 
-        db.query(`INSERT INTO usuario (email, nombre, apellidos, contraseña) VALUES (?,?,?,?)`, [emailMinusculas, nombre, apellidos, hashedPass],
+        db.query(`INSERT INTO usuario (email, nombre, apellidos, contraseña, isPassGenerated) VALUES (?,?,?,?,?)`, [emailMinusculas, nombreMinusculas, apellidosMinusculas, hashedPass, true],
           (err, result) => {
             if(err) return reject({ code: DEFAULT_ERROR, message: "Error al crear el nuevo cliente, inténtelo de nuevo.", statusCode: 400});
             else{
@@ -35,8 +37,7 @@ exports.createUser = (params) => {
                 message: "Cliente creado correctamente.",
                 statusCode: 200,
               });
-
-              //mailService.enviarCorreoCliente(emailMinusculas, nombre, hashedPass, "Bienvenida");
+              //mailService.enviarCorreoCliente(emailMinusculas, nombreMinusculas, generatedPassword, "Bienvenida");
             }
           }
         )
@@ -50,13 +51,15 @@ exports.updateUser = (params) => {
   const { error } = updateUserValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { userId, email, nombre, apellidos} = params;
-  const { emailMinusculas } = String(email).toLowerCase;
+  const { id_usuario, email, nombre, apellidos} = params;
+  const  emailMinusculas  = String(email).toLowerCase();
+  const  nombreMinusculas  = String(nombre).toLowerCase();
+  const  apellidosMinusculas  = String(apellidos).toLowerCase();
 
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT id, email, nombre, apellidos FROM usuario WHERE id = ?`,
-      [userId],
+      [id_usuario],
       (err, result) => {
         if (err) return reject({ code: DEFAULT_ERROR, message: "Error al buscar el cliente.", statusCode: 500 });
 
@@ -65,21 +68,22 @@ exports.updateUser = (params) => {
             message: "Cliente no encontrado.",
             statusCode: 404,
           });
+
         } else {
-          if (email === result[0].email && nombre === result[0].nombre && apellidos === result[0].apellidos) {
+          if (emailMinusculas === result[0].email && nombreMinusculas === result[0].nombre && apellidosMinusculas === result[0].apellidos) {
             return reject({
               message: "No se ha introducido ningún cambio.",
               statusCode: 400,
             });
           }
 
-          let query = "";
+          const fields = []
+          const values = [];
 
- 
-          if (email !== result[0].email) {
-            db.query(`SELECT email FROM usuario WHERE email = ? and id != ?`, [emailMinusculas, userId],
+          if (emailMinusculas !== result[0].email) {
+            db.query(`SELECT email FROM usuario WHERE email = ? and id != ?`, [emailMinusculas, id_usuario],
             (err, result) => {
-              if (err) return reject({ code: DEFAULT_ERROR, message: "Error al comprobar que el nuevo email no exista ya.", statusCode: 500 });
+              if (err) return reject({ code: DEFAULT_ERROR, message: "Error al comprobar que el nuevo correo no exista ya.", statusCode: 500 });
               if (result.length > 0){
                 return reject({
                   message: "Ya existe un usuario con este correo electrónico.",
@@ -88,24 +92,24 @@ exports.updateUser = (params) => {
               }
             });
             
-            query += `email = '${email}'`;
-          } 
-          if (nombre !== result[0].nombre) {
-            if(query !== ""){
-              query += `, `;
-            }
-            query += `nombre = '${nombre}'`;
-          }          
-          if (apellidos !== result[0].apellidos){
-            if(query !== ""){
-              query += `, `;
-            }
-            query = `apellidos = '${apellidos}'`;
+            fields.push('email = ?')
+            values.push(emailMinusculas)
           }
 
+          if (nombreMinusculas !== result[0].nombre) {
+            fields.push('nombre = ?')
+            values.push(nombreMinusculas)
+          }          
+          if (apellidosMinusculas !== result[0].apellidos){
+            fields.push('apellidos = ?')
+            values.push(apellidosMinusculas)
+          }
+
+          values.push(id_usuario)
+          const query = `UPDATE usuario SET ${fields.join(', ')} WHERE id = ?`
+
           db.query(
-            `UPDATE usuario SET ${query} WHERE id = ?`,
-            [userId],
+            query, values,
             (err, result) => {
               if (err) return reject({ code: DEFAULT_ERROR, message: "Error al actualizar el cliente.", statusCode: 500 }) ;
               return resolve({
@@ -126,13 +130,15 @@ exports.updateProfile = (params) => {
   const { error } = updateProfileValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { userId, email, nombre, apellidos, contraseña, foto_perfil, peso} = params;
-  const { emailMinusculas } = String(email).toLowerCase;
+  const { id_usuario, email, nombre, apellidos, contraseña, peso, foto_perfil} = params;
+  const  emailMinusculas  = String(email).toLowerCase();
+  const  nombreMinusculas  = String(nombre).toLowerCase();
+  const  apellidosMinusculas  = String(apellidos).toLowerCase();
 
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT id, email, nombre, apellidos, contraseña, foto_perfil, peso FROM usuario WHERE id = ?`,
-      [userId],
+      [id_usuario],
       (err, result) => {
         if (err) return reject({ code: DEFAULT_ERROR, message: "Error al buscar el cliente.", statusCode: 500 });
 
@@ -144,19 +150,20 @@ exports.updateProfile = (params) => {
         } else {
           const hashGuardado = result[0].contraseña;
           const passMatch = bcrypt.compare(contraseña, hashGuardado);
-          if (email === result[0].email && nombre === result[0].nombre && apellidos === result[0].apellidos && passMatch && foto_perfil === result[0].foto_perfil && peso === result[0].peso){
+          if (emailMinusculas === result[0].email && nombreMinusculas === result[0].nombre && apellidosMinusculas === result[0].apellidos && passMatch && foto_perfil === result[0].foto_perfil && peso === result[0].peso){
             return reject({
               message: "No se ha introducido ningún cambio.",
               statusCode: 400,
             });
           }
 
-          let query = "";
+          const fields = []
+          const values = [];
  
-          if (email !== result[0].email) {
-            db.query(`SELECT email FROM usuario WHERE email = ? and id != ?`, [emailMinusculas, userId],
+          if (emailMinusculas !== result[0].email) {
+            db.query(`SELECT email FROM usuario WHERE email = ? and id != ?`, [emailMinusculas, id_usuario],
             (err, result) => {
-              if (err) return reject({ code: DEFAULT_ERROR, message: "Error al comprobar que el nuevo email no exista ya.", statusCode: 500 });
+              if (err) return reject({ code: DEFAULT_ERROR, message: "Error al comprobar que el nuevo correo no exista ya.", statusCode: 500 });
               if (result.length > 0){
                 return reject({
                   message: "Ya existe un usuario con este correo electrónico.",
@@ -165,43 +172,38 @@ exports.updateProfile = (params) => {
               }
             });
             
-            query += `email = '${email}'`;
+            fields.push('email = ?')
+            values.push(emailMinusculas)
+
           } 
-          if (nombre !== result[0].nombre) {
-            if(query !== ""){
-              query += `, `;
-            }
-            query += `nombre = '${nombre}'`;
+          if (nombreMinusculas !== result[0].nombre) {
+            fields.push('nombre = ?')
+            values.push(nombreMinusculas)
           }
-          if (apellidos !== result[0].apellidos){
-            if(query !== ""){
-              query += `, `;
-            }
-            query = `apellidos = '${apellidos}'`;
+          if (apellidosMinusculas !== result[0].apellidos){
+            fields.push('apellidos = ?')
+            values.push(apellidosMinusculas)
           }
           if (!passMatch){
-            if(query !== ""){
-              query += `, `;
-            }
             const newPass = bcrypt.hash(contraseña, 10);
-            query = `constraseña = '${newPass}'`;
+            fields.push('contraseña = ?, isPassGenerated = ?')
+            values.push(newPass, false)
           }
           if (foto_perfil !== result[0].foto_perfil){
-            if(query !== ""){
-              query += `, `;
-            }
-            query = `foto_perfil = '${foto_perfil}'`;
+          
+            fields.push('foto_perfil = ?')
+            values.push(foto_perfil)
           }
           if (peso !== result[0].peso){
-            if(query !== ""){
-              query += `, `;
-            }
-            query = `peso = '${peso}'`;
+            fields.push('peso = ?')
+            values.push(peso)
           }
 
+          values.push(id_usuario)
+          const query = `UPDATE usuario SET ${fields.join(', ')} WHERE id = ?`
+
           db.query(
-            `UPDATE usuario SET ${query} WHERE id = ?`,
-            [userId],
+            query, values,
             (err, result) => {
               if (err) return reject({ code: DEFAULT_ERROR, message: "Error al actualizar el perfil.", statusCode: 500 }) ;
               return resolve({
@@ -222,12 +224,12 @@ exports.updateProfilePhoto = (params) => {
   const { error } = updateProfilePhotoValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { userId, foto_perfil} = params;
+  const { id_usuario, foto_perfil} = params;
 
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT id, foto_perfil FROM usuario WHERE id = ?`,
-      [userId],
+      [id_usuario],
       (err, result) => {
         if (err) return reject({ code: DEFAULT_ERROR, message: "Error al buscar el cliente.", statusCode: 500 });
 
@@ -246,7 +248,7 @@ exports.updateProfilePhoto = (params) => {
         
           db.query(
             `UPDATE usuario SET foto_perfil = ? WHERE id = ?`,
-            [foto_perfil, userId],
+            [foto_perfil, id_usuario],
             (err, result) => {
               if (err) return reject({ code: DEFAULT_ERROR, message: "Error al actualizar la foto de perfil.", statusCode: 500 }) ;
               return resolve({
@@ -267,10 +269,10 @@ exports.deleteUser = (params) => {
   const { error } = deleteUserValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { userId } = params;
+  const { id_usuario } = params;
   
    return new Promise((resolve, reject) => {
-    db.query(`SELECT id FROM usuario WHERE id = ?`, [userId], (err, result) => {
+    db.query(`SELECT id FROM usuario WHERE id = ?`, [id_usuario], (err, result) => {
       if (err) {
         return reject({
           code: DEFAULT_ERROR,
@@ -288,7 +290,7 @@ exports.deleteUser = (params) => {
       db.query(`SELECT id FROM historial_plantilla_usuario WHERE id_usuario = ?;
         DELETE FROM historial_plantilla_usuario WHERE id_usuario = ?;
         DELETE FROM lectura WHERE id_usuario = ?;
-        DELETE FROM usuario WHERE id = ?;`, [userId, userId, userId, userId], (err, result) => {
+        DELETE FROM usuario WHERE id = ?;`, [id_usuario, id_usuario, id_usuario, id_usuario], (err, result) => {
         if (err) {
           return reject({
             code: DEFAULT_ERROR,
@@ -319,18 +321,18 @@ exports.linkUserToTemplate = (params) => {
   const { error } = linkUserToTemplateValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { userId, plantillaId } = params;
+  const { id_usuario, id_plantilla } = params;
 
   return new Promise ((reject, resolve) => {
     db.query(
       `SELECT id FROM usuario WHERE id = ?;
-      SELECT id FROM plantilla WHERE id =?`, [userId, plantillaId], (err, result) => {
+      SELECT id FROM plantilla WHERE id =?`, [id_usuario, id_plantilla], (err, result) => {
         if (err) return reject({code: DEFAULT_ERROR, message: "Error al verificar que el id de usuario y el id de plantilla existan.", statusCode: 500});
         if(result[0].length === 0) return reject({ message: "Cliente no encontrado.", statusCode: 404});
         if(result[1].length === 0) return reject({ message: "Plantilla no encontrada.", statusCode: 404});
 
-        db.query(
-      `SELECT id_usuario, id_plantilla FROM historial_plantilla_usuario WHERE id_usuario = ? AND id_plantilla = ?;`, [userId, plantillaId],
+      db.query(
+      `SELECT id_usuario, id_plantilla FROM historial_plantilla_usuario WHERE id_usuario = ? AND id_plantilla = ?;`, [id_usuario, id_plantilla],
       (err, result) => {
         if(err) return reject({code: DEFAULT_ERROR, message: "Error al comprobar si la asignación ya existe.", statusCode: 500});
       
@@ -342,7 +344,7 @@ exports.linkUserToTemplate = (params) => {
         }
         const fecha = new Date();
         const fechaMySQL = fecha.toISOString().slice(0, 19).replace('T', ' ');
-        db.query(`INSERT INTO historial_platilla_usuario (id_plantilla, id_usuario, fecha) VALUES (?,?,?)`, [plantillaId, userId, fechaMySQL]), (err, result) => {
+        db.query(`INSERT INTO historial_platilla_usuario (id_plantilla, id_usuario, fecha) VALUES (?,?,?)`, [id_plantilla, id_usuario, fechaMySQL]), (err, result) => {
           if(err) return reject({code: DEFAULT_ERROR, message: "Error al asignar la plantilla al cliente.", statusCode: 500});
           resolve({data: result,
             message: "Plantilla asignada al cliente correctamente.",
@@ -361,16 +363,16 @@ exports.unlinkUserFromTemplate = (params) => {
   const { error } = linkUserToTemplateValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { userId, plantillaId } = params;
+  const { id_usuario, id_plantilla } = params;
 
   return new Promise ((reject, resolve) => {
     db.query(`SELECT id FROM usuario WHERE id = ?;
-      SELECT id FROM plantilla WHERE id =?`, [userId, plantillaId], (err, result) => {
+      SELECT id FROM plantilla WHERE id =?`, [id_usuario, id_plantilla], (err, result) => {
         if (err) return reject({code: DEFAULT_ERROR, message: "Error al verificar que el id de usuario y el id de plantilla existan.", statusCode: 500});
         if(result[0].length === 0) return reject({ message: "Cliente no encontrado.", statusCode: 404});
         if(result[1].length === 0) return reject({ message: "Plantilla no encontrada.", statusCode: 404});
         
-        db.query(`SELECT id, id_usuario, id_plantilla FROM historial_plantilla_usuario WHERE id_usuario = ? AND id_plantilla = ?`,[userId, plantillaId],
+        db.query(`SELECT id, id_usuario, id_plantilla FROM historial_plantilla_usuario WHERE id_usuario = ? AND id_plantilla = ?`,[id_usuario, id_plantilla],
           (err, result) => {
             if(err) return reject({code: DEFAULT_ERROR, message: "Error buscando la asiganción usuario-plantilla.", statusCode: 500
             });

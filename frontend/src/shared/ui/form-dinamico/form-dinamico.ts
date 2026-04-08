@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnChanges} from '@angular/core';
-import { CommonModule} from '@angular/common';
+import { CommonModule, TitleCasePipe} from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import { FormField } from '../../../assets/models/form-field.interface';
 import { CheckButtonComponent } from "../check-button.component/check-button.component";
@@ -27,6 +27,8 @@ export class FormDinamico implements OnChanges{
   @Input() successMessage: string | null= "";
   @Input() isDefaultError: boolean = true;
   @Input() token: string = "";
+  private titleCasePipe = new TitleCasePipe()
+
   get hasSuccessMessage(): boolean {
     return !!this.successMessage;
   }
@@ -92,9 +94,14 @@ export class FormDinamico implements OnChanges{
     if (this.data) {
       const formattedData = { ...this.data[0] };
       Object.keys(formattedData).forEach(key => {
-      if (typeof formattedData[key] === 'string' && key !== 'contraseña') {
-        formattedData[key] = this.primeraLetraPipe.transform(formattedData[key]);
-      }
+        const field = this.fields.find(f => f.name === key);
+        if (field && typeof formattedData[key] === 'string') {
+          if (field.name === 'apellidos') {
+            formattedData[key] = this.titleCasePipe.transform(formattedData[key]);
+          } else if (field.type === 'text') {
+            formattedData[key] = this.primeraLetraPipe.transform(formattedData[key]);
+          }
+        }
       });
       this.form.patchValue(formattedData);
     }
@@ -107,8 +114,9 @@ export class FormDinamico implements OnChanges{
       return;
     }
 
-    this.resetMessageParams();
+    
     this.formSubmit.emit(this.form.value);
+    this.resetMessageParams();
 
     if(this.hasErrorMessage){
       if(this.isDefaultError){
@@ -118,8 +126,8 @@ export class FormDinamico implements OnChanges{
       }
     }
     else{
-      this.resetForm();
       this.resetMessageParams();
+      this.resetForm();
     }
   }
 

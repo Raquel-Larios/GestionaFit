@@ -12,6 +12,7 @@ import { ModalConfig } from '../../assets/models/modal-config.interface';
 import { PrimeraLetraPipe } from '../../shared/utils/primeraLetraPipe';
 import { Categoria } from '../../assets/models/categoria.interface';
 import { CategoryService } from '../../shared/data/categoryService.service';
+import { EMPTY, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-exercise-view',
@@ -72,41 +73,40 @@ export class ExerciseView implements OnInit{
 
 
   abrirModal(option: 'create' | 'edit', idSelected?: number): void {
-    if (option === 'edit' && idSelected) {
-      this.exerciseService.getEjercicioById(idSelected).subscribe(ejercicio => {
-        this.modalService.setDataFields(this.ejercicioFields);
-        this.modalService.setMessages(null, null);
 
-        const config: ModalConfig = {
-          action: option,
-          service: {
-            create: (data) => this.exerciseService.crearEjercicio(data),
-            update: (data) => this.exerciseService.actualizarEjercicio(data),
-          },
-          id: idSelected,
-          data: ejercicio 
-        };
-        this.modalService.openModal(config); 
-      });
+    this.modalService.setDataFields(this.ejercicioFields);
+    this.modalService.setMessages(null, null);
 
-    } else {
-      this.modalService.setDataFields(this.ejercicioFields);
-      const config: ModalConfig = {
-          action: option,
-          service: {
-            create: (data) => this.exerciseService.crearEjercicio(data),
-            update: (data) => this.exerciseService.actualizarEjercicio(data),
-          },
-          id: idSelected,
-      };
-      this.modalService.openModal(config);
-    }
-
-    this.modalService.isOpen$.subscribe(isOpen => {
-      if (!isOpen) {
-        this.refrescarEjercicios();
-      }
-    });
+    const ejercicio$ =
+          option === 'edit' && idSelected ? this.exerciseService.getEjercicioById(idSelected) : of(null);
+    
+    ejercicio$.pipe(
+            switchMap((ejercicio) => {
+              const config: ModalConfig = {
+                action: option,
+                service: {
+                  create:
+                    option === 'create'
+                      ? (data) => this.exerciseService.crearEjercicio(data)
+                      : () => EMPTY,
+                  update:
+                    option === 'edit' && idSelected
+                      ? (data) => this.exerciseService.actualizarEjercicio(data)
+                      : () => EMPTY,
+                },
+                id: idSelected,
+                data: ejercicio,
+              };
+              this.modalService.openModal(config);
+    
+              return this.modalService.isOpen$;
+            }),
+          )
+          .subscribe((isOpen) => {
+            if (!isOpen) {
+              this.refrescarEjercicios();
+            }
+          });
   }
 
   deleteEjercicio(id: number): void{

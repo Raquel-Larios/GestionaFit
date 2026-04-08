@@ -35,7 +35,6 @@
 
 .header-user{
     grid-area: h-user;
-    display: flex;
     align-items: center;
     justify-self: end;
     padding: 0 10px;
@@ -54,11 +53,5 @@ header {
     box-sizing: border-box;
 }
 
-.user-icon {
-    height: 47px;
-    width: 47px;
-    border-radius: 50%;
-    border: solid 1px #0768A9;
-    object-fit: cover;
-}
+
 

@@ -9,7 +9,6 @@ const { DEFAULT_ERROR } = require("../constants");
 
 //CREAR CATEGORÍA
 exports.createCategory = (params) => {
-  console.log("Parámetros recibidos en modelo:", params);
   const { error } = createCategoryValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
@@ -143,13 +142,13 @@ exports.updateCategory = (params) => {
 exports.deleteCategory = (params) => {
   const { error } = deleteCategoryValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
-
-  const { id } = params;
+  
+  const { id_categoria } = params;
 
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT id FROM categoria WHERE id = ?`,
-      [id],
+      [id_categoria],
       (err, result) => {
         if (err) {
           return reject({
@@ -168,7 +167,7 @@ exports.deleteCategory = (params) => {
         db.query(
           `UPDATE ejercicio SET id_categoria = NULL WHERE id_categoria = ?;
                     DELETE FROM categoria WHERE id = ?;`,
-          [id, id],
+          [id_categoria, id_categoria],
           (err, result) => {
             if (err) {
               return reject({

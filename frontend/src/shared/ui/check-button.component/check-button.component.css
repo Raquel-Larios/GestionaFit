@@ -29,3 +29,13 @@ button{
     color: snow;
     padding: 20px 150px;
 }
+
+.logout-button{
+    text-align: center;
+    background-color: #D32929;
+    border: 1px solid #8b1313;
+    border-radius: 5px;
+    color: snow;
+    padding: 10px 50px;
+    margin: 5px;
+}

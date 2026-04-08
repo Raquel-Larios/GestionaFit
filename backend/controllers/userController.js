@@ -1,10 +1,10 @@
-const { createUser, updateUser, updateProfile, deleteUser, linkUserToTemplate, unlinkUserFromTemplate} = require("../models/userModel");
+const { createUser, updateUser, updateProfile, updateProfilePhoto, deleteUser, linkUserToTemplate, unlinkUserFromTemplate} = require("../models/userModel");
 
 //CREAR CLIENTE (ADMIN ONLY)
 exports.createUserControl = (req, res, next) => {
-  const { email, nombre, apellidos, contraseña } = req.body;
+  const { email, nombre, apellidos} = req.body;
 
-  createUser({ email, nombre, apellidos, contraseña })
+  createUser({ email, nombre, apellidos})
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -17,10 +17,10 @@ exports.createUserControl = (req, res, next) => {
 
 //ACTUALIZAR CLIENTE (ADMIN ONLY)
 exports.updateUserControl = (req, res, next) => {
-  const { userId } = req.params;
+  const id_usuario = parseInt(req.params.id_usuario, 10);
   const { email, nombre, apellidos} = req.body;
 
-  updateUser({ userId, email, nombre, apellidos})
+  updateUser({ id_usuario, email, nombre, apellidos})
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -33,10 +33,10 @@ exports.updateUserControl = (req, res, next) => {
 
 //ACTUALIZAR PERFIL
 exports.updateProfileControl = (req, res, next) => {
-  const { userId } = req.params;
-  const { email, nombre, apellidos, contraseña, foto_perfil, peso} = req.body;
+  const id_usuario = parseInt(req.params.id_usuario, 10);
+  const { email, nombre, apellidos, contraseña, peso, foto_perfil} = req.body;
 
-  updateProfile({ userId, email, nombre, apellidos, contraseña, foto_perfil, peso})
+  updateProfile({ id_usuario, email, nombre, apellidos, contraseña, peso, foto_perfil})
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -49,10 +49,10 @@ exports.updateProfileControl = (req, res, next) => {
 
 //ACTUALIZAR FOTO DE PERFIL
 exports.updateProfilePhotoControl = (req, res, next) => {
-  const {userId} = req.params;
-  const {foto_perfil} = req.body;
+  const id_usuario = parseInt(req.params.id_usuario, 10);
+  const foto_perfil = req.body;
 
-  this.updateProfilePhotoControl({ userId, foto_perfil})
+  updateProfilePhoto({ id_usuario, foto_perfil})
   .then((result) => {
     const {statusCode = 200, message, data } = result;
     res.status(statusCode).send({message, data});
@@ -65,9 +65,9 @@ exports.updateProfilePhotoControl = (req, res, next) => {
 
 //ELIMINAR CLIENTE
 exports.deleteUserControl = (req, res, next) => {
-  const { userId } = req.params;
+  const id_usuario = parseInt(req.params.id_usuario, 10);
 
-  deleteUser({ userId })
+  deleteUser({ id_usuario })
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -80,10 +80,10 @@ exports.deleteUserControl = (req, res, next) => {
 
 //ASIGNAR A PLANTILLA
 exports.linkUserToTemplateControl = (req, res, next) => {
-  const { userId, plantillaId } = req.params;
+  const { id_usuario, id_plantilla } = parseInt(req.params, 10);
 
 
-  linkUserToTemplate({ userId, plantillaId })
+  linkUserToTemplate({ id_usuario, id_plantilla })
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -96,10 +96,10 @@ exports.linkUserToTemplateControl = (req, res, next) => {
 
 //ELIMINAR ASIGNACIÓN A PLANTILLA
 exports.unlinkUserFromTemplateControl = (req, res, next) => {
-  const { userId, plantillaId} = req.params;
+  const { id_usuario, id_plantilla} = parseInt(req.params, 10);
 
 
-  unlinkUserFromTemplate({ userId, plantillaId })
+  unlinkUserFromTemplate({ id_usuario, id_plantilla })
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });

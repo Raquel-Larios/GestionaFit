@@ -40,7 +40,7 @@ const createUserValidation = (data) => {
 
 const updateUserValidation = (data) => {
   const schema = Joi.object({
-    id: Joi.number().required().strict(),
+    id_usuario: Joi.number().required().strict(),
     email: Joi.string().email().required().strict(),
     nombre: Joi.string().required().strict(),
     apellidos: Joi.string().required().strict(),
@@ -51,21 +51,22 @@ const updateUserValidation = (data) => {
 
 const updateProfileValidation = (data) => {
   const schema = Joi.object({
-    id: Joi.number().required().strict(),
+    id_usuario: Joi.number().required().strict(),
     email: Joi.string().email().required().strict(),
-    contraseña: Joi.string().min(8).required().strict(),
+    contraseña: Joi.string().empty('').allow(null).optional().min(8),
     nombre: Joi.string().required().strict(),
     apellidos: Joi.string().required().strict(),
-    peso: Joi.string().optional().allow(null),
-    foto_perfil: Joi.string().optional().allow(null),
+    peso: Joi.number().empty('').optional().allow(null),
+    foto_perfil: Joi.string().empty('').optional().allow(null),
   });
 
   return schema.validate(data, options);
 };
+
 const updateProfilePhotoValidation = (data) => {
 const schema = Joi.object({
-    id: Joi.number().required().strict(),
-    foto_perfil: Joi.string().optional().allow(null),
+    id_usuario: Joi.number().required().strict(),
+    foto_perfil: Joi.string().required().strict(),
   });
 
   return schema.validate(data, options);
@@ -73,7 +74,7 @@ const schema = Joi.object({
 
 const deleteUserValidation = (data) => {
   const schema = Joi.object({
-    id: Joi.number().required().strict(),
+    id_usuario: Joi.number().required().strict(),
   });
 
   return schema.validate(data, options);
@@ -92,8 +93,8 @@ const linkUserToTemplateValidation = (data) => {
 const createTemplateValidation = (data) => {
   const schema = Joi.object ({
     nombre_plantilla: Joi.string().required().strict(),
-    categoriaId: Joi.number().required().strict(),
-    ejercicioId: Joi.number().required().strict(),
+    id_categoria: Joi.number().required().strict(),
+    id_ejercicio: Joi.number().required().strict(),
     repeticiones: Joi.number().required().strict(),
     series: Joi.number().required().strict(),
     carga: Joi.number().required().strict(),
@@ -104,10 +105,10 @@ const createTemplateValidation = (data) => {
 
 const updateTemplateValidation = (data) => {
   const schema = Joi.object ({
-    id: Joi.number().required().strict(),
+    id_plantilla: Joi.number().required().strict(),
     nombre_plantilla: Joi.string().required().strict(),
-    categoriaId: Joi.number().required().strict(),
-    ejercicioId: Joi.number().required().strict(),
+    id_categoria: Joi.number().required().strict(),
+    id_ejercicio: Joi.number().required().strict(),
     repeticiones: Joi.number().required().strict(),
     series: Joi.number().required().strict(),
     carga: Joi.number().required().strict(),
@@ -118,7 +119,7 @@ const updateTemplateValidation = (data) => {
 
 const deleteTemplateValidation = (data) => {
   const schema = Joi.object ({
-    id: Joi.number().required().strict(),
+    id_plantilla: Joi.number().required().strict(),
   })
   return schema.validate(data, options);
 }

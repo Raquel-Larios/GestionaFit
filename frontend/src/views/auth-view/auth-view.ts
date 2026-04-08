@@ -34,7 +34,7 @@ export class AuthView {
     this.authService.login().subscribe({
       next: (res) => {
         const decoded = this.authService.currentUserValue;
-        this.userService.loadUserData(decoded.id)
+        this.userService.loadTokenData(decoded.id)
         this.successMessage = res.message; 
         this.token= res.data.token;
 

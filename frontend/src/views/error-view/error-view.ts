@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavButtonComponent } from '../../../shared/ui/nav-button.component/nav-button.component';
+import { NavButtonComponent } from '../../shared/ui/nav-button.component/nav-button.component';
 
 @Component({
   selector: 'app-error-view',

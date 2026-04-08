@@ -1,5 +1,5 @@
 import { Injectable} from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { BehaviorSubject, map, Observable } from "rxjs";
 import { Usuario } from "../../assets/models/usuario.interface";
 import { AuthService } from "./authService.service";
@@ -8,10 +8,12 @@ import { AuthService } from "./authService.service";
 
 export class UserService {
   private baseApiUrl = 'http://localhost:3000/api'; 
-  userData: Usuario | any = null;
+  userTokenData: Usuario | any = null;
+  private usuarioData: any = {};
   
-  private userDataSubject = new BehaviorSubject<Usuario | null>(null);
-  public userData$ = this.userDataSubject.asObservable();
+  //GESTIÓN DE TOKEN
+  private userTokenDataSubject = new BehaviorSubject<Usuario | null>(null);
+  public userTokenData$ = this.userTokenDataSubject.asObservable();
 
   private userRolSubject = new BehaviorSubject<number | null>(null);
   public userRol$ = this.userRolSubject.asObservable();
@@ -21,21 +23,21 @@ export class UserService {
   }
 
   public get getUserData(): any {
-    return this.userDataSubject.value;
+    return this.userTokenDataSubject.value;
   }
 
   public set setUserData(value: any) {
-    this.userDataSubject.next(value);
+    this.userTokenDataSubject.next(value);
     if (value?.data?.rol !== undefined) {
       this.userRolSubject.next(value.data.rol);
     }
   }
 
   public set setUserPicture(value : any) {
-    const currentData = this.userDataSubject.value;
+    const currentData = this.userTokenDataSubject.value;
     if (currentData?.foto_perfil) {
       currentData.foto_perfil = value;
-      this.userDataSubject.next(currentData);
+      this.userTokenDataSubject.next(currentData);
     }
   }
 
@@ -53,11 +55,11 @@ export class UserService {
     }
   }
 
-  private loadClientData(userId: number): void {
+  private loadUserData(userId: number): void {
     if (userId !== null && userId !== undefined) {
-      this.getInfoCliente(userId).subscribe({
+      this.getInfoUser(userId).subscribe({
         next: (data) => {
-          this.userDataSubject.next(data);
+          this.userTokenDataSubject.next(data);
           if (data?.data?.rol !== undefined) {
             this.userRolSubject.next(data.data.rol);
           }
@@ -72,59 +74,82 @@ export class UserService {
     if (token && !this.authService.isTokenExpired(token)) {
       const decoded = this.authService.decodeToken(token);
       this.emitRolFromToken();
-      this.loadClientData(decoded.id);
+      this.loadUserData(decoded.id);
     }
   }
 
-  public loadUserData(userId: number) {
+  public loadTokenData(userId: number) {
     this.emitRolFromToken();
-    this.loadClientData(userId);
+    this.loadUserData(userId);
   }
 
-  public clearUserData() {
-    this.userDataSubject.next(null);
+  public clearTokenData() {
+    this.userTokenDataSubject.next(null);
     this.userRolSubject.next(null);
   }
 
-  getClientes(): Observable<any> {
-    return this.http.get<any>(this.baseApiUrl+'/clientes', this.userData);
+  //LLAMADAS A BACK
+
+  public get getUsuarioData(): any {
+    return this.usuarioData;
   }
 
-  private getInfoCliente(id: number): Observable<any> {
-    return this.http.get<any>(this.baseApiUrl + '/' + id + '/datos').pipe(
+  public set setUsuarioData(value: any) {
+    this.usuarioData = value;
+  }
+
+  getClientesApellidos(): Observable<any> {
+    return this.http.get<any>(this.baseApiUrl+'/clientes_apellidos', this.usuarioData);
+  }
+
+  getClientesNombre(): Observable<any> {
+    return this.http.get<any>(this.baseApiUrl+'/clientes_nombre', this.usuarioData);
+  }
+
+  private getInfoUser(id: number): Observable<any> {
+    return this.http.get<any>(this.baseApiUrl + '/' + id + '/profile').pipe(
       map(response => response)
     );
   }
 
-  crearCliente(): Observable<any>{
-    return this.http.post<any>(this.baseApiUrl+'/clientes', this.userData);
+  getClienteById(id: number): Observable<any> {
+    return this.http.get<any>(this.baseApiUrl+'/clientes/'+id)
   }
 
-  actualizarCliente(): Observable<any>{
-    return this.http.put<any>(this.baseApiUrl+'/clientes/'+this.userData.userId, this.userData);
+  getUserById(id:number): Observable<any> {
+    return this.http.get<any>(this.baseApiUrl+'/'+id+'/profile')
   }
 
-  actualizarFotoPerfil(userId: number, photo: string): Observable<any> {
-  return this.http.put(this.baseApiUrl+'/'+userId+'/profile/photo', photo);
+  crearCliente(data: any): Observable<any>{
+    return this.http.post<any>(this.baseApiUrl+'/clientes', data);
   }
 
-  actualizarPerfil(): Observable<any>{
-    return this.http.put<any>(this.baseApiUrl+'/'+this.userData.userId+'/profile', this.userData);
+  actualizarCliente(data: any): Observable<any>{
+    return this.http.put<any>(this.baseApiUrl+'/clientes/'+data.id, data);
   }
 
-  borrarCliente(): Observable<any>{
-    return this.http.delete<any>(this.baseApiUrl+'/clientes/'+this.userData.userId, this.userData);
+  actualizarFotoPerfil(id: number, photo: any): Observable<any> {
+    const headers = new HttpHeaders().set('Content-Type', 'text/plain; charset=utf-8');
+    return this.http.put(this.baseApiUrl+'/'+id+'/profile/photo', photo, { headers });
+  }
+
+  actualizarPerfil(data: any): Observable<any>{
+    return this.http.put<any>(this.baseApiUrl+'/'+data.id+'/profile', data);
+  }
+
+  borrarCliente(id: number): Observable<any>{
+    return this.http.delete<any>(this.baseApiUrl+'/clientes/'+id);
   }
 
   getAsignacionUsuario_Plantilla(): Observable<any>{
-    return this.http.get<any>(this.baseApiUrl+'/clientes/'+this.userData.userId+'/'+this.userData.plantillaId, this.userData);
+    return this.http.get<any>(this.baseApiUrl+'/clientes/'+this.usuarioData.userId+'/'+this.usuarioData.plantillaId, this.usuarioData);
   }
 
   crearAsignacionUsuario_Plantilla(): Observable<any>{
-    return this.http.post<any>(this.baseApiUrl+'/clientes/'+this.userData.userId+'/'+this.userData.plantillaId, this.userData);
+    return this.http.post<any>(this.baseApiUrl+'/clientes/'+this.usuarioData.userId+'/'+this.usuarioData.plantillaId, this.usuarioData);
   }
 
   eliminarAsignacionUsuario_Plantilla(): Observable<any>{
-    return this.http.delete<any>(this.baseApiUrl+'/clientes/'+this.userData.userId+'/'+this.userData.plantillaId, this.userData);
+    return this.http.delete<any>(this.baseApiUrl+'/clientes/'+this.usuarioData.userId+'/'+this.usuarioData.plantillaId, this.usuarioData);
   }
 }

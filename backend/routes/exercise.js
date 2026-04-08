@@ -6,7 +6,7 @@ const categoryController = require("../controllers/categoryController");
 const videoController = require("../controllers/videoController");
 
 //GESTIÓN EJERCICIO
-router.get("", (req, res) => {
+router.get("/all", (req, res) => {
     db.query('SELECT * FROM ejercicio ORDER BY nombre_ejercicio ASC', (err, results) => {
         if (err) throw err;
         res.json(results);

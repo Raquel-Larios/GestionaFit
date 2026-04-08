@@ -1,1 +1,43 @@
-<p>userlist-view works!</p>
+<div class="content-container block font-20px">
+        <div class= "flex section-header-container">
+            <h2 class="section-name">Clientes</h2>
+            <div class="flex flex-end section-tools">
+                <app-icon-button [icon]="iconoAdd" [estilo]="'add-button'" (accion)="abrirModal('create')"></app-icon-button>
+                <app-order-option
+                [orderOptions]="clienteOrderOptions.orderOptions"
+                [ascOptions]="clienteOrderOptions.ascOptions"
+                [descOptions]="clienteOrderOptions.descOptions"
+                [listaItems] ="listaClientes"
+                (itemsReversed)="onItemsReversed($event)"
+                (orderSelected)="orderOptionSelected = $event">
+                </app-order-option>
+            </div>
+        </div>
+    
+    <div class="cliente-list">
+        <div *ngFor="let cliente of listaClientes; let index = index">
+            <div class="cliente-group-header" 
+            *ngIf="(
+            orderOptionSelected === 'Nombre' && 
+            (index === 0 || cliente.nombre.charAt(0).toUpperCase() !== listaClientes[index-1].nombre.charAt(0).toUpperCase())
+            ) || (
+            orderOptionSelected === 'Apellidos' && 
+            (index === 0 || cliente.apellidos.charAt(0).toUpperCase() !== listaClientes[index-1].apellidos.charAt(0).toUpperCase())
+            )">
+            {{ (orderOptionSelected === 'Nombre' ? cliente.nombre : cliente.apellidos).charAt(0).toUpperCase() }}
+            </div>
+            <div class="cliente-item">
+                <img class="user-icon" [src]="cliente.foto_perfil" alt="Foto perfil">
+                <p class="cliente-nombre">{{ orderOptionSelected === 'Nombre' 
+                ? (cliente.nombre | primeraLetra) + ' ' + (cliente.apellidos | titlecase)
+                : (cliente.apellidos | titlecase) + ', ' + (cliente.nombre | primeraLetra) }}
+                </p>
+                <!--Asignar a plantilla, desplegable-->
+                <div class="section-tools button-box flex-end">
+                    <app-icon-button [icon]="iconoModify" [estilo]="'modify-button'" (accion)="abrirModal('edit', cliente.id)"></app-icon-button>
+                    <app-icon-button [icon]="iconoDelete" [estilo]="'delete-button'" (accion)="deleteCliente(cliente.id)"></app-icon-button>
+                </div>
+            </div>
+        </div> 
+    </div>
+</div>

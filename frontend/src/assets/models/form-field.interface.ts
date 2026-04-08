@@ -1,7 +1,10 @@
 export interface FormField{
-    type: 'text' | 'email' | 'password' | 'select' | 'nested';
+    type: 'text' | 'number' | 'email' | 'password' | 'select' | 'nested';
     name: string;
     label: string;
+    min?: number;
+    max?: number;
+    step?: number;
     options?: { value: any; label: string }[]; 
     subFields?: FormField[]; 
     validators?: {
