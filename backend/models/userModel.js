@@ -131,11 +131,20 @@ exports.updateProfile = (params) => {
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { id_usuario, email, nombre, apellidos, contraseña, peso, foto_perfil} = params;
-  const  emailMinusculas  = String(email).toLowerCase();
-  const  nombreMinusculas  = String(nombre).toLowerCase();
-  const  apellidosMinusculas  = String(apellidos).toLowerCase();
+  const emailMinusculas  = String(email).toLowerCase();
+  const nombreMinusculas  = String(nombre).toLowerCase();
+  const apellidosMinusculas  = String(apellidos).toLowerCase();
+  let foto_perfilMinusculas = foto_perfil;
+  const fotoHeader = String(foto_perfil).slice(0,14);
+  console.log("FotoHeader: ", fotoHeader)
+  console.log("Foto_perfil Before: ", foto_perfilMinusculas)
+  if (fotoHeader === "Data:image/png"){
+    foto_perfilMinusculas = String(foto_perfil).charAt(0).toLowerCase() + String(foto_perfil).slice(1, foto_perfil.length);
+  }
+  console.log("Foto_perfil After: ", foto_perfilMinusculas) 
 
   return new Promise((resolve, reject) => {
+
     db.query(
       `SELECT id, email, nombre, apellidos, contraseña, foto_perfil, peso FROM usuario WHERE id = ?`,
       [id_usuario],
@@ -150,10 +159,10 @@ exports.updateProfile = (params) => {
         } else {
           const hashGuardado = result[0].contraseña;
           const passMatch = bcrypt.compare(contraseña, hashGuardado);
-          if (emailMinusculas === result[0].email && nombreMinusculas === result[0].nombre && apellidosMinusculas === result[0].apellidos && passMatch && foto_perfil === result[0].foto_perfil && peso === result[0].peso){
-            return reject({
+          if (emailMinusculas === result[0].email && nombreMinusculas === result[0].nombre && apellidosMinusculas === result[0].apellidos && passMatch && foto_perfilMinusculas === result[0].foto_perfil && peso === result[0].peso){
+            return resolve({
               message: "No se ha introducido ningún cambio.",
-              statusCode: 400,
+              statusCode: 200,
             });
           }
 
@@ -189,10 +198,10 @@ exports.updateProfile = (params) => {
             fields.push('contraseña = ?, isPassGenerated = ?')
             values.push(newPass, false)
           }
-          if (foto_perfil !== result[0].foto_perfil){
+          if (foto_perfilMinusculas !== result[0].foto_perfil){
           
             fields.push('foto_perfil = ?')
-            values.push(foto_perfil)
+            values.push(foto_perfilMinusculas)
           }
           if (peso !== result[0].peso){
             fields.push('peso = ?')

@@ -1,6 +1,6 @@
 import { Injectable} from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { BehaviorSubject, map, Observable } from "rxjs";
+import { BehaviorSubject, map, Observable, tap } from "rxjs";
 import { Usuario } from "../../assets/models/usuario.interface";
 import { AuthService } from "./authService.service";
 
@@ -134,7 +134,8 @@ export class UserService {
   }
 
   actualizarPerfil(data: any): Observable<any>{
-    return this.http.put<any>(this.baseApiUrl+'/'+data.id+'/profile', data);
+    return this.http.put<any>(this.baseApiUrl+'/'+data.id+'/profile', data)
+    .pipe(tap(user => this.authService.currentUserValue = user));
   }
 
   borrarCliente(id: number): Observable<any>{

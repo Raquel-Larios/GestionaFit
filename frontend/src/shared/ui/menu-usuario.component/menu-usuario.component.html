@@ -1,7 +1,7 @@
 <div class="user-trigger" [class.menu-open]="menuDesplegado">
   <img class="user-icon"  [src]="this.userPhoto" (click)="toggleMenu($event)" alt="Usuario">
   <div class="user-info">
-    <span class="user-name" [class.visible]="menuDesplegado">{{this.userFullName}}</span>
+    <span class="user-name" [class.visible]="menuDesplegado">{{this.userFullName | titlecase}}</span>
   </div>
 </div>
 <div class="dropdown-menu" [class.open]="menuDesplegado">

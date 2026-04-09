@@ -30,7 +30,7 @@ export class AuthView {
   };
 
   onLogin(datos: any){
-    this.authService.setAuthData = datos;
+    this.authService.authDataValue = datos;
     this.authService.login().subscribe({
       next: (res) => {
         const decoded = this.authService.currentUserValue;

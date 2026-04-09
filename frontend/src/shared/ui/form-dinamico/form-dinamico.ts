@@ -98,7 +98,7 @@ export class FormDinamico implements OnChanges{
         if (field && typeof formattedData[key] === 'string') {
           if (field.name === 'apellidos') {
             formattedData[key] = this.titleCasePipe.transform(formattedData[key]);
-          } else if (field.type === 'text') {
+          } else if (field.name !== 'foto_perfil' && field.type === 'text') {
             formattedData[key] = this.primeraLetraPipe.transform(formattedData[key]);
           }
         }

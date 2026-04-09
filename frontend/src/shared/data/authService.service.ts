@@ -39,10 +39,14 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
-  public get getAuthData(): any {
+  public set currentUserValue(user : any){
+    this.currentUserSubject.next(user);
+  }
+
+  public get authDataValue(): any {
     return this.authData;
   }
-  public set setAuthData(value: any) {
+  public set authDataValue(value: any) {
     this.authData = value;
   }
 
