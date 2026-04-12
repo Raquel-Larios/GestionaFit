@@ -120,9 +120,9 @@ exports.updateExercise = (params) => {
 
             if((id_categoria === null || id_categoria === ejercicioSelect.id_categoria) && nombreMinusculas === ejercicioSelect.nombre_ejercicio){
                 //id_categoria es null por defecto y no se puede poner a null desde el formulario, luego si es null es porque no se ha cambiado
-                return reject({
+                return resolve({
                     message: "No se ha introducido ningún cambio.",
-                    statusCode: 400,
+                    statusCode: 200,
                 });
             }
 

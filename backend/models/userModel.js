@@ -71,9 +71,9 @@ exports.updateUser = (params) => {
 
         } else {
           if (emailMinusculas === result[0].email && nombreMinusculas === result[0].nombre && apellidosMinusculas === result[0].apellidos) {
-            return reject({
+            return resolve({
               message: "No se ha introducido ningún cambio.",
-              statusCode: 400,
+              statusCode: 200,
             });
           }
 
@@ -249,9 +249,9 @@ exports.updateProfilePhoto = (params) => {
           });
         } else {
           if (foto_perfil === result[0].foto_perfil) {
-            return reject({
+            return resolve({
               message: "No se ha introducido ningún cambio.",
-              statusCode: 400,
+              statusCode: 200,
             });
           }
         

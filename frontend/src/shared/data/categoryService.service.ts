@@ -19,7 +19,7 @@ export class CategoryService {
   }
 
   getCategorias(): Observable<any> {
-    return this.http.get<any>(this.baseApiUrl+"/all", this.categoryData);
+    return this.http.get<any>(this.baseApiUrl+"/all");
   }
 
   getCategoriaById(id: number): Observable<any> {

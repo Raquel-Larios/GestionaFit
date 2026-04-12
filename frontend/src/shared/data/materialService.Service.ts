@@ -18,19 +18,23 @@ export class MaterialService {
     this.materialData = value;
   }
 
-  getMaterial(): Observable<any> {
-    return this.http.get<any>(this.baseApiUrl, this.materialData);
+  getMateriales(): Observable<any> {
+    return this.http.get<any>(this.baseApiUrl+"/all");
   }
 
-  crearMaterial(): Observable<any>{
-    return this.http.post<any>(this.baseApiUrl, this.materialData);
+  getMaterialById(id: number): Observable<any> {
+    return this.http.get<any>(this.baseApiUrl+'/'+id)
   }
 
-  actualizarMaterial(): Observable<any>{
-    return this.http.put<any>(this.baseApiUrl+'/'+this.materialData.materialId, this.materialData);
+  crearMaterial(data: any): Observable<any>{
+    return this.http.post<any>(this.baseApiUrl, data);
   }
 
-  borrarMaterial(): Observable<any>{
-    return this.http.delete<any>(this.baseApiUrl+'/'+this.materialData.materialId, this.materialData);
+  actualizarMaterial(data: any): Observable<any>{
+    return this.http.put<any>(this.baseApiUrl+'/'+data.id, data);
+  }
+
+  borrarMaterial(id: number): Observable<any>{
+    return this.http.delete<any>(this.baseApiUrl+'/'+id);
   }
 }

@@ -5,7 +5,7 @@ import { FormField } from '../../../assets/models/form-field.interface';
 import { CheckButtonComponent } from "../check-button.component/check-button.component";
 import { NavButtonComponent } from "../nav-button.component/nav-button.component";
 import { ModalService } from '../../data/modalService.service';
-import { PrimeraLetraPipe } from '../../utils/primeraLetraPipe';
+import { PrimeraLetraPipe } from '../../utils/pipes/primeraLetraPipe';
 
 @Component({
   selector: 'app-form-dinamico',
@@ -98,7 +98,7 @@ export class FormDinamico implements OnChanges{
         if (field && typeof formattedData[key] === 'string') {
           if (field.name === 'apellidos') {
             formattedData[key] = this.titleCasePipe.transform(formattedData[key]);
-          } else if (field.name !== 'foto_perfil' && field.type === 'text') {
+          } else if (field.type === 'text') {
             formattedData[key] = this.primeraLetraPipe.transform(formattedData[key]);
           }
         }

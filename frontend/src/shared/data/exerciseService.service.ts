@@ -19,7 +19,7 @@ export class ExerciseService {
   }
 
   getEjercicios(): Observable<any> {
-    return this.http.get<any>(this.baseApiUrl+"/all", this.exerciseData);
+    return this.http.get<any>(this.baseApiUrl+"/all");
   }
 
   getEjercicioById(id: number): Observable<any> {

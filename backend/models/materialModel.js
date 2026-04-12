@@ -11,8 +11,8 @@ exports.createMaterial = (params) => {
   const { error } = createMaterialValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { nombre, contenido } = params;
-  const nombreMinusculas = String(nombre).toLowerCase();
+  const { nombre_material, contenido } = params;
+  const nombreMinusculas = String(nombre_material).toLowerCase();
 
   return new Promise((resolve, reject) => {
     db.query(
@@ -70,13 +70,13 @@ exports.updateMaterial = (params) => {
   const { error } = updateMaterialValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { nombre, contenido, materialId } = params;
-  const nombreMinusculas = String(nombre).toLowerCase();
+  const { nombre_material, contenido, id_material } = params;
+  const nombreMinusculas = String(nombre_material).toLowerCase();
 
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT id, nombre_material, contenido FROM material WHERE id = ?`,
-      [materialId],
+      [id_material],
       (err, result) => {
         if (err) {
           return reject({
@@ -96,8 +96,8 @@ exports.updateMaterial = (params) => {
         const materialSelect = result[0];
 
         db.query(
-          `SELECT id FROM material WHERE nombre_material = ? AND id !=?;`,
-          [nombreMinusculas, materialId],
+          `SELECT id FROM material WHERE nombre_material = ? AND id != ?;`,
+          [nombreMinusculas, id_material],
           (err, result) => {
             if (err) {
               return reject({
@@ -116,8 +116,8 @@ exports.updateMaterial = (params) => {
             }
 
             db.query(
-              `SELECT id FROM material WHERE contenido = ? AND id !=?`,
-              [contenido, materialId],
+              `SELECT id FROM material WHERE contenido = ? AND id != ?`,
+              [contenido, id_material],
               (err, result) => {
                 if (err) {
                   return reject({
@@ -138,30 +138,29 @@ exports.updateMaterial = (params) => {
                   nombreMinusculas === materialSelect.nombre_material &&
                   contenido === materialSelect.contenido
                 ) {
-                  return reject({
+                  return resolve({
                     message: "No se ha introducido ningún cambio.",
-                    statusCode: 400,
+                    statusCode: 200,
                   });
                 }
 
-                let query = "";
+                const fields = []
+                const values = [];
 
-                if (
-                  nombreMinusculas !== materialSelect.nombre_material &&
-                  contenido !== materialSelect.contenido
-                ) {
-                  query = `nombre_material = '${nombreMinusculas}', contenido = '${contenido}'`;
-                } else if (
-                  nombreMinusculas !== materialSelect.nombre_material
-                ) {
-                  query = `nombre_material = '${nombreMinusculas}'`;
-                } else {
-                  query = `contenido = '${contenido}'`;
+                if(nombreMinusculas !== materialSelect.nombre_material){
+                  fields.push('nombre_material = ?')
+                  values.push(nombreMinusculas)
+                }
+                if (contenido !== materialSelect.contenido){
+                  fields.push('contenido = ?')
+                  values.push(contenido)
                 }
 
+                values.push(id_material)
+                const query = `UPDATE material SET ${fields.join(', ')} WHERE id = ?`
+
                 db.query(
-                  `UPDATE material SET ${query} where id = ?`,
-                  [materialId],
+                  query, values,
                   (err, result) => {
                     if (err) {
                       return reject({
@@ -192,12 +191,12 @@ exports.deleteMaterial = (params) => {
   const { error } = deleteMaterialValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { materialId } = params;
+  const { id_material} = params;
 
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT id FROM material WHERE id = ?`,
-      [materialId],
+      [id_material],
       (err, result) => {
         if (err) {
           return reject({
@@ -215,7 +214,7 @@ exports.deleteMaterial = (params) => {
 
         db.query(
           `DELETE FROM material WHERE id = ?;`,
-          [materialId]
+          [id_material]
         ),
           (err, result) => {
             if (err) {

@@ -5,7 +5,7 @@ import { Observable } from "rxjs";
 @Injectable({ providedIn: 'root' })
 
 export class VideoService {
-  private baseApiUrl = 'http://localhost:3000/api/demostraciones'; 
+  private baseApiUrl = 'http://localhost:3000/api/videos'; 
   videoData: any = {};
 
   constructor(private http: HttpClient) {}
@@ -19,30 +19,34 @@ export class VideoService {
   }
 
   getVideos(): Observable<any> {
-    return this.http.get<any>(this.baseApiUrl, this.videoData);
+    return this.http.get<any>(this.baseApiUrl+"/all");
   }
 
-  crearVideo(): Observable<any>{
-    return this.http.post<any>(this.baseApiUrl, this.videoData);
+  getVideoById(id: number): Observable<any> {
+    return this.http.get<any>(this.baseApiUrl+'/'+id)
   }
 
-  actualizarVideo(): Observable<any>{
-    return this.http.put<any>(this.baseApiUrl+'/'+this.videoData.ejercicioId, this.videoData);
+  crearVideo(data: any): Observable<any>{
+    return this.http.post<any>(this.baseApiUrl, data);
   }
 
-  borrarVideo(): Observable<any>{
-    return this.http.delete<any>(this.baseApiUrl+'/'+this.videoData.ejercicioId, this.videoData);
+  actualizarVideo(data: any): Observable<any>{
+    return this.http.put<any>(this.baseApiUrl+'/'+data.id, data);
+  }
+
+  borrarVideo(id: number): Observable<any>{
+    return this.http.delete<any>(this.baseApiUrl+'/'+id);
   }
 
   getAsignacionVideo_Ejercicio(): Observable<any>{
-    return this.http.get<any>(this.baseApiUrl+'/asignacion-video-ejercicio', this.videoData);
+    return this.http.get<any>(this.baseApiUrl+'/asignacion-video-ejercicio');
   }
 
-  crearAsignacionVideo_Ejercicio(): Observable<any>{
-    return this.http.post<any>(this.baseApiUrl+'/'+this.videoData.videoId+'/'+this.videoData.ejercicioId, this.videoData);
+  crearAsignacionVideo_Ejercicio(data: any): Observable<any>{
+    return this.http.post<any>(this.baseApiUrl+'/'+data.id_video+'/'+data.id_ejercicio, data);
   }
 
-  eliminarAsignacionVideo_Ejercicio(): Observable<any>{
-    return this.http.delete<any>(this.baseApiUrl+'/desasignar/'+this.videoData.videoId, this.videoData);
+  eliminarAsignacionVideo_Ejercicio(id: number): Observable<any>{
+    return this.http.delete<any>(this.baseApiUrl+'/desasignar/'+id);
   }
 }

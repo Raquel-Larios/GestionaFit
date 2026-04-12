@@ -12,8 +12,8 @@ exports.createVideo = (params) => {
   const { error } = createVideoValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { nombre, enlace } = params;
-  const nombreMinusculas = String(nombre).toLowerCase();
+  const { nombre_video, enlace_video } = params;
+  const nombreMinusculas = String(nombre_video).toLowerCase();
 
   return new Promise((resolve, reject) => {
     db.query(
@@ -28,8 +28,8 @@ exports.createVideo = (params) => {
           });
         } else if (result.length === 0) {
           db.query(
-            `SELECT enlace_video FROM video WHERE contenido = ?`,
-            [enlace],
+            `SELECT enlace_video FROM video WHERE enlace_video = ?`,
+            [enlace_video],
             (err, result) => {
               if (result.length > 0) {
                 return reject({
@@ -39,7 +39,7 @@ exports.createVideo = (params) => {
               } else {
                 db.query(
                   `INSERT INTO video (nombre_video, enlace_video) VALUE (?, ?)`,
-                  [nombreMinusculas, enlace],
+                  [nombreMinusculas, enlace_video],
                   (err, result) => {
                     if (err) {
                       return reject({
@@ -71,13 +71,13 @@ exports.updateVideo = (params) => {
   const { error } = updateVideoValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { nombre, enlace, videoId } = params;
-  const nombreMinusculas = String(nombre).toLowerCase();
+  const { nombre_video, enlace_video, id_video } = params;
+  const nombreMinusculas = String(nombre_video).toLowerCase();
 
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT id, nombre_video, enlace_video FROM video WHERE id = ?`,
-      [videoId],
+      [id_video],
       (err, result) => {
         if (err) {
           return reject({
@@ -98,7 +98,7 @@ exports.updateVideo = (params) => {
 
         db.query(
           `SELECT id FROM video WHERE nombre_video = ? AND id !=?;`,
-          [nombreMinusculas, videoId],
+          [nombreMinusculas, id_video],
           (err, result) => {
             if (err) {
               return reject({
@@ -118,7 +118,7 @@ exports.updateVideo = (params) => {
 
             db.query(
               `SELECT id FROM video WHERE enlace_video = ? AND id !=?`,
-              [enlace, videoId],
+              [enlace_video, id_video],
               (err, result) => {
                 if (err) {
                   return reject({
@@ -137,30 +137,31 @@ exports.updateVideo = (params) => {
 
                 if (
                   nombreMinusculas === videoSelect.nombre_video &&
-                  enlace === videoSelect.enlace_video
+                  enlace_video === videoSelect.enlace_video
                 ) {
-                  return reject({
+                  return resolve({
                     message: "No se ha introducido ningún cambio.",
-                    statusCode: 400,
+                    statusCode: 200,
                   });
                 }
 
-                let query = "";
+                const fields = []
+                const values = [];
 
-                if (
-                  nombreMinusculas !== videoSelect.nombre_video &&
-                  enlace !== videoSelect.enlace_video
-                ) {
-                  query = `nombre_video = '${nombreMinusculas}', enlace_video = '${enlace}'`;
-                } else if (nombreMinusculas !== videoSelect.nombre_video) {
-                  query = `nombre_video = '${nombreMinusculas}'`;
-                } else {
-                  query = `enlace_video = '${enlace}'`;
+                if(nombreMinusculas !== videoSelect.nombre_video){
+                  fields.push('nombre_video = ?')
+                  values.push(nombreMinusculas)
+                }
+                if (enlace_video !== videoSelect.enlace_video){
+                  fields.push('enlace_video = ?')
+                  values.push(enlace_video)
                 }
 
+                values.push(id_video)
+                const query = `UPDATE video SET ${fields.join(', ')} WHERE id = ?`
+
                 db.query(
-                  `UPDATE video SET ${query} where id = ?`,
-                  [videoId],
+                  query, values,
                   (err, result) => {
                     if (err) {
                       return reject({
@@ -192,10 +193,10 @@ exports.deleteVideo = (params) => {
   const { error } = deleteVideoValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { videoId } = params;
+  const { id_video } = params;
 
   return new Promise((resolve, reject) => {
-    db.query(`SELECT id FROM video WHERE id = ?`, [videoId], (err, result) => {
+    db.query(`SELECT id FROM video WHERE id = ?`, [id_video], (err, result) => {
       if (err) {
         return reject({
           code: DEFAULT_ERROR,
@@ -211,7 +212,7 @@ exports.deleteVideo = (params) => {
       }
 
       db.query(`DELETE FROM demostracion WHERE id_video = ?;
-        DELETE FROM video WHERE id = ?;`, [videoId, videoId], (err, result) => {
+        DELETE FROM video WHERE id = ?;`, [id_video, id_video], (err, result) => {
         if (err) {
           return reject({
             code: DEFAULT_ERROR,
@@ -233,12 +234,12 @@ exports.linkVideoToExercise = (params) => {
   const { error } = linkVideoValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { videoId, ejercicioId } = params;
+  const { id_video, id_ejercicio } = params;
 
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT id_video FROM demostracion WHERE id_video = ?`,
-      [videoId],
+      [id_video],
       (err, result) => {
         if (err) {
           return reject({
@@ -255,7 +256,7 @@ exports.linkVideoToExercise = (params) => {
         }
         db.query(
           `INSERT INTO demostracion (id_ejercicio, id_video) VALUES (?, ?)`,
-          [ejercicioId, videoId],
+          [id_ejercicio, id_video],
           (err, result) => {
             if (err) {
               return reject({
@@ -282,12 +283,12 @@ exports.unlinkVideoFromExercise = (params) => {
   const { error } = deleteVideoValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { videoId } = params;
+  const { id_video } = params;
 
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT id_video FROM demostracion WHERE id_video = ?`,
-      [videoId],
+      [id_video],
       (err, result) => {
         if (err) {
           return reject({
@@ -304,7 +305,7 @@ exports.unlinkVideoFromExercise = (params) => {
         }
         db.query(
           `DELETE FROM demostracion WHERE id_video = ?`,
-          [videoId],
+          [id_video],
           (err, result) => {
             if (err) {
               return reject({

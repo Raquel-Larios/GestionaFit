@@ -1,0 +1,14 @@
+@if (isOpen) {
+    <div class="lightbox-overlay" (click)="close()">
+    <div class="lightbox-content" (click)="$event.stopPropagation()">
+        @if (isImage) {
+        <img [src]="currentItem.src" [alt]="currentItem.title"
+             [class.zoomed]="isZoomed"
+             (click)="toggleZoom()" />
+        } @else {
+        <iframe [src]="getSafeUrl(currentItem.src)" frameborder="0" allowfullscreen></iframe>
+        }
+        <button class="lightbox-close" (click)="close()">×</button>
+    </div>
+    </div>
+}

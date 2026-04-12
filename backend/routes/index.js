@@ -17,7 +17,7 @@ router.use("/materiales", materialRoute);
 router.use("/plantillas", templateRoute);
 router.use("/rutinas", templateRoute);
 router.use("/:userId/mis-rutinas", templateRoute);
-router.use("/demostraciones", videoRoute);
+router.use("/videos", videoRoute);
 
 
 module.exports = router;

@@ -27,7 +27,7 @@ export class MenuUsuarioComponent {
     { name: 'nombre', type: 'text', label: 'Nombre', validators: { required: true } },
     { name: 'apellidos', type: 'text', label: 'Apellidos', validators: { required: true } },
     { name: 'peso', type: 'number', label: 'Peso (en Kg)', min: 0, max: 999, step: 0.01, validators: { required: false}},
-    { name: 'foto_perfil', type: 'text', label: 'Foto de Perfil', validators: { required: false}},
+    { name: 'foto_perfil', type: 'link', label: 'Foto de Perfil', validators: { required: false}},
   ]
 
   constructor(private elementRef: ElementRef, private cd: ChangeDetectorRef, private modalService: ModalService, private userService: UserService) {}

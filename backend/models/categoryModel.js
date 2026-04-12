@@ -106,9 +106,9 @@ exports.updateCategory = (params) => {
             }
 
             if (nombreMinusculas === categoriaSelect.nombre_categoria) {
-              return reject({
+              return resolve({
                 message: "No se ha introducido ningún cambio.",
-                statusCode: 400,
+                statusCode: 200,
               });
             }
 

@@ -99,11 +99,11 @@ export class UserService {
   }
 
   getClientesApellidos(): Observable<any> {
-    return this.http.get<any>(this.baseApiUrl+'/clientes_apellidos', this.usuarioData);
+    return this.http.get<any>(this.baseApiUrl+'/clientes_apellidos');
   }
 
   getClientesNombre(): Observable<any> {
-    return this.http.get<any>(this.baseApiUrl+'/clientes_nombre', this.usuarioData);
+    return this.http.get<any>(this.baseApiUrl+'/clientes_nombre');
   }
 
   private getInfoUser(id: number): Observable<any> {

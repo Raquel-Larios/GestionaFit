@@ -1,1 +1,31 @@
-<p>material-view works!</p>
+<div class="content-container block font-20px">
+        <div class= "flex section-header-container">
+            <h2 class="section-name">Materiales</h2>
+            <div class="flex flex-end section-tools">
+                <div *ngIf="isAdmin">
+                    <app-icon-button [icon]="iconoAdd" [estilo]="'add-button'" (accion)="abrirModal('create')"></app-icon-button>
+                </div>
+                <app-order-option
+                [orderOptions]="materialOrderOptions.orderOptions"
+                [ascOptions]="materialOrderOptions.ascOptions"
+                [descOptions]="materialOrderOptions.descOptions"
+                [listaItems] ="listaMateriales"
+                (itemsReversed)="onItemsReversed($event)">
+                </app-order-option>
+            </div>
+        </div>
+    
+    <div class="flex material-container">
+        <div class="material-item" *ngFor="let material of listaMateriales; trackBy: trackByMaterial">
+            <img class="grafico" [src]="getSafeUrl(material.contenido)" (click)="abrirLightbox(material.contenido)" fallback>
+            <p class="nombre-item">{{material.nombre_material | primeraLetra}}</p>
+            <div *ngIf="isAdmin">
+                <div class="section-tools button-box">
+                    <app-icon-button [icon]="iconoModify" [estilo]="'modify-button'" (accion)="abrirModal('edit', material.id)"></app-icon-button>
+                    <app-icon-button [icon]="iconoDelete" [estilo]="'delete-button'" (accion)="deleteMaterial(material.id)"></app-icon-button>
+                </div>
+            </div>
+        </div> 
+    </div>
+    <app-lightbox [items]="lightboxItems"></app-lightbox>
+</div>

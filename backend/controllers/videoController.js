@@ -4,12 +4,13 @@ const {
   deleteVideo,
   linkVideoToExercise,
   unlinkVideoFromExercise,
+  getLinksVideo_Exercise,
 } = require("../models/videoModel");
 
 exports.createVideoControl = (req, res, next) => {
-  const { nombre, enlace } = req.body;
+  const { nombre_video, enlace_video } = req.body;
 
-  createVideo({ nombre, enlace })
+  createVideo({ nombre_video, enlace_video })
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -21,10 +22,10 @@ exports.createVideoControl = (req, res, next) => {
 };
 
 exports.updateVideoControl = (req, res, next) => {
-  const { nombre, enlace } = req.body;
-  const videoId = req.params.id;
+  const id_video = parseInt(req.params.id_video, 10);
+  const { nombre_video, enlace_video } = req.body;
 
-  updateVideo({ nombre, enlace, videoId })
+  updateVideo({ nombre_video, enlace_video, id_video })
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -36,9 +37,9 @@ exports.updateVideoControl = (req, res, next) => {
 };
 
 exports.deleteVideoControl = (req, res, next) => {
-  const videoId = req.params.id;
+  const id_video = parseInt(req.params.id_video, 10);
 
-  deleteVideo({ videoId })
+  deleteVideo({ id_video })
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -50,10 +51,10 @@ exports.deleteVideoControl = (req, res, next) => {
 };
 
 exports.linkVideoToExerciseControl = (req, res, next) => {
-    const videoId = req.params.videoId;
-    const ejercicioId = req.params.ejercicioId;
+    const id_video = parseInt(req.params.id_video, 10);
+    const id_ejercicio = parseInt(req.params.id_ejercicio, 10);
 
-    linkVideoToExercise({ videoId, ejercicioId })
+    linkVideoToExercise({ id_video, id_ejercicio })
     .then((result) => {
         const {statusCode = 200, message , data} = result;
         res.status(statusCode).send({message, data });
@@ -65,9 +66,9 @@ exports.linkVideoToExerciseControl = (req, res, next) => {
 };
 
 exports.unlinkVideoFromExerciseControl = (req, res, next) => {
-    const videoId = req.params.videoId;
+    const id_video = parseInt(req.params.id_video, 10);
 
-    unlinkVideoFromExercise({ videoId })
+    unlinkVideoFromExercise({ id_video})
     .then((result) => {
         const {statusCode = 200, message , data} = result;
         res.status(statusCode).send({message, data });
@@ -80,11 +81,11 @@ exports.unlinkVideoFromExerciseControl = (req, res, next) => {
 
 exports.getLinksVideo_ExerciseControl = (req, res) => {
 
-  this.getLinksVideo_Exercise({})
+  getLinksVideo_Exercise({})
   .then((result) => {
     res.json(result);
   })
   .catch((err) => {
-    throw err;
+    res.status(500).json({ error: err.message });
   })
 }

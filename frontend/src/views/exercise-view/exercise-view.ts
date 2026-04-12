@@ -9,7 +9,7 @@ import { faPlus, faEdit, faTrash} from "@fortawesome/free-solid-svg-icons";
 import { FormField } from '../../assets/models/form-field.interface';
 import { ModalService } from '../../shared/data/modalService.service';
 import { ModalConfig } from '../../assets/models/modal-config.interface';
-import { PrimeraLetraPipe } from '../../shared/utils/primeraLetraPipe';
+import { PrimeraLetraPipe } from '../../shared/utils/pipes/primeraLetraPipe';
 import { Categoria } from '../../assets/models/categoria.interface';
 import { CategoryService } from '../../shared/data/categoryService.service';
 import { EMPTY, of, switchMap } from 'rxjs';

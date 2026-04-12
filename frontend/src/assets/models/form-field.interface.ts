@@ -1,5 +1,5 @@
 export interface FormField{
-    type: 'text' | 'number' | 'email' | 'password' | 'select' | 'nested';
+    type: 'text' | 'number' | 'link' | 'email' | 'password' | 'select' | 'nested';
     name: string;
     label: string;
     min?: number;
