@@ -5,9 +5,9 @@ const {
 } = require("../models/materialModel");
 
 exports.createMaterialControl = (req, res, next) => {
-  const { nombre, contenido } = req.body;
+  const { nombre_material, contenido } = req.body;
 
-  createMaterial({ nombre, contenido })
+  createMaterial({ nombre_material, contenido })
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -19,10 +19,10 @@ exports.createMaterialControl = (req, res, next) => {
 };
 
 exports.updateMaterialControl = (req, res, next) => {
-  const { nombre, contenido } = req.body;
-  const materialId = req.params.id;
+  const { nombre_material, contenido } = req.body;
+  const id_material = parseInt(req.params.id_material, 10);
 
-  updateMaterial({ nombre, contenido, materialId })
+  updateMaterial({ nombre_material, contenido, id_material })
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -34,9 +34,9 @@ exports.updateMaterialControl = (req, res, next) => {
 };
 
 exports.deleteMaterialControl = (req, res, next) => {
-  const materialId = req.params.id;
+  const id_material = parseInt(req.params.id_material, 10);
 
-  deleteMaterial({ materialId })
+  deleteMaterial({ id_material })
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
