@@ -9,7 +9,7 @@
                 [descOptions]="clienteOrderOptions.descOptions"
                 [listaItems] ="listaClientes"
                 (itemsReversed)="onItemsReversed($event)"
-                (orderSelected)="orderOptionSelected = $event">
+                (orderSelected)="onOrderSelected($event)">
                 </app-order-option>
             </div>
         </div>

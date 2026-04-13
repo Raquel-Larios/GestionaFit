@@ -31,6 +31,7 @@ export class VideoView {
   @ViewChild(LightboxComponent) lightbox!: LightboxComponent;
   isAdmin: boolean = false;
   videoOrderOptions = VideoOrderOptions;
+  orderOptionSelected: string = 'Antigüedad';
   listaVideos: Video[] = [];
   videoFields: FormField[] = [
     {
@@ -65,15 +66,27 @@ export class VideoView {
 
   ngOnInit() {
     this.isAdminUser()
-    this.videoService.getVideos().subscribe({
-      next: (datos) => {
-        this.listaVideos = datos;
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error al obtener los videos.', err);
-      },
-    });
+    if (this.orderOptionSelected === 'Antigüedad') {
+      this.videoService.getVideosAntiguedad().subscribe({
+        next: (datos) => {
+          this.listaVideos = datos;
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error al obtener los vídeos.', err);
+        },
+      });
+    } else if (this.orderOptionSelected === 'Nombre') {
+      this.videoService.getVideosNombre().subscribe({
+        next: (datos) => {
+          this.listaVideos = datos;
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error al obtener los vídeos.', err);
+        },
+      });
+    }
   }
 
   onItemsReversed(reversed: Video[]) {
@@ -136,10 +149,22 @@ export class VideoView {
   }
 
   refrescarVideos(): void {
-    this.videoService.getVideos().subscribe((data) => {
-      this.listaVideos = [...data];
-      this.cd.detectChanges();
-    });
+    if (this.orderOptionSelected === 'Antigüedad') {
+      this.videoService.getVideosAntiguedad().subscribe((data) => {
+        this.listaVideos = [...data];
+        this.cd.detectChanges();
+      });
+    } else if (this.orderOptionSelected === 'Nombre') {
+      this.videoService.getVideosNombre().subscribe((data) => {
+        this.listaVideos = [...data];
+        this.cd.detectChanges();
+      });
+    }
+  }
+
+  onOrderSelected(order: string) {
+    this.orderOptionSelected = order;
+    this.refrescarVideos();
   }
 
   abrirLightbox(src: string) {

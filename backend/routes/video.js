@@ -5,8 +5,15 @@ const db = require('../database/db');
 const videoController = require("../controllers/videoController");
 
 //GESTIÓN VÍDEO
-router.get("/all", (req, res) => {
+router.get("/all/antiguedad", (req, res) => {
     db.query('SELECT id, nombre_video, enlace_video FROM video ORDER BY id DESC', (err, results) => {
+        if (err) throw err;
+        res.json(results);
+    });
+});
+
+router.get("/all/nombre", (req, res) => {
+    db.query('SELECT id, nombre_video, enlace_video FROM video ORDER BY nombre_video ASC', (err, results) => {
         if (err) throw err;
         res.json(results);
     });

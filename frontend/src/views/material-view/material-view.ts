@@ -31,6 +31,7 @@ export class MaterialView implements OnInit {
   @ViewChild(LightboxComponent) lightbox!: LightboxComponent;
   isAdmin: boolean = false;
   materialOrderOptions = MaterialOrderOptions;
+  orderOptionSelected: string = 'Antigüedad';
   listaMateriales: Material[] = [];
   materialFields: FormField[] = [
     {
@@ -66,15 +67,27 @@ export class MaterialView implements OnInit {
 
   ngOnInit() {
     this.isAdminUser()
-    this.materialService.getMateriales().subscribe({
-      next: (datos) => {
-        this.listaMateriales = datos;
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error al obtener los materiales.', err);
-      },
-    });
+    if (this.orderOptionSelected === 'Antigüedad') {
+      this.materialService.getMaterialesAntiguedad().subscribe({
+        next: (datos) => {
+          this.listaMateriales = datos;
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error al obtener los vídeos.', err);
+        },
+      });
+    } else if (this.orderOptionSelected === 'Nombre') {
+      this.materialService.getMaterialesNombre().subscribe({
+        next: (datos) => {
+          this.listaMateriales = datos;
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error al obtener los vídeos.', err);
+        },
+      });
+    }
   }
 
   onItemsReversed(reversed: Material[]) {
@@ -137,10 +150,22 @@ export class MaterialView implements OnInit {
   }
 
   refrescarMateriales(): void {
-    this.materialService.getMateriales().subscribe((data) => {
-      this.listaMateriales = [...data];
-      this.cd.detectChanges();
-    });
+    if (this.orderOptionSelected === 'Antigüedad') {
+      this.materialService.getMaterialesAntiguedad().subscribe((data) => {
+        this.listaMateriales = [...data];
+        this.cd.detectChanges();
+      });
+    } else if (this.orderOptionSelected === 'Nombre') {
+      this.materialService.getMaterialesNombre().subscribe((data) => {
+        this.listaMateriales = [...data];
+        this.cd.detectChanges();
+      });
+    }
+  }
+
+  onOrderSelected(order: string) {
+    this.orderOptionSelected = order;
+    this.refrescarMateriales();
   }
 
   abrirLightbox(src: string) {

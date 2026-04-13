@@ -4,8 +4,15 @@ const db = require('../database/db');
 
 const materialController = require("../controllers/materialController");
 
-router.get("/all", (req, res) => {
+router.get("/all/antiguedad", (req, res) => {
     db.query('SELECT id, nombre_material, contenido FROM material ORDER BY id DESC', (err, results) => {
+        if (err) throw err;
+        res.json(results);
+    });
+});
+
+router.get("/all/nombre", (req, res) => {
+    db.query('SELECT id, nombre_material, contenido FROM material ORDER BY nombre_material DESC', (err, results) => {
         if (err) throw err;
         res.json(results);
     });

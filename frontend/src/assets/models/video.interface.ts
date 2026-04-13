@@ -5,11 +5,13 @@ export interface Video{
 }
 
 export const VideoOrderOptions = {
-    orderOptions: ['Antigüedad'] as const,
+    orderOptions: ['Antigüedad' , 'Nombre'] as const,
     ascOptions: {
-        Antigüedad: 'Más reciente ↑'
+        Antigüedad: 'Más reciente ↑',
+        Nombre: 'A-Z ↑'
     },
     descOptions: {
-        Antigüedad: 'Más antiguo ↓'
+        Antigüedad: 'Más antiguo ↓',
+        Nombre: 'Z-A ↓'
     }
 }

@@ -139,6 +139,11 @@ export class UserlistView implements OnInit {
     });
   }
 
+  onOrderSelected(order: string) {
+    this.orderOptionSelected = order;
+    this.refrescarClientes();
+  }
+
   refrescarClientes(): void {
     if (this.orderOptionSelected === 'Apellidos') {
       this.userService.getClientesApellidos().subscribe((data) => {

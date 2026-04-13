@@ -1,6 +1,6 @@
 <div class="content-container block font-20px">
         <div class= "flex section-header-container">
-            <h2 class="section-name">Materiales</h2>
+            <h2 class="section-name">Demostraciones</h2>
             <div class="flex flex-end section-tools">
                 <div *ngIf="isAdmin">
                     <app-icon-button [icon]="iconoAdd" [estilo]="'add-button'" (accion)="abrirModal('create')"></app-icon-button>
@@ -10,7 +10,8 @@
                 [ascOptions]="videoOrderOptions.ascOptions"
                 [descOptions]="videoOrderOptions.descOptions"
                 [listaItems] ="listaVideos"
-                (itemsReversed)="onItemsReversed($event)">
+                (itemsReversed)="onItemsReversed($event)"
+                (orderSelected)="onOrderSelected($event)">
                 </app-order-option>
             </div>
         </div>

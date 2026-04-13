@@ -18,8 +18,12 @@ export class VideoService {
     this.videoData = value;
   }
 
-  getVideos(): Observable<any> {
-    return this.http.get<any>(this.baseApiUrl+"/all");
+  getVideosAntiguedad(): Observable<any> {
+    return this.http.get<any>(this.baseApiUrl+"/all/antiguedad");
+  }
+
+  getVideosNombre(): Observable<any> {
+    return this.http.get<any>(this.baseApiUrl+"/all/nombre");
   }
 
   getVideoById(id: number): Observable<any> {

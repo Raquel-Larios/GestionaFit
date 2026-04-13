@@ -18,8 +18,12 @@ export class MaterialService {
     this.materialData = value;
   }
 
-  getMateriales(): Observable<any> {
-    return this.http.get<any>(this.baseApiUrl+"/all");
+  getMaterialesAntiguedad(): Observable<any> {
+    return this.http.get<any>(this.baseApiUrl+"/all/antiguedad");
+  }
+
+  getMaterialesNombre(): Observable<any> {
+    return this.http.get<any>(this.baseApiUrl+"/all/nombre");
   }
 
   getMaterialById(id: number): Observable<any> {

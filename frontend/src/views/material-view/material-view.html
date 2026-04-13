@@ -10,7 +10,8 @@
                 [ascOptions]="materialOrderOptions.ascOptions"
                 [descOptions]="materialOrderOptions.descOptions"
                 [listaItems] ="listaMateriales"
-                (itemsReversed)="onItemsReversed($event)">
+                (itemsReversed)="onItemsReversed($event)"
+                (orderSelected)="onOrderSelected($event)">
                 </app-order-option>
             </div>
         </div>
