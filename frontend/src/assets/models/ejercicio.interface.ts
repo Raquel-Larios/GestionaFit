@@ -5,11 +5,13 @@ export interface Ejercicio{
 }
 
 export const EjercicioOrderOptions = {
-    orderOptions: ['Nombre'] as const,
+    orderOptions: ['Nombre', 'Categoría'] as const,
     ascOptions: {
-        Nombre: 'A-Z ↑'
+        Nombre: 'A-Z ↑',
+        Categoría: 'A-Z ↑'
     },
     descOptions: {
-        Nombre: 'Z-A ↓'
+        Nombre: 'Z-A ↓',
+        Categoría: 'Z-A ↓'
     }
 }

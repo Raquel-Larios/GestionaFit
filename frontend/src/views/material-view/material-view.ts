@@ -74,7 +74,7 @@ export class MaterialView implements OnInit {
           this.cd.detectChanges();
         },
         error: (err) => {
-          console.error('Error al obtener los vídeos.', err);
+          console.error('Error al obtener los materiales.', err);
         },
       });
     } else if (this.orderOptionSelected === 'Nombre') {
@@ -84,7 +84,7 @@ export class MaterialView implements OnInit {
           this.cd.detectChanges();
         },
         error: (err) => {
-          console.error('Error al obtener los vídeos.', err);
+          console.error('Error al obtener los materiales.', err);
         },
       });
     }

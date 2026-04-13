@@ -8,18 +8,28 @@
                 [ascOptions]="ejercicioOrderOptions.ascOptions"
                 [descOptions]="ejercicioOrderOptions.descOptions"
                 [listaItems] ="listaEjercicios"
-                (itemsReversed)="onItemsReversed($event)">
+                (itemsReversed)="onItemsReversed($event)"
+                (orderSelected)="onOrderSelected($event)">
                 </app-order-option>
             </div>
         </div>
     
     <div class="block">
-        <div class="ejercicio-item flex" *ngFor="let ejercicio of listaEjercicios">
-            <p>{{ejercicio.nombre_ejercicio | primeraLetra}}</p>
-            <!--Asignar a categoria, desplegable-->
-            <div class="section-tools button-box flex-end">
-                <app-icon-button [icon]="iconoModify" [estilo]="'modify-button'" (accion)="abrirModal('edit', ejercicio.id)"></app-icon-button>
-                <app-icon-button [icon]="iconoDelete" [estilo]="'delete-button'" (accion)="deleteEjercicio(ejercicio.id)"></app-icon-button>
+        <div *ngFor="let ejercicio of listaEjercicios; let index = index">
+            <div class="ejercicio-group-header" 
+            *ngIf="(
+            orderOptionSelected === 'Categoría' && 
+            (index === 0 || ejercicio.nombre_categoria !== listaEjercicios[index-1].nombre_categoria)
+            )">
+            {{onCategoriaSelected(ejercicio.id_categoria)}}
+            </div>
+            <div class="ejercicio-item flex">
+                <p>{{ejercicio.nombre_ejercicio | primeraLetra}}</p>
+                <!--Asignar a categoria, desplegable-->
+                <div class="section-tools button-box flex-end">
+                    <app-icon-button [icon]="iconoModify" [estilo]="'modify-button'" (accion)="abrirModal('edit', ejercicio.id)"></app-icon-button>
+                    <app-icon-button [icon]="iconoDelete" [estilo]="'delete-button'" (accion)="deleteEjercicio(ejercicio.id)"></app-icon-button>
+                </div>
             </div>
         </div> 
     </div>

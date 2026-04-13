@@ -18,8 +18,12 @@ export class ExerciseService {
     this.exerciseData = value;
   }
 
-  getEjercicios(): Observable<any> {
-    return this.http.get<any>(this.baseApiUrl+"/all");
+  getEjerciciosNombre(): Observable<any> {
+    return this.http.get<any>(this.baseApiUrl+"/all/nombre");
+  }
+
+  getEjerciciosByCategoria(): Observable<any> {
+    return this.http.get<any>(this.baseApiUrl+"/all/by-categoria");
   }
 
   getEjercicioById(id: number): Observable<any> {

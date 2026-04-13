@@ -20,10 +20,14 @@ import { EMPTY, of, switchMap } from 'rxjs';
   templateUrl: './exercise-view.html',
   styleUrl: './exercise-view.css',
 })
+
 export class ExerciseView implements OnInit{
+
+  orderOptionSelected: string = 'Nombre';
   ejercicioOrderOptions = EjercicioOrderOptions;
   listaCategorias: Categoria[] = [];
-  listaEjercicios: Ejercicio[] = [];
+  categoriasMap: Map<number, string> = new Map();
+  listaEjercicios: (Ejercicio & { nombre_categoria?: string })[] = [];
   ejercicioFields: FormField[] = [
     { name: 'nombre_ejercicio', type: 'text', label: "Nombre del ejercicio", validators:{required: true}}]
   iconoAdd = faPlus;
@@ -33,19 +37,32 @@ export class ExerciseView implements OnInit{
   constructor(private exerciseService: ExerciseService, private cd: ChangeDetectorRef, private modalService: ModalService, private categoryService: CategoryService){}
 
   ngOnInit(){
-    this.exerciseService.getEjercicios().subscribe({
-      next: (datos) => {
-        this.listaEjercicios = datos;
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error al obtener los ejercicios.', err);
-      }
-    });
+    if (this.orderOptionSelected === 'Nombre') {
+      this.exerciseService.getEjerciciosNombre().subscribe({
+        next: (datos) => {
+          this.listaEjercicios = datos;
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error al obtener los ejercicios.', err);
+        },
+      });
+    } else if (this.orderOptionSelected === 'Categoría') {
+      this.exerciseService.getEjerciciosByCategoria().subscribe({
+        next: (datos) => {
+          this.listaEjercicios = datos;
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error al obtener los ejercicios.', err);
+        },
+      });
+    }
 
     this.categoryService.getCategorias().subscribe({
       next: (datos) => {
         this.listaCategorias = datos;
+        this.crearMapaCategorias();
         this.ejercicioFields = [
           ...this.ejercicioFields,
         { 
@@ -65,6 +82,14 @@ export class ExerciseView implements OnInit{
         console.error('Error al obtener las categorias.', err);
       }
     });
+  }
+
+  crearMapaCategorias(){
+      if (this.listaCategorias && this.listaCategorias.length > 0) {
+      this.categoriasMap = new Map(
+      this.listaCategorias.map(cat => [cat.id, cat.nombre_categoria])
+      );
+    }
   }
 
   onItemsReversed(reversed: Ejercicio[]){
@@ -125,10 +150,33 @@ export class ExerciseView implements OnInit{
     })
   }
 
+  onOrderSelected(order: string) {
+    this.orderOptionSelected = order;
+    this.refrescarEjercicios();
+  }
+
+  onCategoriaSelected(id:number | undefined): String{
+
+    if(id === undefined || id === null){
+      return "Sin asignar"
+    }
+
+    const nombre_grupo = this.categoriasMap.get(id);
+
+    return nombre_grupo ? `${nombre_grupo}` : "Categoría desconocida";
+  }
+
   refrescarEjercicios(): void {
-    this.exerciseService.getEjercicios().subscribe(data => {
-      this.listaEjercicios = [...data];
-      this.cd.detectChanges();
-  });
+    if (this.orderOptionSelected === 'Nombre') {
+      this.exerciseService.getEjerciciosNombre().subscribe((data) => {
+        this.listaEjercicios = [...data];
+        this.cd.detectChanges();
+      });
+    } else if (this.orderOptionSelected === 'Categoría') {
+      this.exerciseService.getEjerciciosByCategoria().subscribe((data) => {
+        this.listaEjercicios = [...data];
+        this.cd.detectChanges();
+      });
+    }
 }
 }
