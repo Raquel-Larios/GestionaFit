@@ -24,7 +24,14 @@ router.put("/:id_categoria", categoryController.updateCategoryControl);
 router.delete("/:id_categoria", categoryController.deleteCategoryControl);
 
 //GESIÓN ASIGNACIÓN CATEGORÍA-EJERCICIO
-router.get("asignacion-categoria-ejercicio", categoryController.getLinksCategory_ExerciseControl);
+router.get("/asignacion-categoria-ejercicio", categoryController.getLinksCategory_ExerciseControl);
+router.get("/asignacion-categoria-ejercicio/:id_categoria", (req, res) => {
+    const id_categoria = parseInt(req.params.id_categoria, 10);
+    db.query('SELECT ejercicio.id, ejercicio.nombre_ejercicio FROM ejercicio INNER JOIN categoria ON ejercicio.id_categoria = categoria.id WHERE id_categoria = ? ORDER BY ejercicio.nombre_ejercicio', [id_categoria], (err, results) => {
+        if (err) throw err;
+        res.json(results);
+    })
+})
 router.post("/:id_categoria/:id_ejercicio", categoryController.linkCategorytoExerciseControl);
 router.delete("/:id_categoria/:id_ejercicio", categoryController.unlinkCategoryFromExerciseControl);
 

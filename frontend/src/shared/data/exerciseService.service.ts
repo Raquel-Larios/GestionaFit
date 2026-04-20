@@ -43,7 +43,7 @@ export class ExerciseService {
   }
 
   getAsignacionEjercicio_Categoria(): Observable<any>{
-    return this.http.get<any>(this.baseApiUrl+'/asignacion-ejercicio-categoria', this.exerciseData);
+    return this.http.get<any>(this.baseApiUrl+'/asignacion-ejercicio-categoria');
   }
 
   crearAsignacionEjercicio_Categoria(): Observable<any>{

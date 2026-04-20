@@ -233,7 +233,7 @@ exports.linkCategoryToExercise = (params) => {
             }
             if (result.length > 0) {
               return reject({
-                message: "Este ejercicio ya está asignado a una categoría.",
+                message: "Este ejercicio ya está asignado a una categoría.", //Posteriormente quiero que esta compobación en vez de impedirte cambiar la asiganción te permita cambiarla directamente, lo suyo es después de perguntar si de verdad la quieres cambiar
                 statusCode: 400,
               });
             }
@@ -259,7 +259,7 @@ exports.linkCategoryToExercise = (params) => {
                   }
 
                   db.query(
-                    `UPADTE ejercicio SET id_categoria = '${id_categoria}' WHERE id = ?`,
+                    `UPDATE ejercicio SET id_categoria = '${id_categoria}' WHERE id = ?`,
                     [id_ejercicio],
                     (err, result) => {
                       if (err) {
@@ -318,7 +318,7 @@ exports.unlinkCategoryFormExercise = (params) => {
         });
       }
 
-      db.query(`SELECT id, id_categoria FROM ejercicio WHERE id = ? AND id_ categoria = ?`, [id_ejercicio, id_categoria], (err, result) => {
+      db.query(`SELECT id, id_categoria FROM ejercicio WHERE id = ? AND id_categoria = ?`, [id_ejercicio, id_categoria], (err, result) => {
         if(err){return reject({
           code: DEFAULT_ERROR,
           message: "Error al buscar la asignación Categoría-Ejercicio.",

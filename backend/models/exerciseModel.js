@@ -192,7 +192,7 @@ exports.deleteExercise = (params) => {
         });
       }
 
-      //Se borran las apraiciones del id en todas las tablas que no funcionen como historial, es decir,
+      //Se borran las apariciones del id en todas las tablas que no funcionen como historial, es decir,
       // no se borra de la de lectura ya que estos datos se necesitan para las gráficas.
       db.query(`
         DELETE FROM defecto WHERE id_ejercicio = ?;

@@ -1,0 +1,70 @@
+<button #linkerButton class="linker-toggle" (click)="onButtonClick($event)">{{ texto }}</button>
+<!-- Menú para un solo tipo de vínculo -->
+<div #menu *ngIf="!config.multipleLinkChoice && showMenu" class="menu">
+  <div class="section">Asignar</div>
+  <div
+    class="menu-item"
+    *ngFor="let item of config.listaItems | filterUnassigned: assignedItemsId"
+    (click)="selectItem(item.id, config.listaLinkChoices[0])"
+  >
+    <div *ngIf="config.listaLinkChoices[0] === 'Cliente'">
+      {{ item.nombre | titlecase }}
+    </div>
+    <div *ngIf="config.listaLinkChoices[0] !== 'Cliente'">
+      {{ item.nombre | primeraLetra }}
+    </div>
+  </div>
+  <div class="section">Desasignar</div>
+  <div
+    class="menu-item"
+    *ngFor="let item of config.listaItems | filterAssigned: assignedItemsId"
+    (click)="unselectItem(item.id, config.listaLinkChoices[0])"
+  >
+    <div *ngIf="config.listaLinkChoices[0] === 'Cliente'">
+      {{ item.nombre | titlecase }}
+    </div>
+    <div *ngIf="config.listaLinkChoices[0] !== 'Cliente'">
+      {{ item.nombre | primeraLetra }}
+    </div>
+  </div>
+</div>
+
+<!-- Menú para múltiples tipos -->
+<div *ngIf="config.multipleLinkChoice && showMenu" class="menu">
+  <div
+    *ngFor="let choice of config.listaLinkChoices"
+    (mouseenter)="enterChoice(choice)"
+    (mouseleave)="leaveChoice()"
+    class="choice-item"
+  >
+    {{ choice }} ➤
+    <div *ngIf="currentChoice === choice" class="submenu">
+      <div class="section">Asignar</div>
+      <div
+        class="menu-item"
+        *ngFor="let item of config.listaItems | filterUnassigned: assignedItemsId"
+        (click)="selectItem(item.id, choice)"
+      >
+        <div *ngIf="choice === 'Cliente'">
+          {{ item.nombre | titlecase }}
+        </div>
+        <div *ngIf="choice !== 'Cliente'">
+          {{ item.nombre | primeraLetra }}
+        </div>
+      </div>
+      <div class="section">Desasignar</div>
+      <div
+        class="menu-item"
+        *ngFor="let item of config.listaItems | filterAssigned: assignedItemsId"
+        (click)="unselectItem(item.id, choice)"
+      >
+        <div *ngIf="choice === 'Cliente'">
+          {{ item.nombre | titlecase }}
+        </div>
+        <div *ngIf="choice !== 'Cliente'">
+          {{ item.nombre | primeraLetra }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

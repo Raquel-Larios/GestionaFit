@@ -39,15 +39,19 @@ export class CategoryService {
   }
 
   getAsignacionCategoria_Ejercicio(): Observable<any>{
-    return this.http.get<any>(this.baseApiUrl+'/asignacion-categoria-ejercicio', this.categoryData);
+    return this.http.get<any>(this.baseApiUrl+'/asignacion-categoria-ejercicio');
   }
 
-  crearAsignacionCategoria_Ejercicio(): Observable<any>{
-    return this.http.post<any>(this.baseApiUrl+'/'+this.categoryData.categoriaId+'/'+this.categoryData.ejercicioId, this.categoryData);
+  getAsignacionCategoria_EjercicioById(id: number): Observable<any>{
+    return this.http.get<any>(this.baseApiUrl+'/asignacion-categoria-ejercicio/'+id)
   }
 
-  eliminarAsignacionCategoria_Ejercicio(): Observable<any>{
-    return this.http.delete<any>(this.baseApiUrl+'/'+this.categoryData.categoriaId+'/'+this.categoryData.ejercicioId);
+  crearAsignacionCategoria_Ejercicio(data: any): Observable<any>{
+    return this.http.post<any>(this.baseApiUrl+'/'+data.id_categoria+'/'+data.id_ejercicio, data);
+  }
+
+  eliminarAsignacionCategoria_Ejercicio(data: any): Observable<any>{
+    return this.http.delete<any>(this.baseApiUrl+'/'+data.id_categoria+'/'+data.id_ejercicio);
   }
 
 }

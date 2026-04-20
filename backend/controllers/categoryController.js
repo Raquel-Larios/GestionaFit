@@ -3,7 +3,7 @@ const {
   updateCategory,
   deleteCategory,
   linkCategoryToExercise,
-  unlinkCategoryFromExercise,
+  unlinkCategoryFormExercise,
 } = require("../models/categoryModel");
 
 //CREAR CATEGORÍA
@@ -54,7 +54,8 @@ exports.deleteCategoryControl = (req, res, next) => {
 
 //ASIGNAR A EJERCICIO
 exports.linkCategorytoExerciseControl = (req, res, next) => {
-  const {id_categoria, id_ejercicio} = parseInt(req.params, 10);
+  const id_categoria = parseInt(req.params.id_categoria, 10);
+  const id_ejercicio = parseInt(req.params.id_ejercicio, 10);
 
   linkCategoryToExercise({ id_categoria, id_ejercicio })
     .then((result) => {
@@ -69,9 +70,10 @@ exports.linkCategorytoExerciseControl = (req, res, next) => {
 
 //ELIMINAR ASIGNACIÓN A EJERCICIO
 exports.unlinkCategoryFromExerciseControl = (req, res, next) => {
-   const {id_categoria, id_ejercicio} = parseInt(req.params, 10);
+  const id_categoria = parseInt(req.params.id_categoria, 10);
+  const id_ejercicio = parseInt(req.params.id_ejercicio, 10);
 
-  unlinkCategoryFromExercise({ id_categoria, id_ejercicio })
+  unlinkCategoryFormExercise({ id_categoria, id_ejercicio })
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
