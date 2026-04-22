@@ -57,20 +57,41 @@ export class ItemLinkerComponent {
   }
   }
 
-  selectItem(selectedItemId: number, choice: LinkOption) {
+  loadIdData(selectedItemId: number, choice: LinkOption){
+    const parentKeyMap: { [key in LinkOption]?: string } = {
+      Categoría: 'id_categoria',
+      Ejercicio: 'id_ejercicio',
+      Vídeo: 'id_video',
+      Cliente: 'id_usuario',
+      Plantilla: 'id_plantilla',
+    };
+
+    const selectedKeyMap: { [key in LinkOption]?: string } = {
+      Categoría: 'id_categoria',
+      Ejercicio: 'id_ejercicio',
+      Vídeo: 'id_video',
+      Cliente: 'id_usuario',
+      Plantilla: 'id_plantilla',
+    };
+
+    const parentKey = parentKeyMap[this.config.parentType] || 'id_padre';
+    const selectedKey = selectedKeyMap[choice] || 'id_seleccionado';
+
     const idData = {
-      id_categoria: this.itemId,
-      id_ejercicio: selectedItemId
+      [parentKey]: this.itemId,
+      [selectedKey]: selectedItemId
     }
+    return idData;
+  }
+
+  selectItem(selectedItemId: number, choice: LinkOption) {
+    const idData = this.loadIdData(selectedItemId, choice)
     this.linkEvent.emit({ data: idData, action: 'asignar', choice });
     this.showMenu = false;
   }
 
   unselectItem(selectedItemId: number, choice: LinkOption) {
-    const idData = {
-      id_categoria: this.itemId,
-      id_ejercicio: selectedItemId
-    }
+    const idData = this.loadIdData(selectedItemId, choice)
     this.linkEvent.emit({ data: idData, action: 'desasignar', choice });
     this.showMenu = false;
   }

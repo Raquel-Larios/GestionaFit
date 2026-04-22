@@ -38,8 +38,14 @@ router.get("/asignacion-video-ejercicio", (req, res) => {
         res.json(results);
     });
 });
-
-router.post("/:id_video/:id_ejercicio", videoController.linkVideoToExerciseControl);
+router.get("/asignacion-video-ejercicio/:id_video", (req, res) => {
+    const id_video = parseInt(req.params.id_video, 10);
+    db.query('SELECT demostracion.id_ejercicio, ejercicio.nombre_ejercicio FROM demostracion INNER JOIN ejercicio ON demostracion.id_ejercicio = ejercicio.id WHERE demostracion.id_video = ? ORDER BY ejercicio.nombre_ejercicio', [id_video], (err, results) => {
+        if (err) throw err;
+        res.json(results);
+    })
+})
+router.post("/asignar/:id_video/:id_ejercicio", videoController.linkVideoToExerciseControl);
 router.delete("/desasignar/:id_video", videoController.unlinkVideoFromExerciseControl);
 
 module.exports = router;

@@ -55,7 +55,8 @@ export class CategoryView implements OnInit {
     selectionService: {
       assign: (data) => this.categoryService.crearAsignacionCategoria_Ejercicio(data),
       unassign: (data) => this.categoryService.eliminarAsignacionCategoria_Ejercicio(data)
-    }
+    },
+    parentType: 'Categoría'
   }
 
   constructor(

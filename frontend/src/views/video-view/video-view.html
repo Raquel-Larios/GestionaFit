@@ -31,6 +31,14 @@
                     <app-icon-button [icon]="iconoModify" [estilo]="'modify-button'" (accion)="abrirModal('edit', video.id)"></app-icon-button>
                     <app-icon-button [icon]="iconoDelete" [estilo]="'delete-button'" (accion)="deleteVideo(video.id)"></app-icon-button>
                 </div>
+                <div class="linker">
+                    <app-item-linker 
+                    [texto]="'Asignar/desasignar a ejercicio'" 
+                    [config]="linkerConfig"
+                    [itemId]="video.id"
+                    (linkEvent)="onLinkAction($event)"
+                    (loadForId)="onLoadForId($event)"></app-item-linker>
+                </div>
             </div>
         </div>
         <app-lightbox [items]="lightboxItems"></app-lightbox>

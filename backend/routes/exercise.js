@@ -41,10 +41,10 @@ router.get("/asignacion-ejercicio-categoria/:id_ejercicio", (req, res) => {
         res.json(results);
     })
 })
-router.post("asignacion-ejercicio-categoria/asignar/:id_ejercicio/:id_categoria", categoryController.linkCategorytoExerciseControl);
-router.delete("asignacion-ejercicio-categoria/desasignar/:id_ejercicio/:id_categoria", categoryController.unlinkCategoryFromExerciseControl);
+router.post("/asignacion-ejercicio-categoria/asignar/:id_ejercicio/:id_categoria", categoryController.linkCategorytoExerciseControl);
+router.delete("/asignacion-ejercicio-categoria/desasignar/:id_ejercicio/:id_categoria", categoryController.unlinkCategoryFromExerciseControl);
 //GESTIÓN ASIGNACIÓN EJERCICIO-VÍDEO
-router.get("asignacion-ejericio-video", videoController.getLinksVideo_ExerciseControl);
+router.get("/asignacion-ejericio-video", videoController.getLinksVideo_ExerciseControl);
 router.get("/asignacion-ejercicio-video/:id_ejercicio", (req, res) => {
     const id_ejercicio = parseInt(req.params.id_ejercicio, 10);
     db.query('SELECT demostracion.id_video, video.nombre_video FROM demostracion INNER JOIN video ON demostracion.id_video = video.id WHERE demostracion.id_ejercicio = ? ORDER BY video.nombre_video', [id_ejercicio], (err, results) => {
@@ -52,7 +52,7 @@ router.get("/asignacion-ejercicio-video/:id_ejercicio", (req, res) => {
         res.json(results);
     })
 })
-router.post("asignacion-ejercicio-video/asignar/:id_ejercicio/:id_video", videoController.linkVideoToExerciseControl);
-router.delete("asignacion-ejercicio-video/desasignar/:id_ejercicio", exerciseController.unlinkExerciseFromVideoControl);
+router.post("/asignacion-ejercicio-video/asignar/:id_ejercicio/:id_video", videoController.linkVideoToExerciseControl);
+router.delete("/asignacion-ejercicio-video/desasignar/:id_ejercicio", exerciseController.unlinkExerciseFromVideoControl);
 
 module.exports = router;

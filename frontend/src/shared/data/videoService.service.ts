@@ -46,8 +46,12 @@ export class VideoService {
     return this.http.get<any>(this.baseApiUrl+'/asignacion-video-ejercicio');
   }
 
+  getAsignacionVideo_EjercicioById(id: number): Observable<any>{
+    return this.http.get<any>(this.baseApiUrl+'/asignacion-video-ejercicio/'+id);
+  }
+
   crearAsignacionVideo_Ejercicio(data: any): Observable<any>{
-    return this.http.post<any>(this.baseApiUrl+'/'+data.id_video+'/'+data.id_ejercicio, data);
+    return this.http.post<any>(this.baseApiUrl+'/asignar/'+data.id_video+'/'+data.id_ejercicio, data);
   }
 
   eliminarAsignacionVideo_Ejercicio(id: number): Observable<any>{

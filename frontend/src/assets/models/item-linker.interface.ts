@@ -11,6 +11,7 @@ export interface ItemLinkConfig {
     assign(data: any, choice?: LinkOption): Observable<any>,
     unassign(data: any, choice?: LinkOption): Observable<any>,
   };
+  parentType: LinkOption
 }
 
 export interface ItemLinkEvent {

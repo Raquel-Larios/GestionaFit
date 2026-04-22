@@ -51,8 +51,9 @@ export class ExerciseView implements OnInit{
       : this.exerciseService.crearAsignacionEjercicio_Video(data),
       unassign: (data, choice) => choice === 'Categoría'
       ? this.exerciseService.eliminarAsignacionEjercicio_Categoria(data)
-      : this.exerciseService.eliminarAsignacionEjercicio_Video(data)
-    }
+      : this.exerciseService.eliminarAsignacionEjercicio_Video(data.id_ejercicio)
+    },
+    parentType: 'Ejercicio'
   }
 
   constructor(private exerciseService: ExerciseService, private cd: ChangeDetectorRef, private modalService: ModalService, private categoryService: CategoryService, private videoService: VideoService){}

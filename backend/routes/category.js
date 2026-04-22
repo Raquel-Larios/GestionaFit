@@ -32,7 +32,7 @@ router.get("/asignacion-categoria-ejercicio/:id_categoria", (req, res) => {
         res.json(results);
     })
 })
-router.post("/:id_categoria/:id_ejercicio", categoryController.linkCategorytoExerciseControl);
-router.delete("/:id_categoria/:id_ejercicio", categoryController.unlinkCategoryFromExerciseControl);
+router.post("/asignar/:id_categoria/:id_ejercicio", categoryController.linkCategorytoExerciseControl);
+router.delete("/desasignar/:id_categoria/:id_ejercicio", categoryController.unlinkCategoryFromExerciseControl);
 
 module.exports = router;
