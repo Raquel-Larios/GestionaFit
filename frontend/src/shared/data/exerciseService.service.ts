@@ -46,23 +46,31 @@ export class ExerciseService {
     return this.http.get<any>(this.baseApiUrl+'/asignacion-ejercicio-categoria');
   }
 
-  crearAsignacionEjercicio_Categoria(): Observable<any>{
-    return this.http.post<any>(this.baseApiUrl+'/'+this.exerciseData.ejercicioId+'/'+this.exerciseData.categoriaId, this.exerciseData);
+  getAsignacionEjercicio_CategoriaById(id: number): Observable<any>{
+    return this.http.get<any>(this.baseApiUrl+'/asignacion-ejercicio-categoria/'+id)
   }
 
-  eliminarAsignacionEjercicio_Categoria(): Observable<any>{
-    return this.http.delete<any>(this.baseApiUrl+'/'+this.exerciseData.ejercicioId+'/'+this.exerciseData.categoriaId, this.exerciseData);
+  crearAsignacionEjercicio_Categoria(data: any): Observable<any>{
+    return this.http.post<any>(this.baseApiUrl+'/asignacion-ejercicio-categoria/asignar/'+data.id_ejercicio+'/'+data.id_categoria, data);
+  }
+
+  eliminarAsignacionEjercicio_Categoria(data:any): Observable<any>{
+    return this.http.delete<any>(this.baseApiUrl+'/asignacion-ejercicio-categoria/desasignar/'+data.id_ejercicio+'/'+data.id_categoria);
   }
 
   getAsignacionEjercicio_Video(): Observable<any>{
-    return this.http.get<any>(this.baseApiUrl+'/asignacion-ejercicio-video', this.exerciseData);
+    return this.http.get<any>(this.baseApiUrl+'/asignacion-ejercicio-video');
   }
 
-  crearAsignacionEjercicio_Video(): Observable<any>{
-    return this.http.post<any>(this.baseApiUrl+'/'+this.exerciseData.ejercicioId+'/'+this.exerciseData.videoId, this.exerciseData);
+  getAsignacionEjercicio_VideoById(id:number): Observable<any>{
+    return this.http.get<any>(this.baseApiUrl+'/asignacion-ejercicio-video/'+id)
   }
 
-  eliminarAsignacionEjercicio_Video(): Observable<any>{
-    return this.http.delete<any>(this.baseApiUrl+'/desasignar'+'/'+this.exerciseData.ejercicioId, this.exerciseData);
+  crearAsignacionEjercicio_Video(data: any): Observable<any>{
+    return this.http.post<any>(this.baseApiUrl+'/asignacion-ejercicio-video/asignar/'+data.id_ejercicio+'/'+data.id_video, data);
+  }
+
+  eliminarAsignacionEjercicio_Video(id:number): Observable<any>{
+    return this.http.delete<any>(this.baseApiUrl+'/asignacion-ejercicio-video/desasignar/'+id);
   }
 }

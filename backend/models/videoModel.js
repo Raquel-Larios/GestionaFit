@@ -331,7 +331,7 @@ exports.unlinkVideoFromExercise = (params) => {
 exports.getLinksVideo_Exercise = () => {
 
   return new Promise ((resolve, reject) => {
-    db.query('SELECT * FROM demostracion', (err, results) => {
+    db.query('SELECT demostracion.id_ejercicio, ejercicio.nombre_ejercicio, demostracion.id_video, video.nombre_video FROM demostracion INNER JOIN ejercicio ON demostracion.id_ejercicio = ejercicio.id INNER JOIN video ON demostracion.id_video = video.id', (err, results) => {
             if(err){
               return reject({
                 code: DEFAULT_ERROR,

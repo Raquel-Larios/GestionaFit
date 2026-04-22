@@ -35,9 +35,11 @@
     *ngFor="let choice of config.listaLinkChoices"
     (mouseenter)="enterChoice(choice)"
     (mouseleave)="leaveChoice()"
-    class="choice-item"
-  >
-    {{ choice }} ➤
+    class="choice-item">
+    <div class="choice-option" >
+      <span>{{ choice }}</span> 
+      <span>➤</span>
+    </div>
     <div *ngIf="currentChoice === choice" class="submenu">
       <div class="section">Asignar</div>
       <div

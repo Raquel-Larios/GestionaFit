@@ -13,28 +13,49 @@ import { PrimeraLetraPipe } from '../../shared/utils/pipes/primeraLetraPipe';
 import { Categoria } from '../../assets/models/categoria.interface';
 import { CategoryService } from '../../shared/data/categoryService.service';
 import { EMPTY, of, switchMap } from 'rxjs';
+import { ItemLinkConfig, ItemLinkEvent, LinkItem, LinkOption } from '../../assets/models/item-linker.interface';
+import { Video } from '../../assets/models/video.interface';
+import { VideoService } from '../../shared/data/videoService.service';
+import { ItemLinkerComponent } from '../../shared/ui/item-linker.component/item-linker.component';
 
 @Component({
   selector: 'app-exercise-view',
-  imports: [FontAwesomeModule, CommonModule, IconButtonComponent, OrderOptionComponent, PrimeraLetraPipe],
+  imports: [FontAwesomeModule, CommonModule, IconButtonComponent, OrderOptionComponent, PrimeraLetraPipe, ItemLinkerComponent],
   templateUrl: './exercise-view.html',
   styleUrl: './exercise-view.css',
 })
 
 export class ExerciseView implements OnInit{
-
+  selectedExerciseId: number | null = null;
   orderOptionSelected: string = 'Nombre';
   ejercicioOrderOptions = EjercicioOrderOptions;
   listaCategorias: Categoria[] = [];
+  listaVideos: Video[] = [];
   categoriasMap: Map<number, string> = new Map();
   listaEjercicios: (Ejercicio & { nombre_categoria?: string })[] = [];
+  assignedItems: LinkItem[] = [];
   ejercicioFields: FormField[] = [
     { name: 'nombre_ejercicio', type: 'text', label: "Nombre del ejercicio", validators:{required: true}}]
   iconoAdd = faPlus;
   iconoModify = faEdit;
   iconoDelete = faTrash;
 
-  constructor(private exerciseService: ExerciseService, private cd: ChangeDetectorRef, private modalService: ModalService, private categoryService: CategoryService){}
+  linkerConfig: ItemLinkConfig = {
+    listaItems: [],
+    multipleLinkChoice: true,
+    listaLinkChoices: ['Categoría', 'Vídeo'],
+    assignedItems: [],
+    selectionService: {
+      assign: (data, choice) => choice === 'Categoría' 
+      ? this.exerciseService.crearAsignacionEjercicio_Categoria(data) 
+      : this.exerciseService.crearAsignacionEjercicio_Video(data),
+      unassign: (data, choice) => choice === 'Categoría'
+      ? this.exerciseService.eliminarAsignacionEjercicio_Categoria(data)
+      : this.exerciseService.eliminarAsignacionEjercicio_Video(data)
+    }
+  }
+
+  constructor(private exerciseService: ExerciseService, private cd: ChangeDetectorRef, private modalService: ModalService, private categoryService: CategoryService, private videoService: VideoService){}
 
   ngOnInit(){
     if (this.orderOptionSelected === 'Nombre') {
@@ -82,6 +103,16 @@ export class ExerciseView implements OnInit{
         console.error('Error al obtener las categorias.', err);
       }
     });
+
+    this.videoService.getVideosNombre().subscribe({
+      next: (datos) => {
+        this.listaVideos = datos;
+        this.cd.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error al obtener los vídeos.', err);
+      }
+    })
   }
 
   crearMapaCategorias(){
@@ -96,6 +127,70 @@ export class ExerciseView implements OnInit{
     this.listaEjercicios = reversed;
   }
 
+  onLoadForId(event: { id: number; choice?: LinkOption | null}) {
+    if (event.choice) {
+      this.onExerciseSelected(event.id, event.choice);
+    }
+    else{
+      console.log("No se ha podido cargar los datos de asignaciones relacionados con el ejercicio.")
+    }
+  }
+
+  onExerciseSelected(id:number, choice: LinkOption) {
+      this.selectedExerciseId = id;
+
+      if(choice === this.linkerConfig.listaLinkChoices[0]){
+        this.exerciseService.getAsignacionEjercicio_CategoriaById(id).subscribe({
+          next: (datos) => {
+            this.assignedItems = datos.map((item: any) => ({ id: item.id, nombre: item.nombre_categoria }));
+            this.linkerConfig = {
+            ...this.linkerConfig, listaItems: this.listaCategorias.map((item: any) => ({ id: item.id, nombre: item.nombre_categoria})),
+            assignedItems: datos.map((item: any) => ({ id: item.id, nombre: item.nombre_categoria })), 
+            };
+            this.cd.detectChanges();
+          },
+          error: (err) => { 
+            const mensaje = err.error?.message;
+            console.log(mensaje);
+            const isDefault = err.error?.code === 'DEFAULT_ERROR'; 
+          }
+        });
+      }
+      else if(choice === this.linkerConfig.listaLinkChoices[1]){
+        this.exerciseService.getAsignacionEjercicio_VideoById(id).subscribe({
+          next: (datos) => {
+            this.assignedItems = datos.map((item: any) => ({ id: item.id_video, nombre: item.nombre_video }));
+            this.linkerConfig = {
+            ...this.linkerConfig, listaItems: this.listaVideos.map((item: any) => ({ id: item.id, nombre: item.nombre_video})),
+            assignedItems: datos.map((item: any) => ({ id: item.id_video, nombre: item.nombre_video })), 
+            };
+            this.cd.detectChanges();
+          },
+          error: (err) => { 
+            const mensaje = err.error?.message;
+            console.log(mensaje);
+            const isDefault = err.error?.code === 'DEFAULT_ERROR'; 
+          }
+        });
+      }
+    }
+  
+    onLinkAction(event: ItemLinkEvent) {
+      const service = event.action === 'asignar' ? 
+        this.linkerConfig.selectionService.assign : 
+        this.linkerConfig.selectionService.unassign;
+      
+      service(event.data, event.choice).subscribe({
+        next: () => {
+          this.onExerciseSelected(event.data.id_ejercicio, event.choice); 
+        },
+        error: (err) => { 
+          const mensaje = err.error?.message;
+          console.log(mensaje);
+          const isDefault = err.error?.code === 'DEFAULT_ERROR';
+        }
+      });
+    }
 
   abrirModal(option: 'create' | 'edit', idSelected?: number): void {
 
@@ -154,6 +249,8 @@ export class ExerciseView implements OnInit{
     this.orderOptionSelected = order;
     this.refrescarEjercicios();
   }
+
+  //Para que se vean los nombres de las categorías bien al ordenar los ejercicios por categoría
 
   onCategoriaSelected(id:number | undefined): String{
 

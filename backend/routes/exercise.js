@@ -34,12 +34,25 @@ router.delete("/:id_ejercicio", exerciseController.deleteExerciseControl);
 
 //GESTIÓN ASIGNACIÓN EJERCICIO-CATEGORÍA
 router.get("asignacion-ejercicio-categoria", categoryController.getLinksCategory_ExerciseControl);
-
-router.post("/:id_ejercicio/:id_categoria", categoryController.linkCategorytoExerciseControl);
-router.delete("/:id_ejercicio/:id_categoria", categoryController.unlinkCategoryFromExerciseControl);
+router.get("/asignacion-ejercicio-categoria/:id_ejercicio", (req, res) => {
+    const id_ejercicio = parseInt(req.params.id_ejercicio, 10);
+    db.query('SELECT categoria.id, categoria.nombre_categoria FROM categoria INNER JOIN ejercicio ON categoria.id = ejercicio.id_categoria WHERE ejercicio.id = ? ORDER BY categoria.nombre_categoria', [id_ejercicio], (err, results) => {
+        if (err) throw err;
+        res.json(results);
+    })
+})
+router.post("asignacion-ejercicio-categoria/asignar/:id_ejercicio/:id_categoria", categoryController.linkCategorytoExerciseControl);
+router.delete("asignacion-ejercicio-categoria/desasignar/:id_ejercicio/:id_categoria", categoryController.unlinkCategoryFromExerciseControl);
 //GESTIÓN ASIGNACIÓN EJERCICIO-VÍDEO
 router.get("asignacion-ejericio-video", videoController.getLinksVideo_ExerciseControl);
-router.post("/:id_ejercicio/:id_video", videoController.linkVideoToExerciseControl);
-router.delete("/desasignar/:id_ejercicio", exerciseController.unlinkExerciseFromVideoControl);
+router.get("/asignacion-ejercicio-video/:id_ejercicio", (req, res) => {
+    const id_ejercicio = parseInt(req.params.id_ejercicio, 10);
+    db.query('SELECT demostracion.id_video, video.nombre_video FROM demostracion INNER JOIN video ON demostracion.id_video = video.id WHERE demostracion.id_ejercicio = ? ORDER BY video.nombre_video', [id_ejercicio], (err, results) => {
+        if (err) throw err;
+        res.json(results);
+    })
+})
+router.post("asignacion-ejercicio-video/asignar/:id_ejercicio/:id_video", videoController.linkVideoToExerciseControl);
+router.delete("asignacion-ejercicio-video/desasignar/:id_ejercicio", exerciseController.unlinkExerciseFromVideoControl);
 
 module.exports = router;

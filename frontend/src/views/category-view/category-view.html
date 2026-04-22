@@ -23,7 +23,7 @@
                 [config]="linkerConfig"
                 [itemId]="categoria.id"
                 (linkEvent)="onLinkAction($event)"
-                (loadForId)="onCategorySelected($event)"></app-item-linker>
+                (loadForId)="onLoadForId($event)"></app-item-linker>
                 <app-icon-button [icon]="iconoModify" [estilo]="'modify-button'" (accion)="abrirModal('edit', categoria.id)"></app-icon-button>
                 <app-icon-button [icon]="iconoDelete" [estilo]="'delete-button'" (accion)="deleteCategoria(categoria.id)"></app-icon-button>
             </div>

@@ -353,7 +353,7 @@ exports.unlinkCategoryFormExercise = (params) => {
 exports.getLinksCategory_Exercise = () => {
 
   return new Promise ((resolve, reject) => {
-    db.query(`SELECT ejercicio.*, categoria.id, categoria.nombre_categoria 
+    db.query(`SELECT ejercicio.id, ejercicio.nombre_ejercicio, categoria.id, categoria.nombre_categoria 
         FROM ejercicio INNER JOIN categoria ON ejercicio.id_categoria = categoria.id
         WHERE ejercicio.id_categoria IS NOT NULL`, (err, results) => {
             if(err){

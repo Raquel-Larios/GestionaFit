@@ -1,6 +1,5 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectorRef, Signal, input, computed} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Observable } from 'rxjs';
 import { ItemLinkConfig, ItemLinkEvent, LinkOption} from '../../../assets/models/item-linker.interface';
 import { FilterAssignedPipe, FilterUnassignedPipe } from '../../utils/pipes/filterPipes';
 import { PrimeraLetraPipe } from '../../utils/pipes/primeraLetraPipe';
@@ -17,16 +16,18 @@ export class ItemLinkerComponent {
   @Input() config !: ItemLinkConfig;
   @Input() itemId!: number;
   @Output() linkEvent = new EventEmitter<ItemLinkEvent>();
-  @Output() loadForId = new EventEmitter<number>();
+  @Output() loadForId = new EventEmitter<{ id: number; choice?: LinkOption | null}>();
   showMenu: boolean = false;
   showSubmenu: boolean = false;
   currentChoice: LinkOption | null = null;
   @ViewChild('linkerButton') linkerButton!: ElementRef;
   @ViewChild('menu') menu!: ElementRef;
 
-  get assignedItemsId(): number[] {
+  get assignedItemsId(){
     return this.config.assignedItems.map(item => item.id);
-  }
+  };
+
+  constructor(private cd: ChangeDetectorRef){}
 
   ngOnInit() {
     document.addEventListener('click', this.handleDocumentClick.bind(this));
@@ -46,30 +47,39 @@ export class ItemLinkerComponent {
  
   onButtonClick(event: Event) {
     event.stopPropagation();
-    this.loadForId.emit(this.itemId);
+    if (!this.config.multipleLinkChoice) {
+    // Para un solo tipo, carga y abre el menú inmediatamente
+    this.loadForId.emit({ id: this.itemId });
+    this.showMenu = true;
+    } else {
+    // Para múltiples tipos, solo abre el menú
     this.showMenu = !this.showMenu;
   }
+  }
 
-  selectItem(selectedItemId: number, type: LinkOption) {
+  selectItem(selectedItemId: number, choice: LinkOption) {
     const idData = {
       id_categoria: this.itemId,
       id_ejercicio: selectedItemId
     }
-    this.linkEvent.emit({ data: idData, action: 'asignar', type });
+    this.linkEvent.emit({ data: idData, action: 'asignar', choice });
     this.showMenu = false;
   }
 
-  unselectItem(selectedItemId: number, type: LinkOption) {
+  unselectItem(selectedItemId: number, choice: LinkOption) {
     const idData = {
       id_categoria: this.itemId,
       id_ejercicio: selectedItemId
     }
-    this.linkEvent.emit({ data: idData, action: 'desasignar', type });
+    this.linkEvent.emit({ data: idData, action: 'desasignar', choice });
     this.showMenu = false;
   }
 
   enterChoice(choice: LinkOption) {
     this.currentChoice = choice;
+    if (this.config.multipleLinkChoice && this.showMenu) {
+      this.loadForId.emit({ id: this.itemId, choice: this.currentChoice });
+    }
     this.showSubmenu = true;
   }
 

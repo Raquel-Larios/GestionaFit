@@ -8,15 +8,15 @@ export interface ItemLinkConfig {
   listaLinkChoices: LinkOption[],
   assignedItems: LinkItem[],
   selectionService: {
-    assign(data: any): Observable<any>,
-    unassign(data: any): Observable<any>,
+    assign(data: any, choice?: LinkOption): Observable<any>,
+    unassign(data: any, choice?: LinkOption): Observable<any>,
   };
 }
 
 export interface ItemLinkEvent {
   data: any,
   action: 'asignar' | 'desasignar',
-  type: LinkOption,
+  choice: LinkOption,
 }
 
 export interface LinkItem {

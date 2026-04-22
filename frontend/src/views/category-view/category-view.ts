@@ -14,7 +14,7 @@ import { EMPTY, of, switchMap } from 'rxjs';
 import { ItemLinkerComponent } from "../../shared/ui/item-linker.component/item-linker.component";
 import { Ejercicio } from '../../assets/models/ejercicio.interface';
 import { ExerciseService } from '../../shared/data/exerciseService.service';
-import { LinkItem, ItemLinkConfig, ItemLinkEvent } from '../../assets/models/item-linker.interface';
+import { LinkItem, ItemLinkConfig, ItemLinkEvent, LinkOption } from '../../assets/models/item-linker.interface';
 
 @Component({
   selector: 'app-category-view',
@@ -89,6 +89,10 @@ export class CategoryView implements OnInit {
 
   onItemsReversed(reversed: Categoria[]) {
     this.listaCategorias = reversed;
+  }
+
+  onLoadForId(event: { id: number; choice?: LinkOption | null}) {
+    this.onCategorySelected(event.id);
   }
 
   onCategorySelected(id:number) {

@@ -25,8 +25,13 @@
             </div>
             <div class="ejercicio-item flex">
                 <p>{{ejercicio.nombre_ejercicio | primeraLetra}}</p>
-                <!--Asignar a categoria, desplegable-->
                 <div class="section-tools button-box flex-end">
+                    <app-item-linker 
+                    [texto]="'Asignar/desasignar a...'" 
+                    [config]="linkerConfig"
+                    [itemId]="ejercicio.id"
+                    (linkEvent)="onLinkAction($event)"
+                    (loadForId)="onLoadForId($event)"></app-item-linker>
                     <app-icon-button [icon]="iconoModify" [estilo]="'modify-button'" (accion)="abrirModal('edit', ejercicio.id)"></app-icon-button>
                     <app-icon-button [icon]="iconoDelete" [estilo]="'delete-button'" (accion)="deleteEjercicio(ejercicio.id)"></app-icon-button>
                 </div>

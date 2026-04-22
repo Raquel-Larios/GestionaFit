@@ -11,37 +11,51 @@
     border-radius: 5px;
     border: 1px solid #d8b953;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     z-index: 1000;
+    text-align: left;
 }
 
 .submenu {
     left: 100%; 
-    top: 0; 
+    top: 0;
+    min-width: 200px;
 }
 
 .section{
     font-weight: bold; 
     background-color: #e5d49e;
+    padding: 5px 10px;
+    white-space: nowrap;
 }  
 
-.menu-item, .section {
+.menu-item{
     display: flex;
     padding: 5px 10px;
     align-items: center;
-    justify-content: flex-start;
     cursor: pointer;
+    white-space: nowrap;
 }
 
-.menu-item:hover{
+.menu-item:hover, .choice-item:hover{
     background-color: #fce9ac;
 }
 
 .choice-item { 
     position: relative; 
-    padding: 8px; cursor: pointer; 
+    cursor: pointer; 
+    min-width: 150px;
 }
-    
-.choice-item:hover { 
-    background: #f5f5f5; 
+
+.choice-option{
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    padding: 5px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.choice-option, .menu-item, .section {
+    text-align: left;
 }

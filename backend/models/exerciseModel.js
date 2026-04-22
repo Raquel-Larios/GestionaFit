@@ -217,7 +217,7 @@ exports.deleteExercise = (params) => {
 
 //ELIMINAR ASIGNACIÓN EJERCICIO-VÍDEO
 exports.unlinkExerciseFromVideo = (params) => {
-  const { error } = deleteExrciseValidation(params);
+  const { error } = deleteExerciseValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { id_ejercicio } = params;
