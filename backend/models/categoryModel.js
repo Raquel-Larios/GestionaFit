@@ -191,7 +191,7 @@ exports.linkCategoryToExercise = (params) => {
   const { error } = linkCategoryToExerciseValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { id_categoria, id_ejercicio } = params;
+  const { id_categoria, id_ejercicio, forceReplace } = params;
 
   return new Promise((resolve, reject) => {
     db.query(
@@ -220,7 +220,7 @@ exports.linkCategoryToExercise = (params) => {
         }
 
         db.query(
-          `SELECT id, id_categoria FROM ejercicio WHERE id = ? AND (id_categoria != ? AND id_categoria IS NOT NULL)`,
+          `SELECT ejercicio.id, ejercicio.id_categoria, categoria.nombre_categoria FROM ejercicio INNER JOIN categoria ON ejercicio.id_categoria = categoria.id WHERE ejercicio.id = ? AND (ejercicio.id_categoria != ? AND ejercicio.id_categoria IS NOT NULL)`,
           [id_ejercicio, id_categoria],
           (err, result) => {
             if (err) {
@@ -231,13 +231,16 @@ exports.linkCategoryToExercise = (params) => {
                 statusCode: 500,
               });
             }
-            if (result.length > 0) {
+            if (result.length > 0 && !forceReplace) {
+              const categoria_asignada = result[0].nombre_categoria
+              const categoria_asignada_estilizada = String(categoria_asignada).charAt(0).toUpperCase() + String(categoria_asignada).slice(1).toLowerCase()
               return reject({
-                message: "Este ejercicio ya está asignado a una categoría.", //Posteriormente quiero que esta compobación en vez de impedirte cambiar la asiganción te permita cambiarla directamente, lo suyo es después de perguntar si de verdad la quieres cambiar
-                statusCode: 400,
+                message: "Este ejercicio ya está asignado a la categoría \""+categoria_asignada_estilizada+"\". ¿Desea reemplazarla?",
+                statusCode: 409,
               });
+
             }
-            if (result.length === 0) {
+            if (result.length === 0 || (result.length > 0 && forceReplace)) {
               db.query(
                 `SELECT id, id_categoria FROM ejercicio WHERE id = ? AND id_categoria = ?`,
                 [id_ejercicio, id_categoria],
@@ -257,7 +260,6 @@ exports.linkCategoryToExercise = (params) => {
                       statusCode: 400,
                     });
                   }
-
                   db.query(
                     `UPDATE ejercicio SET id_categoria = '${id_categoria}' WHERE id = ?`,
                     [id_ejercicio],

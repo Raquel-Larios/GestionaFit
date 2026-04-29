@@ -12,7 +12,7 @@ import { ModalConfig } from '../../assets/models/modal-config.interface';
 import { PrimeraLetraPipe } from '../../shared/utils/pipes/primeraLetraPipe';
 import { Categoria } from '../../assets/models/categoria.interface';
 import { CategoryService } from '../../shared/data/categoryService.service';
-import { EMPTY, of, switchMap } from 'rxjs';
+import { catchError,  EMPTY, from, of, switchMap, throwError } from 'rxjs';
 import { ItemLinkConfig, ItemLinkEvent, LinkItem, LinkOption } from '../../assets/models/item-linker.interface';
 import { Video } from '../../assets/models/video.interface';
 import { VideoService } from '../../shared/data/videoService.service';
@@ -46,15 +46,43 @@ export class ExerciseView implements OnInit{
     listaLinkChoices: ['Categoría', 'Vídeo'],
     assignedItems: [],
     selectionService: {
-      assign: (data, choice) => choice === 'Categoría' 
-      ? this.exerciseService.crearAsignacionEjercicio_Categoria(data) 
-      : this.exerciseService.crearAsignacionEjercicio_Video(data),
-      unassign: (data, choice) => choice === 'Categoría'
-      ? this.exerciseService.eliminarAsignacionEjercicio_Categoria(data)
-      : this.exerciseService.eliminarAsignacionEjercicio_Video(data.id_ejercicio)
+      assign: (data, choice) => {
+        if (choice !== 'Categoría') {
+          this.exerciseService.crearAsignacionEjercicio_Video(data);
+        }
+
+        return this.exerciseService.crearAsignacionEjercicio_Categoria(data).pipe(
+        switchMap(res => from([res])),
+        catchError(err => {
+          if (err.status === 409 || err.error?.statusCode === 409) {
+            return from([window.confirm(err.error?.message)]).pipe(
+              switchMap(confirmado => {
+                if (confirmado) {
+                  return this.exerciseService.crearAsignacionEjercicio_Categoria({
+                    ...data,
+                    forceReplace: true
+                  });
+                } else {
+                  return EMPTY;
+                }
+              })
+            );
+          }
+          return throwError(() => err);
+        })
+        )
+      },
+      unassign: (data, choice) => {
+        if (choice === 'Categoría') {
+         return this.exerciseService.eliminarAsignacionEjercicio_Categoria(data);
+        } else {
+         return this.exerciseService.eliminarAsignacionEjercicio_Video(data.id_ejercicio);
+        }
+      },
     },
     parentType: 'Ejercicio'
   }
+
 
   constructor(private exerciseService: ExerciseService, private cd: ChangeDetectorRef, private modalService: ModalService, private categoryService: CategoryService, private videoService: VideoService){}
 

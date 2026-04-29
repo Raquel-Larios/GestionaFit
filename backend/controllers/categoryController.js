@@ -56,8 +56,9 @@ exports.deleteCategoryControl = (req, res, next) => {
 exports.linkCategorytoExerciseControl = (req, res, next) => {
   const id_categoria = parseInt(req.params.id_categoria, 10);
   const id_ejercicio = parseInt(req.params.id_ejercicio, 10);
+  let { forceReplace } = req.body || {};
 
-  linkCategoryToExercise({ id_categoria, id_ejercicio })
+  linkCategoryToExercise({ id_categoria, id_ejercicio, forceReplace})
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });

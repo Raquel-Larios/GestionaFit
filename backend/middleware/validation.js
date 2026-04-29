@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const { createRutinaAdmin } = require("../models/rutinaAdminModel");
 
 var options = {
   errors: {
@@ -124,6 +125,36 @@ const deleteTemplateValidation = (data) => {
   return schema.validate(data, options);
 }
 
+//RUTINA-ADMIN VALIDATIONS
+
+createRutinaAdminValidation  = (data) => {
+  const schema = Joi.object ({
+    id_usuario: Joi.number().required().strict(),
+    id_plantilla: Joi.number().required().strict(),
+  })
+  return schema.validate(data, options);
+}
+
+updateRutinaAdminValidation  = (data) => {
+  const schema = Joi.object ({
+    id_historial: Joi.number().required().strict(),
+    id_usuario: Joi.number().required().strict(),
+    id_plantilla: Joi.number().required().strict(),
+    validation: Joi.array().required().strict(),
+  })
+  return schema.validate(data, options);
+}
+
+deleteRutinaAdminValidation = (data) => {
+  const schema = Joi.object ({
+    id_historial: Joi.number().required().strict(),
+  })
+  return schema.validate(data, options);
+}
+
+//RUTINA-CLIENTE VALIDATIONS
+
+
 //CATEGORY VALIDATIONS
 const createCategoryValidation = (data) => {
   const schema = Joi.object ({
@@ -151,6 +182,7 @@ const linkCategoryToExerciseValidation = (data) => {
   const schema = Joi.object ({
     id_categoria: Joi.number().required().strict(),
     id_ejercicio: Joi.number().required().strict(),
+    forceReplace: Joi.boolean().empty('').optional().allow(null),
   })
   return schema.validate(data, options);
 }
@@ -247,6 +279,12 @@ module.exports = {
   updateProfilePhotoValidation,
   deleteUserValidation,
   linkUserToTemplateValidation,
+  createTemplateValidation,
+  updateTemplateValidation,
+  deleteTemplateValidation,
+  createRutinaAdminValidation,
+  updateRutinaAdminValidation,
+  deleteRutinaAdminValidation,
   createCategoryValidation,
   updateCategoryValidation,
   deleteCategoryValidation,
