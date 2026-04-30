@@ -1,7 +1,7 @@
 <nav id="main-nav">
     <ul>
         <li *ngIf="isAdmin()"><a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
-        <li *ngIf="isAdmin()" class="dropdown" ><a class="dropdown-toggle" [class.active]="isGestionarActive()" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()" (click)="toggleDropdown()">
+        <li *ngIf="isAdmin()" class="dropdown" ><a class="dropdown-toggle" [class.active]="isGestionarActive()" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
             <span>Gestionar</span><span class="arrow" [class.rotate]="isHovered || isOpen">▼</span></a>                
             <nav id="gestionar-nav" *ngIf="isAdmin()" class="dropdown-menu">
                 <ul>

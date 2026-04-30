@@ -53,7 +53,7 @@ exports.deleteCategoryControl = (req, res, next) => {
 };
 
 //ASIGNAR A EJERCICIO
-exports.linkCategorytoExerciseControl = (req, res, next) => {
+exports.linkCategoryToExerciseControl = (req, res, next) => {
   const id_categoria = parseInt(req.params.id_categoria, 10);
   const id_ejercicio = parseInt(req.params.id_ejercicio, 10);
   let { forceReplace } = req.body || {};

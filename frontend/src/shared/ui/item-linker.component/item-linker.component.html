@@ -1,6 +1,7 @@
 <button #linkerButton class="linker-toggle" (click)="onButtonClick($event)">{{ texto }}</button>
 <!-- Menú para un solo tipo de vínculo -->
-<div #menu *ngIf="!config.multipleLinkChoice && showMenu" class="menu">
+<div #menu *ngIf="!config.multipleLinkChoice && showMenu" class="menu"
+   (mouseleave)="leaveMenu()">
   <div class="section">Asignar</div>
   <div
     class="menu-item"
@@ -30,7 +31,9 @@
 </div>
 
 <!-- Menú para múltiples tipos -->
-<div *ngIf="config.multipleLinkChoice && showMenu" class="menu">
+<div *ngIf="config.multipleLinkChoice && showMenu" class="menu"
+(mouseleave)="leaveMenu()"
+>
   <div
     *ngFor="let choice of config.listaLinkChoices"
     (mouseenter)="enterChoice(choice)"

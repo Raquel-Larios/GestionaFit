@@ -266,6 +266,7 @@ const linkVideoValidation = (data) => {
   const schema = Joi.object ({
     id_video: Joi.number().required().strict(),
     id_ejercicio: Joi.number().required().strict(),
+    forceReplace: Joi.boolean().empty('').optional().allow(null),
   })
   return schema.validate(data, options);
 }

@@ -10,11 +10,12 @@ import { FormField } from '../../assets/models/form-field.interface';
 import { ModalService } from '../../shared/data/modalService.service';
 import { ModalConfig } from '../../assets/models/modal-config.interface';
 import { PrimeraLetraPipe } from '../../shared/utils/pipes/primeraLetraPipe';
-import { EMPTY, of, switchMap } from 'rxjs';
+import { EMPTY, of, switchMap, tap } from 'rxjs';
 import { UserService } from '../../shared/data/userService.service';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ImgFallbackDirective } from "../../shared/utils/directives/imgFallback.directive";
 import { LightboxComponent } from "../../shared/ui/lightbox.component/lightbox.component";
+import { mostrarMensajeTemporal } from '../../assets/scripts/pop-up';
 
 
 @Component({
@@ -74,7 +75,7 @@ export class MaterialView implements OnInit {
           this.cd.detectChanges();
         },
         error: (err) => {
-          console.error('Error al obtener los materiales.', err);
+          mostrarMensajeTemporal(err.error?.message, 2000);
         },
       });
     } else if (this.orderOptionSelected === 'Nombre') {
@@ -84,7 +85,7 @@ export class MaterialView implements OnInit {
           this.cd.detectChanges();
         },
         error: (err) => {
-          console.error('Error al obtener los materiales.', err);
+          mostrarMensajeTemporal(err.error?.message, 2000);
         },
       });
     }
@@ -111,11 +112,11 @@ export class MaterialView implements OnInit {
             service: {
               create:
                 option === 'create'
-                  ? (data) => this.materialService.crearMaterial(data)
+                  ? (data) => this.materialService.crearMaterial(data).pipe(tap(res => mostrarMensajeTemporal(res.message, 2000)))
                   : () => EMPTY,
               update:
                 option === 'edit' && idSelected
-                  ? (data) => this.materialService.actualizarMaterial(data)
+                  ? (data) => this.materialService.actualizarMaterial(data).pipe(tap(res => mostrarMensajeTemporal(res.message, 2000)))
                   : () => EMPTY,
             },
             id: idSelected,
@@ -137,13 +138,13 @@ export class MaterialView implements OnInit {
     this.materialService.borrarMaterial(id).subscribe({
       next: (res) => {
         const mensaje = res.message;
-        console.log(mensaje);
+        mostrarMensajeTemporal(mensaje, 2000);
         this.refrescarMateriales();
         setTimeout(() => this.cd.detectChanges());
       },
       error: (err) => {
         const mensaje = err.error?.message;
-        console.log(mensaje);
+        mostrarMensajeTemporal(mensaje, 2000);
         const isDefault = err.error?.code === 'DEFAULT_ERROR';
       },
     });

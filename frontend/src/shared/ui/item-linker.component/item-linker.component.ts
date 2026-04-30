@@ -17,9 +17,9 @@ export class ItemLinkerComponent {
   @Input() itemId!: number;
   @Output() linkEvent = new EventEmitter<ItemLinkEvent>();
   @Output() loadForId = new EventEmitter<{ id: number; choice?: LinkOption | null}>();
+  currentChoice: LinkOption | null = null;
   showMenu: boolean = false;
   showSubmenu: boolean = false;
-  currentChoice: LinkOption | null = null;
   @ViewChild('linkerButton') linkerButton!: ElementRef;
   @ViewChild('menu') menu!: ElementRef;
 
@@ -27,7 +27,8 @@ export class ItemLinkerComponent {
     return this.config.assignedItems.map(item => item.id);
   };
 
-  constructor(private cd: ChangeDetectorRef){}
+  constructor(private cd: ChangeDetectorRef){
+  }
 
   ngOnInit() {
     document.addEventListener('click', this.handleDocumentClick.bind(this));
@@ -81,6 +82,7 @@ export class ItemLinkerComponent {
       [parentKey]: this.itemId,
       [selectedKey]: selectedItemId
     }
+
     return idData;
   }
 
@@ -106,6 +108,10 @@ export class ItemLinkerComponent {
 
   leaveChoice() {
     this.showSubmenu = false;
+  }
+
+  leaveMenu(){
+    this.showMenu = false;
   }
 
 }

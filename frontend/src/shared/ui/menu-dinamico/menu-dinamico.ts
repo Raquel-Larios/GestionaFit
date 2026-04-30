@@ -26,10 +26,6 @@ isGestionarActive(){
     return this.router.url.startsWith('/gestionar/');
 }
 
-toggleDropdown(){
-    this.isOpen = !this.isOpen;
-}
-
 onMouseEnter(){
     this.isHovered = true;
 }

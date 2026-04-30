@@ -2,6 +2,7 @@ const {
   createExerciseValidation,
   updateExerciseValidation,
   deleteExerciseValidation,
+  linkVideoValidation
 } = require("../middleware/validation");
 const db = require("../database/db");
 const { DEFAULT_ERROR } = require("../constants");
@@ -212,6 +213,79 @@ exports.deleteExercise = (params) => {
         });
       });
     });
+  });
+};
+
+//ASIGNAR EJERCICIO-VIDEO
+exports.linkExerciseToVideo = (params) => {
+  const { error } = linkVideoValidation(params);
+  if (error) throw { message: error.details[0].message, statusCode: 400 };
+
+  const { id_video, id_ejercicio, forceReplace } = params;
+
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT demostracion.id_video, video.nombre_video FROM demostracion INNER JOIN video ON demostracion.id_video = video.id WHERE id_ejercicio = ?`,
+      [id_ejercicio],
+      (err, result) => {
+        if (err) {
+          return reject({
+            code: DEFAULT_ERROR,
+            message: "Error al buscar la asignación.",
+            statusCode: 500,
+          });
+        }
+        if (result.length > 0) {
+          if (!forceReplace) {
+            const video_asignado = result[0].nombre_video;
+            const video_asignado_estilizado =
+              String(video_asignado).charAt(0).toUpperCase() +
+              String(video_asignado).slice(1).toLowerCase();
+            return reject({
+              message:
+                'Este ejercicio ya está asignado al vídeo "' +
+                video_asignado_estilizado +
+                '". ¿Desea reemplazarlo?',
+              statusCode: 409,
+            });
+          } else {
+            //Es una relacion 1:1
+            db.query(
+              `DELETE FROM demostracion WHERE id_ejercicio = ?`,
+              [id_ejercicio],
+              (err, result) => {
+                if (err) {
+                  return reject({
+                    code: DEFAULT_ERROR,
+                    message: "Error al borrar la asignación anterior del ejercicio.",
+                    statusCode: 500,
+                  });
+                }
+              },
+            );
+          }
+        }
+        db.query(
+          `INSERT INTO demostracion (id_ejercicio, id_video) VALUES (?, ?)`,
+          [id_ejercicio, id_video],
+          (err, result) => {
+            if (err) {
+              return reject({
+                code: DEFAULT_ERROR,
+                message: "Error al asignar el vídeo al ejercicio.",
+                statusCode: 500,
+              });
+            }
+
+            resolve({
+              data: result,
+              message: "Vídeo asignado al ejercicio correctamente.",
+              statusCode: 200,
+            });
+          },
+        );
+      },
+    );
   });
 };
 

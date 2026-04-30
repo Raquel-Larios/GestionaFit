@@ -53,8 +53,9 @@ exports.deleteVideoControl = (req, res, next) => {
 exports.linkVideoToExerciseControl = (req, res, next) => {
     const id_video = parseInt(req.params.id_video, 10);
     const id_ejercicio = parseInt(req.params.id_ejercicio, 10);
+    let { forceReplace } = req.body || {};
 
-    linkVideoToExercise({ id_video, id_ejercicio })
+    linkVideoToExercise({ id_video, id_ejercicio, forceReplace })
     .then((result) => {
         const {statusCode = 200, message , data} = result;
         res.status(statusCode).send({message, data });

@@ -186,7 +186,7 @@ exports.deleteCategory = (params) => {
   });
 };
 
-//ASIGNAR A EJERCICIO-ASIGNAR A CATEGORÍA
+//ASIGNAR CATEGORÍA-EJERCICIO
 exports.linkCategoryToExercise = (params) => {
   const { error } = linkCategoryToExerciseValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };

@@ -55,13 +55,13 @@ exports.createVideo = (params) => {
                         statusCode: 200,
                       });
                     }
-                  }
+                  },
                 );
               }
-            }
+            },
           );
         }
-      }
+      },
     );
   });
 };
@@ -145,45 +145,42 @@ exports.updateVideo = (params) => {
                   });
                 }
 
-                const fields = []
+                const fields = [];
                 const values = [];
 
-                if(nombreMinusculas !== videoSelect.nombre_video){
-                  fields.push('nombre_video = ?')
-                  values.push(nombreMinusculas)
+                if (nombreMinusculas !== videoSelect.nombre_video) {
+                  fields.push("nombre_video = ?");
+                  values.push(nombreMinusculas);
                 }
-                if (enlace_video !== videoSelect.enlace_video){
-                  fields.push('enlace_video = ?')
-                  values.push(enlace_video)
+                if (enlace_video !== videoSelect.enlace_video) {
+                  fields.push("enlace_video = ?");
+                  values.push(enlace_video);
                 }
 
-                values.push(id_video)
-                const query = `UPDATE video SET ${fields.join(', ')} WHERE id = ?`
+                values.push(id_video);
+                const query = `UPDATE video SET ${fields.join(", ")} WHERE id = ?`;
 
-                db.query(
-                  query, values,
-                  (err, result) => {
-                    if (err) {
-                      return reject({
-                        code: DEFAULT_ERROR,
-                        message:
-                          "Error al actualizar la demostración, inténtelo otra vez.",
-                        statusCode: 500,
-                      });
-                    }
-
-                    resolve({
-                      data: result,
-                      message: "Demostración actualizada correctamente.",
-                      statusCode: 200,
+                db.query(query, values, (err, result) => {
+                  if (err) {
+                    return reject({
+                      code: DEFAULT_ERROR,
+                      message:
+                        "Error al actualizar la demostración, inténtelo otra vez.",
+                      statusCode: 500,
                     });
                   }
-                );
-              }
+
+                  resolve({
+                    data: result,
+                    message: "Demostración actualizada correctamente.",
+                    statusCode: 200,
+                  });
+                });
+              },
             );
-          }
+          },
         );
-      }
+      },
     );
   });
 };
@@ -211,34 +208,38 @@ exports.deleteVideo = (params) => {
         });
       }
 
-      db.query(`DELETE FROM demostracion WHERE id_video = ?;
-        DELETE FROM video WHERE id = ?;`, [id_video, id_video], (err, result) => {
-        if (err) {
-          return reject({
-            code: DEFAULT_ERROR,
-            message: "Error al eliminar la demostración.",
-            statusCode: 500,
+      db.query(
+        `DELETE FROM demostracion WHERE id_video = ?;
+        DELETE FROM video WHERE id = ?;`,
+        [id_video, id_video],
+        (err, result) => {
+          if (err) {
+            return reject({
+              code: DEFAULT_ERROR,
+              message: "Error al eliminar la demostración.",
+              statusCode: 500,
+            });
+          }
+          resolve({
+            message: "Demostración eliminada correctamente.",
+            statusCode: 200,
           });
-        }
-        resolve({
-          message: "Demostración eliminada correctamente.",
-          statusCode: 200,
-        });
-      });
+        },
+      );
     });
   });
 };
 
-//ASIGNAR A EJERCICIO-ASIGNAR A VIDEO
+//ASIGNAR A VIDEO
 exports.linkVideoToExercise = (params) => {
   const { error } = linkVideoValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
-  const { id_video, id_ejercicio } = params;
+  const { id_video, id_ejercicio, forceReplace } = params;
 
   return new Promise((resolve, reject) => {
     db.query(
-      `SELECT id_video FROM demostracion WHERE id_video = ?`,
+      `SELECT demostracion.id_ejercicio, ejercicio.nombre_ejercicio FROM demostracion INNER JOIN ejercicio ON demostracion.id_ejercicio = ejercicio.id WHERE id_video = ?`,
       [id_video],
       (err, result) => {
         if (err) {
@@ -249,10 +250,34 @@ exports.linkVideoToExercise = (params) => {
           });
         }
         if (result.length > 0) {
-          return reject({
-            message: "Este vídeo ya tiene un ejercicio asignado.",
-            statusCode: 400,
-          });
+          if (!forceReplace) {
+            const ejercicio_asignado = result[0].nombre_ejercicio;
+            const ejercicio_asignado_estilizado =
+              String(ejercicio_asignado).charAt(0).toUpperCase() +
+              String(ejercicio_asignado).slice(1).toLowerCase();
+            return reject({
+              message:
+                'Este vídeo ya está asignado al ejercicio "' +
+                ejercicio_asignado_estilizado +
+                '". ¿Desea reemplazarlo?',
+              statusCode: 409,
+            });
+          } else {
+            //Es una relacion 1:1
+            db.query(
+              `DELETE FROM demostracion WHERE id_video = ?`,
+              [id_video],
+              (err, result) => {
+                if (err) {
+                  return reject({
+                    code: DEFAULT_ERROR,
+                    message: "Error al asignar el ejercicio al vídeo.",
+                    statusCode: 500,
+                  });
+                }
+              },
+            );
+          }
         }
         db.query(
           `INSERT INTO demostracion (id_ejercicio, id_video) VALUES (?, ?)`,
@@ -261,19 +286,19 @@ exports.linkVideoToExercise = (params) => {
             if (err) {
               return reject({
                 code: DEFAULT_ERROR,
-                message: "Error al asignar el vídeo al ejercicio.",
+                message: "Error al asignar el ejercicio al vídeo.",
                 statusCode: 500,
               });
             }
 
             resolve({
               data: result,
-              message: "Vídeo asignado al ejercicio correctamente.",
+              message: "Ejercicio asignado al vídeo correctamente.",
               statusCode: 200,
             });
-          }
+          },
         );
-      }
+      },
     );
   });
 };
@@ -310,8 +335,7 @@ exports.unlinkVideoFromExercise = (params) => {
             if (err) {
               return reject({
                 code: DEFAULT_ERROR,
-                message:
-                  "Error al eliminar la asignación Vídeo-Ejercicio.",
+                message: "Error al eliminar la asignación Vídeo-Ejercicio.",
                 statusCode: 500,
               });
             }
@@ -320,30 +344,32 @@ exports.unlinkVideoFromExercise = (params) => {
               message: "Asignación Vídeo-Ejercicio eliminada correctamente.",
               statusCode: 200,
             });
-          }
+          },
         );
-      }
+      },
     );
   });
 };
 
 //GET ASIGNACIÓN VÍDEO-EJERCICIO O EJERICIO-VÍDEO
 exports.getLinksVideo_Exercise = () => {
-
-  return new Promise ((resolve, reject) => {
-    db.query('SELECT demostracion.id_ejercicio, ejercicio.nombre_ejercicio, demostracion.id_video, video.nombre_video FROM demostracion INNER JOIN ejercicio ON demostracion.id_ejercicio = ejercicio.id INNER JOIN video ON demostracion.id_video = video.id', (err, results) => {
-            if(err){
-              return reject({
-                code: DEFAULT_ERROR,
-                message: "No se han podido recuperar las asignaciones Vídeo-Ejercicio/Ejercicio-Vídeo.",
-                statusCode: 500,
-              })
-            }
-            resolve({
-              data: results,
-              statusCode: 200,
-            })
-            
+  return new Promise((resolve, reject) => {
+    db.query(
+      "SELECT demostracion.id_ejercicio, ejercicio.nombre_ejercicio, demostracion.id_video, video.nombre_video FROM demostracion INNER JOIN ejercicio ON demostracion.id_ejercicio = ejercicio.id INNER JOIN video ON demostracion.id_video = video.id",
+      (err, results) => {
+        if (err) {
+          return reject({
+            code: DEFAULT_ERROR,
+            message:
+              "No se han podido recuperar las asignaciones Vídeo-Ejercicio/Ejercicio-Vídeo.",
+            statusCode: 500,
+          });
+        }
+        resolve({
+          data: results,
+          statusCode: 200,
         });
+      },
+    );
   });
-}
+};

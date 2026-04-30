@@ -5,6 +5,7 @@ import { AuthService } from '../../shared/data/authService.service';
 import { WelcomeMsgComponent } from "../../shared/ui/welcome-msg.component/welcome-msg.component";
 import { Router } from '@angular/router';
 import { UserService } from '../../shared/data/userService.service';
+import { mostrarMensajeTemporal } from '../../assets/scripts/pop-up';
 
 @Component({
   selector: 'app-auth-view',
@@ -37,8 +38,8 @@ export class AuthView {
         this.userService.loadTokenData(decoded.id)
         this.successMessage = res.message; 
         this.token= res.data.token;
-
         this.cd.detectChanges();
+        mostrarMensajeTemporal(this.successMessage, 2000);
 
         setTimeout(() => {
         this.successMessage = ""; 
@@ -55,6 +56,7 @@ export class AuthView {
       error: (err) => {
         const mensaje = err.error?.message;
         this.errorMessage = mensaje;
+        mostrarMensajeTemporal(this.errorMessage, 2000);
         this.isDefaultError = err.error?.code === 'DEFAULT_ERROR';
         this.cd.detectChanges();
       }

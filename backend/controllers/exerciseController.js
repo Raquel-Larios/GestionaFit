@@ -2,6 +2,7 @@ const {
   createExercise,
   updateExercise,
   deleteExercise,
+  linkExerciseToVideo,
   unlinkExerciseFromVideo
 } = require("../models/exerciseModel");
 
@@ -57,6 +58,23 @@ exports.deleteExerciseControl = (req, res, next) => {
       const { statusCode, message, data, code } = err;
       res.status(statusCode).send({ message, data, code }) && next(err);
     });
+};
+
+//CREAR ASIGNACIÓN EJERCICIO_VIDEO
+exports.linkExerciseToVideoControl = (req, res, next) => {
+    const id_ejercicio = parseInt(req.params.id_ejercicio, 10);
+    const id_video = parseInt(req.params.id_video, 10);
+    let { forceReplace } = req.body || {};
+
+    linkExerciseToVideo({ id_video, id_ejercicio, forceReplace })
+    .then((result) => {
+        const {statusCode = 200, message , data} = result;
+        res.status(statusCode).send({message, data });
+    })
+    .catch((err) => {
+        const {statusCode, message, data, code} = err;
+        res.status(statusCode).send({ message, data, code}) && next(err);
+    })
 };
 
 //ELIMINAR ASIGNACIÓN EJERCICIO-VIDEO

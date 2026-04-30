@@ -12,7 +12,8 @@ import { ModalConfig } from '../../assets/models/modal-config.interface';
 import { PrimeraLetraPipe } from '../../shared/utils/pipes/primeraLetraPipe';
 import { generateInitialUserPhoto } from '../../assets/scripts/userPhotoGenerator';
 import { concatMap } from 'rxjs/internal/operators/concatMap';
-import { EMPTY, of, switchMap } from 'rxjs';
+import { EMPTY, of, switchMap, tap } from 'rxjs';
+import { mostrarMensajeTemporal } from '../../assets/scripts/pop-up';
 
 @Component({
   selector: 'app-userlist-view',
@@ -53,7 +54,7 @@ export class UserlistView implements OnInit {
           this.cd.detectChanges();
         },
         error: (err) => {
-          console.error('Error al obtener los clientes.', err);
+          mostrarMensajeTemporal(err.error?.message, 2000)
         },
       });
     } else if (this.orderOptionSelected === 'Nombre') {
@@ -63,7 +64,7 @@ export class UserlistView implements OnInit {
           this.cd.detectChanges();
         },
         error: (err) => {
-          console.error('Error al obtener los clientes.', err);
+          mostrarMensajeTemporal(err.error?.message, 2000)
         },
       });
     }
@@ -101,11 +102,12 @@ export class UserlistView implements OnInit {
                             generatedPhoto,
                           );
                         }),
+                        tap(res => mostrarMensajeTemporal(res.message, 2000))
                       )
                   : () => EMPTY,
               update:
                 option === 'edit' && idSelected
-                  ? (data) => this.userService.actualizarCliente(data)
+                  ? (data) => this.userService.actualizarCliente(data).pipe(tap(res => mostrarMensajeTemporal(res.message, 2000)))
                   : () => EMPTY,
             },
             id: idSelected,
@@ -127,13 +129,13 @@ export class UserlistView implements OnInit {
     this.userService.borrarCliente(id).subscribe({
       next: (res) => {
         const mensaje = res.message;
-        console.log(mensaje);
+        mostrarMensajeTemporal(mensaje, 2000);
         this.refrescarClientes();
         setTimeout(() => this.cd.detectChanges());
       },
       error: (err) => {
         const mensaje = err.error?.message;
-        console.log(mensaje);
+        mostrarMensajeTemporal(mensaje, 2000);
         const isDefault = err.error?.code === 'DEFAULT_ERROR';
       },
     });
