@@ -18,11 +18,13 @@
     
     <div class="flex video-container">
         <div class="video-item" *ngFor="let video of listaVideos; trackBy: trackByVideo">
-            <div class="video-thumbnail-container">
+            <div class="video-thumbnail-container"
+            (click)="abrirLightbox(video.enlace_video)"
+            >
                 <img [src]="getYoutubeThumbnail(video.enlace_video)" 
                 fallback  
                 class="video-thumbnail-img"
-                (click)="abrirLightbox(video.enlace_video)" >
+                >
                 <div class="play-overlay">▶</div>
             </div>
             <p class="nombre-item">{{video.nombre_video | primeraLetra}}</p>

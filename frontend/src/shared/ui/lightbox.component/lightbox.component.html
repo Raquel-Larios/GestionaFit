@@ -6,7 +6,7 @@
              [class.zoomed]="isZoomed"
              (click)="toggleZoom()" />
         } @else {
-        <iframe [src]="getSafeUrl(currentItem.src)" frameborder="0" allowfullscreen></iframe>
+        <iframe class="embeded-container" [src]="getSafeUrl(currentItem.src)" frameborder="0" allowfullscreen></iframe>
         }
         <button class="lightbox-close" (click)="close()">×</button>
     </div>

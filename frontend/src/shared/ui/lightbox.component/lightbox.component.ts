@@ -40,9 +40,15 @@ export class LightboxComponent {
   }
 
   getSafeUrl(enlace: string): SafeResourceUrl {
-    const videoId = enlace.split('v=')[1]?.split('&')[0];
-    const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?fs=1` : enlace;
-    return this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
+    const match = enlace.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/|v\/))([^&\n?#]+)/);
+  const videoId = match ? match[1] : null;
+
+  if (!videoId) {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(enlace);
+  }
+
+  const embedUrl = `https://www.youtube.com/embed/${videoId}?fs=1`;
+  return this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
   }
 }
 

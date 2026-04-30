@@ -45,3 +45,8 @@
   cursor: zoom-out;
   object-fit: contain;
 }
+
+.embeded-container{
+    width: 900px;
+    height: 500px; 
+}
