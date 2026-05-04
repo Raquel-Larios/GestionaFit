@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
 import { IconButtonComponent } from '../../shared/ui/icon-button/icon-button.component';
@@ -107,7 +107,7 @@ export class VideoView {
   ngOnInit() {
     this.isAdminUser()
     if (this.orderOptionSelected === 'Antigüedad') {
-      this.videoService.getVideosAntiguedad().subscribe({
+      this.videoService.getVideos(false).subscribe({
         next: (datos) => {
           this.listaVideos = datos;
           this.cd.detectChanges();
@@ -117,7 +117,7 @@ export class VideoView {
         },
       });
     } else if (this.orderOptionSelected === 'Nombre') {
-      this.videoService.getVideosNombre().subscribe({
+      this.videoService.getVideos(true).subscribe({
         next: (datos) => {
           this.listaVideos = datos;
           this.cd.detectChanges();
@@ -127,7 +127,7 @@ export class VideoView {
         },
       });
     }
-    this.exerciseService.getEjerciciosNombre().subscribe({
+    this.exerciseService.getEjercicios(false).subscribe({
       next: (datos) => {
         this.listaEjercicios = datos;
         this.linkerConfig = { ...this.linkerConfig, listaItems: this.listaEjercicios.map((item: any) => ({ id: item.id, nombre: item.nombre_ejercicio }))};
@@ -161,7 +161,6 @@ export class VideoView {
       error: (err) => { 
         const mensaje = err.error?.message;
         mostrarMensajeTemporal(mensaje, 2000)
-        const isDefault = err.error?.code === 'DEFAULT_ERROR'; 
       }
     });
   }
@@ -179,7 +178,6 @@ export class VideoView {
       error: (err) => { 
         const mensaje = err.error?.message;
         mostrarMensajeTemporal(mensaje, 2000)
-        const isDefault = err.error?.code === 'DEFAULT_ERROR';
       }
     });
   }
@@ -234,19 +232,18 @@ export class VideoView {
       error: (err) => {
         const mensaje = err.error?.message;
         mostrarMensajeTemporal(mensaje, 2000)
-        const isDefault = err.error?.code === 'DEFAULT_ERROR';
       },
     });
   }
 
   refrescarVideos(): void {
     if (this.orderOptionSelected === 'Antigüedad') {
-      this.videoService.getVideosAntiguedad().subscribe((data) => {
+      this.videoService.getVideos(false).subscribe((data) => {
         this.listaVideos = [...data];
         this.cd.detectChanges();
       });
     } else if (this.orderOptionSelected === 'Nombre') {
-      this.videoService.getVideosNombre().subscribe((data) => {
+      this.videoService.getVideos(true).subscribe((data) => {
         this.listaVideos = [...data];
         this.cd.detectChanges();
       });
@@ -271,7 +268,7 @@ export class VideoView {
     this.isAdmin = this.userService.currentUserRol === 1
   }
 
-  trackByVideo(index: number, video: any): number {
+  trackByVideo(video: any): number {
     return video.id;
   }
 }

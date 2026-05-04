@@ -4,18 +4,21 @@ const db = require('../database/db');
 
 const materialController = require("../controllers/materialController");
 
-router.get("/all/antiguedad", (req, res) => {
-    db.query('SELECT id, nombre_material, contenido FROM material ORDER BY id DESC', (err, results) => {
-        if (err) throw err;
-        res.json(results);
-    });
-});
+router.get("/all", (req, res) => {
+    const { by_nombre } = req.query;
 
-router.get("/all/nombre", (req, res) => {
-    db.query('SELECT id, nombre_material, contenido FROM material ORDER BY nombre_material DESC', (err, results) => {
-        if (err) throw err;
-        res.json(results);
-    });
+  let query = 'SELECT id, nombre_material, contenido FROM material ORDER BY ';
+  
+  if (by_nombre) {
+    query += 'nombre_material ASC';
+  } else {
+    query += 'id DESC';
+  }
+
+  db.query(query, (err, results) => {
+    if (err) throw err;
+    res.json(results);
+  });
 });
 
 router.get("/:id_material", (req, res) => {

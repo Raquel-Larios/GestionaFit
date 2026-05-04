@@ -5,15 +5,18 @@ const userController = require("../controllers/userController");
 const templateController = require("../controllers/templateController");
 
 
-router.get("/clientes_apellidos", (req, res) => {
-    db.query('SELECT id, nombre, apellidos, email, foto_perfil FROM usuario WHERE rol = 0 ORDER BY apellidos ASC', (err, results) => {
-        if (err) throw err;
-        res.json(results);
-    });
-});
+router.get("/clientes", (req, res) => {
+    const { by_nombre } = req.query;
 
-router.get("/clientes_nombre", (req, res) => {
-    db.query('SELECT id, nombre, apellidos, email, foto_perfil FROM usuario WHERE rol = 0 ORDER BY nombre ASC', (err, results) => {
+    let query = 'SELECT id, nombre, apellidos, email, foto_perfil FROM usuario WHERE rol = 0 ORDER BY ';
+  
+    if (by_nombre) {
+        query += 'nombre ASC';
+    } else {
+        query += 'apellidos ASC';
+    }
+
+    db.query(query, (err, results) => {
         if (err) throw err;
         res.json(results);
     });

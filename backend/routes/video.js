@@ -6,17 +6,21 @@ const videoController = require("../controllers/videoController");
 
 //GESTIÓN VÍDEO
 router.get("/all/antiguedad", (req, res) => {
-    db.query('SELECT id, nombre_video, enlace_video FROM video ORDER BY id DESC', (err, results) => {
-        if (err) throw err;
-        res.json(results);
-    });
-});
+    const { by_nombre } = req.query;
 
-router.get("/all/nombre", (req, res) => {
-    db.query('SELECT id, nombre_video, enlace_video FROM video ORDER BY nombre_video ASC', (err, results) => {
+    let query = 'SELECT id, nombre_video, enlace_video FROM video ORDER BY ';
+  
+    if (by_nombre) {
+        query += 'nombre_video ASC';
+    } else {
+        query += 'id DESC';
+    }
+
+    db.query(query, (err, results) => {
         if (err) throw err;
         res.json(results);
     });
+
 });
 
 router.get("/:id_video", (req, res) => {

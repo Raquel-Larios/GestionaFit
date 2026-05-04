@@ -131,7 +131,7 @@ export class ExerciseView implements OnInit {
 
   ngOnInit() {
     if (this.orderOptionSelected === 'Nombre') {
-      this.exerciseService.getEjerciciosNombre().subscribe({
+      this.exerciseService.getEjercicios(false).subscribe({
         next: (datos) => {
           this.listaEjercicios = datos;
           this.cd.detectChanges();
@@ -141,7 +141,7 @@ export class ExerciseView implements OnInit {
         },
       });
     } else if (this.orderOptionSelected === 'Categoría') {
-      this.exerciseService.getEjerciciosByCategoria().subscribe({
+      this.exerciseService.getEjercicios(true).subscribe({
         next: (datos) => {
           this.listaEjercicios = datos;
           this.cd.detectChanges();
@@ -176,7 +176,7 @@ export class ExerciseView implements OnInit {
       },
     });
 
-    this.videoService.getVideosNombre().subscribe({
+    this.videoService.getVideos(true).subscribe({
       next: (datos) => {
         this.listaVideos = datos;
         this.cd.detectChanges();
@@ -236,7 +236,6 @@ export class ExerciseView implements OnInit {
         error: (err) => {
           const mensaje = err.error?.message;
           mostrarMensajeTemporal(mensaje, 2000);
-          const isDefault = err.error?.code === 'DEFAULT_ERROR';
         },
       });
     } else if (choice === this.linkerConfig.listaLinkChoices[1]) {
@@ -262,7 +261,6 @@ export class ExerciseView implements OnInit {
         error: (err) => {
           const mensaje = err.error?.message;
           mostrarMensajeTemporal(mensaje, 2000);
-          const isDefault = err.error?.code === 'DEFAULT_ERROR';
         },
       });
     }
@@ -282,7 +280,6 @@ export class ExerciseView implements OnInit {
       error: (err) => {
         const mensaje = err.error?.message;
         mostrarMensajeTemporal(mensaje, 2000);
-        const isDefault = err.error?.code === 'DEFAULT_ERROR';
       },
     });
   }
@@ -343,7 +340,6 @@ export class ExerciseView implements OnInit {
       error: (err) => {
         const mensaje = err.error?.message;
         mostrarMensajeTemporal(mensaje, 2000);
-        const isDefault = err.error?.code === 'DEFAULT_ERROR';
       },
     });
   }
@@ -367,12 +363,12 @@ export class ExerciseView implements OnInit {
 
   refrescarEjercicios(): void {
     if (this.orderOptionSelected === 'Nombre') {
-      this.exerciseService.getEjerciciosNombre().subscribe((data) => {
+      this.exerciseService.getEjercicios(false).subscribe((data) => {
         this.listaEjercicios = [...data];
         this.cd.detectChanges();
       });
     } else if (this.orderOptionSelected === 'Categoría') {
-      this.exerciseService.getEjerciciosByCategoria().subscribe((data) => {
+      this.exerciseService.getEjercicios(true).subscribe((data) => {
         this.listaEjercicios = [...data];
         this.cd.detectChanges();
       });

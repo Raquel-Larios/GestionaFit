@@ -1,5 +1,5 @@
 import { Injectable} from "@angular/core";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { BehaviorSubject, map, Observable, tap } from "rxjs";
 import { Usuario } from "../../assets/models/usuario.interface";
 import { AuthService } from "./authService.service";
@@ -98,12 +98,12 @@ export class UserService {
     this.usuarioData = value;
   }
 
-  getClientesApellidos(): Observable<any> {
-    return this.http.get<any>(this.baseApiUrl+'/clientes_apellidos');
-  }
-
-  getClientesNombre(): Observable<any> {
-    return this.http.get<any>(this.baseApiUrl+'/clientes_nombre');
+  getClientes(byNombre: boolean): Observable<any> {
+    let params = new HttpParams();
+    if (byNombre) {
+      params = params.set('by_nombre', 'true');
+    }
+    return this.http.get<any>(this.baseApiUrl+'/clientes', {params});
   }
 
   private getInfoUser(id: number): Observable<any> {

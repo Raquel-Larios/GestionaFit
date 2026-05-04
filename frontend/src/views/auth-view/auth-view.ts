@@ -23,7 +23,6 @@ export class AuthView {
 
   errorMessage: string = "";
   successMessage: string = "";
-  isDefaultError: boolean = false;
   token = "";
 
 
@@ -57,7 +56,6 @@ export class AuthView {
         const mensaje = err.error?.message;
         this.errorMessage = mensaje;
         mostrarMensajeTemporal(this.errorMessage, 2000);
-        this.isDefaultError = err.error?.code === 'DEFAULT_ERROR';
         this.cd.detectChanges();
       }
     });

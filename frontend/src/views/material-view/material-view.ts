@@ -69,7 +69,7 @@ export class MaterialView implements OnInit {
   ngOnInit() {
     this.isAdminUser()
     if (this.orderOptionSelected === 'Antigüedad') {
-      this.materialService.getMaterialesAntiguedad().subscribe({
+      this.materialService.getMateriales(false).subscribe({
         next: (datos) => {
           this.listaMateriales = datos;
           this.cd.detectChanges();
@@ -79,7 +79,7 @@ export class MaterialView implements OnInit {
         },
       });
     } else if (this.orderOptionSelected === 'Nombre') {
-      this.materialService.getMaterialesNombre().subscribe({
+      this.materialService.getMateriales(true).subscribe({
         next: (datos) => {
           this.listaMateriales = datos;
           this.cd.detectChanges();
@@ -145,19 +145,18 @@ export class MaterialView implements OnInit {
       error: (err) => {
         const mensaje = err.error?.message;
         mostrarMensajeTemporal(mensaje, 2000);
-        const isDefault = err.error?.code === 'DEFAULT_ERROR';
       },
     });
   }
 
   refrescarMateriales(): void {
     if (this.orderOptionSelected === 'Antigüedad') {
-      this.materialService.getMaterialesAntiguedad().subscribe((data) => {
+      this.materialService.getMateriales(false).subscribe((data) => {
         this.listaMateriales = [...data];
         this.cd.detectChanges();
       });
     } else if (this.orderOptionSelected === 'Nombre') {
-      this.materialService.getMaterialesNombre().subscribe((data) => {
+      this.materialService.getMateriales(true).subscribe((data) => {
         this.listaMateriales = [...data];
         this.cd.detectChanges();
       });
@@ -177,7 +176,7 @@ export class MaterialView implements OnInit {
     this.isAdmin = this.userService.currentUserRol === 1
   }
 
-  trackByMaterial(index: number, material: any): number {
+  trackByMaterial(material: any): number {
     return material.id;
   }
 

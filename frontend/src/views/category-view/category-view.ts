@@ -96,7 +96,7 @@ export class CategoryView implements OnInit {
         mostrarMensajeTemporal(err.error?.message, 2000);
       },
     });
-    this.exerciseService.getEjerciciosNombre().subscribe({
+    this.exerciseService.getEjercicios(false).subscribe({
       next: (datos) => {
         this.listaEjercicios = datos;
         this.linkerConfig = { ...this.linkerConfig, listaItems: this.listaEjercicios.map((item: any) => ({ id: item.id, nombre: item.nombre_ejercicio }))};
@@ -130,7 +130,6 @@ export class CategoryView implements OnInit {
       error: (err) => { 
         const mensaje = err.error?.message;
         mostrarMensajeTemporal(mensaje, 2000)
-        const isDefault = err.error?.code === 'DEFAULT_ERROR'; 
       }
     });
   }
@@ -148,7 +147,6 @@ export class CategoryView implements OnInit {
       error: (err) => { 
         const mensaje = err.error?.message;
         mostrarMensajeTemporal(mensaje, 2000);
-        const isDefault = err.error?.code === 'DEFAULT_ERROR';
       }
     });
   }
@@ -205,7 +203,6 @@ export class CategoryView implements OnInit {
       error: (err) => {
         const mensaje = err.error?.message;
         mostrarMensajeTemporal(mensaje, 2000);
-        const isDefault = err.error?.code === 'DEFAULT_ERROR';
       },
     });
   }

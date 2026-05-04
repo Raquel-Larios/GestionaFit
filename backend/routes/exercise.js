@@ -6,18 +6,21 @@ const categoryController = require("../controllers/categoryController");
 const videoController = require("../controllers/videoController");
 
 //GESTIÓN EJERCICIO
-router.get("/all/nombre", (req, res) => {
-    db.query('SELECT id, nombre_ejercicio, id_categoria FROM ejercicio ORDER BY nombre_ejercicio ASC', (err, results) => {
-        if (err) throw err;
-        res.json(results);
-    });
-});
+router.get("/all", (req, res) => {
+  const { by_categoria } = req.query;
 
-router.get("/all/by-categoria", (req, res) => {
-    db.query('SELECT ejercicio.id, nombre_ejercicio, ejercicio.id_categoria, nombre_categoria FROM ejercicio LEFT JOIN categoria ON ejercicio.id_categoria = categoria.id ORDER BY nombre_categoria IS NULL, nombre_categoria, nombre_ejercicio ASC', (err, results) => {
-        if (err) throw err;
-        res.json(results);
-    });
+  let query = 'SELECT ejercicio.id, nombre_ejercicio';
+  
+  if (by_categoria) {
+    query += ', ejercicio.id_categoria, nombre_categoria FROM ejercicio LEFT JOIN categoria ON ejercicio.id_categoria = categoria.id ORDER BY nombre_categoria IS NULL, nombre_categoria, nombre_ejercicio ASC';
+  } else {
+    query += ', id_categoria FROM ejercicio ORDER BY nombre_ejercicio ASC';
+  }
+
+  db.query(query, (err, results) => {
+    if (err) throw err;
+    res.json(results);
+  });
 });
 
 router.get("/:id_ejercicio", (req, res) => {

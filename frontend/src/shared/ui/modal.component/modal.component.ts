@@ -18,7 +18,6 @@ export class ModalComponent {
   @Input() dataFields: FormField[] = [];
   @Input() errorMessage: String = "";
   @Input() successMessage: String = "";
-  @Input() isDefaultError: boolean= false;
   config: ModalConfig | null = null; 
 
   constructor(private modalService: ModalService, private cd: ChangeDetectorRef) {}

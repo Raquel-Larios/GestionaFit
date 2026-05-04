@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { Usuario, UsuarioOrderOptions } from '../../assets/models/usuario.interface';
 import { UserService } from '../../shared/data/userService.service';
@@ -48,7 +48,7 @@ export class UserlistView implements OnInit {
 
   ngOnInit() {
     if (this.orderOptionSelected === 'Apellidos') {
-      this.userService.getClientesApellidos().subscribe({
+      this.userService.getClientes(false).subscribe({
         next: (datos) => {
           this.listaClientes = datos;
           this.cd.detectChanges();
@@ -58,7 +58,7 @@ export class UserlistView implements OnInit {
         },
       });
     } else if (this.orderOptionSelected === 'Nombre') {
-      this.userService.getClientesNombre().subscribe({
+      this.userService.getClientes(true).subscribe({
         next: (datos) => {
           this.listaClientes = datos;
           this.cd.detectChanges();
@@ -136,7 +136,6 @@ export class UserlistView implements OnInit {
       error: (err) => {
         const mensaje = err.error?.message;
         mostrarMensajeTemporal(mensaje, 2000);
-        const isDefault = err.error?.code === 'DEFAULT_ERROR';
       },
     });
   }
@@ -148,12 +147,12 @@ export class UserlistView implements OnInit {
 
   refrescarClientes(): void {
     if (this.orderOptionSelected === 'Apellidos') {
-      this.userService.getClientesApellidos().subscribe((data) => {
+      this.userService.getClientes(false).subscribe((data) => {
         this.listaClientes = [...data];
         this.cd.detectChanges();
       });
     } else if (this.orderOptionSelected === 'Nombre') {
-      this.userService.getClientesNombre().subscribe((data) => {
+      this.userService.getClientes(true).subscribe((data) => {
         this.listaClientes = [...data];
         this.cd.detectChanges();
       });
