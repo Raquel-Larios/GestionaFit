@@ -1,1 +1,74 @@
-<p>template-view works!</p>
+<div class="content-container block font-20px">
+        <div class= "flex section-header-container">
+            <h2 class="section-name">Plantillas</h2>
+            <div class="flex flex-end section-tools">
+                <app-icon-button [icon]="iconoAdd" [estilo]="'add-button'" (accion)="abrirModal('create')"></app-icon-button>
+                <app-order-option
+                [orderOptions]="plantillaOrderOptions.orderOptions"
+                [ascOptions]="plantillaOrderOptions.ascOptions"
+                [descOptions]="plantillaOrderOptions.descOptions"
+                [listaItems] ="listaPlantillas"
+                (itemsReversed)="onItemsReversed($event)"
+                (orderSelected)="onOrderSelected($event)">
+                </app-order-option>
+            </div>
+        </div>
+    
+    <div class="block">
+        <div class="plantilla-container flex" *ngFor="let plantilla of listaPlantillas">
+            <div class="plantilla-item">
+                <p>{{plantilla.nombre_plantilla | primeraLetra}}</p>
+                <div class="section-tools button-box flex-end">
+                    <app-item-linker 
+                    [texto]="'Asignar/desasignar a cliente'" 
+                    [config]="linkerConfig"
+                    [itemId]="plantilla.id_plantilla"
+                    (linkEvent)="onLinkAction($event)"
+                    (loadForId)="onLoadForId($event)"></app-item-linker>
+                    <app-icon-button [icon]="iconoModify" [estilo]="'modify-button'" (accion)="abrirModal('edit', plantilla.id_plantilla)"></app-icon-button>
+                    <app-icon-button [icon]="iconoDelete" [estilo]="'delete-button'" (accion)="deletePlantilla(plantilla.id_plantilla)"></app-icon-button>
+                </div>
+            </div>
+            <div class="detalle block" *ngFor="let bloque of plantilla.bloques; let index = index; let isLast = last">
+                <div class="plantilla-group-header" 
+                *ngIf="(
+                index === 0 || bloque.nombre_categoria !== plantilla.bloques[index-1].nombre_categoria
+                )">
+                    <span>{{bloque.nombre_categoria || 'Sin agrupar' | primeraLetra}} </span>
+                </div>
+                <div class="exercise-group-container" *ngFor="let defecto of bloque.defectos;">
+                    <div class="nombre-ejercicio dropdown-container">
+                        <span class="dropdown-toggle" #dropdownMenu (click)="$event.stopPropagation(); toggleDropdown(defecto.id_ejercicio)">
+                                {{ defecto.nombre_ejercicio | primeraLetra}}
+                            <span class="dropdown-arrow">▼</span>
+                        </span>
+                        <div class="dropdown-menu"  *ngIf="dropdownOpen[defecto.id_ejercicio]">
+                            <div class="dropdown-item" *ngIf="hasVideo" (click)="verVideo(defecto.id_ejercicio)">Ver vídeo demostrativo</div>
+                            <div class="dropdown-item" (click)="verMateriales(defecto.id_ejercicio)">Ir a Materiales</div>
+                        </div>
+                    </div>
+                    <div class="defecto-content">
+                        <div class="exercise-field">
+                            <label>Series</label>
+                            <span>{{ defecto.series }}</span>
+                        </div>
+                        <div class="exercise-field">
+                            <label>Repeticiones</label>
+                            <span>{{ defecto.repeticiones }}</span>
+                        </div>
+                        <div class="exercise-field">
+                            <label>Carga</label>
+                            <span>{{ defecto.carga }} kg</span>
+                        </div>
+                        <div class="exercise-field">
+                            <label>RPE</label>
+                            <span>{{ defecto.RPE }}</span>
+                        </div>
+                    </div>
+                </div>
+                <hr *ngIf="!isLast"/>
+            </div>
+            <app-lightbox [items]="exerciseVideoItem"></app-lightbox>
+        </div> 
+    </div>
+</div>

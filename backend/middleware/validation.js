@@ -92,29 +92,62 @@ const linkUserToTemplateValidation = (data) => {
 
 //TEMPLATE VALIDATIONS
 const createTemplateValidation = (data) => {
-  const schema = Joi.object ({
-    nombre_plantilla: Joi.string().required().strict(),
-    id_categoria: Joi.number().required().strict(),
-    id_ejercicio: Joi.number().required().strict(),
-    repeticiones: Joi.number().required().strict(),
-    series: Joi.number().required().strict(),
-    carga: Joi.number().required().strict(),
-    RPE: Joi.number().required().strict(),
-  })
-  return schema.validate(data, options);
-}
+  const schema = Joi.object({
+    nombre_plantilla: Joi.string().required(),
+    bloques: Joi.array().items(
+      Joi.object({
+        id_categoria: Joi.alternatives().try(
+          Joi.number().integer().positive(),
+          Joi.string().pattern(/^[0-9]+$/).custom(value => parseInt(value, 10))
+        ).required(),
+        defectos: Joi.array().items(
+          Joi.object({
+            id_ejercicio: Joi.alternatives().try(
+              Joi.number().integer().positive(),
+              Joi.string().pattern(/^[0-9]+$/).custom(value => parseInt(value, 10))
+            ).required(),
+            series: Joi.number().integer().min(1).required(),
+            repeticiones: Joi.number().integer().min(1).required(),
+            carga: Joi.number().min(0).required(),
+            RPE: Joi.number().integer().min(1).max(10).required(),
+            nombre_ejercicio: Joi.string().allow("")
+          }).required()
+        ).required()
+      }).required()
+    ).required()
+  });
+
+  return schema.validate(data);
+};
 
 const updateTemplateValidation = (data) => {
   const schema = Joi.object ({
     id_plantilla: Joi.number().required().strict(),
-    nombre_plantilla: Joi.string().required().strict(),
-    id_categoria: Joi.number().required().strict(),
-    id_ejercicio: Joi.number().required().strict(),
-    repeticiones: Joi.number().required().strict(),
-    series: Joi.number().required().strict(),
-    carga: Joi.number().required().strict(),
-    RPE: Joi.number().required().strict(),
-  })
+    nombre_plantilla: Joi.string().required(),
+    bloques: Joi.array().items(
+      Joi.object({
+        id_categoria: Joi.alternatives().try(
+          Joi.number().integer().positive(),
+          Joi.string().pattern(/^[0-9]+$/).custom(value => parseInt(value, 10))
+        ).required(),
+        defectos: Joi.array().items(
+          Joi.object({
+            id_ejercicio: Joi.alternatives().try(
+              Joi.number().integer().positive(),
+              Joi.string().pattern(/^[0-9]+$/).custom(value => parseInt(value, 10))
+            ).required(),
+            series: Joi.number().integer().min(1).required(),
+            repeticiones: Joi.number().integer().min(1).required(),
+            carga: Joi.number().min(0).required(),
+            RPE: Joi.number().integer().min(1).max(10).required(),
+            nombre_ejercicio: Joi.string().allow("")
+          }).required()
+        ).required()
+      }).required()
+    ).required()
+  });
+
+
   return schema.validate(data, options);
 }
 
@@ -131,6 +164,7 @@ createRutinaAdminValidation  = (data) => {
   const schema = Joi.object ({
     id_usuario: Joi.number().required().strict(),
     id_plantilla: Joi.number().required().strict(),
+    variaciones: Joi.array().required().strict(),
   })
   return schema.validate(data, options);
 }
@@ -140,7 +174,7 @@ updateRutinaAdminValidation  = (data) => {
     id_historial: Joi.number().required().strict(),
     id_usuario: Joi.number().required().strict(),
     id_plantilla: Joi.number().required().strict(),
-    validation: Joi.array().required().strict(),
+    variaciones: Joi.array().required().strict(),
   })
   return schema.validate(data, options);
 }

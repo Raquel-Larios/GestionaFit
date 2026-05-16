@@ -1,10 +1,16 @@
-<form class="form centered" [ngClass]="{'form-con-max-width': backBtnOpt}" [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="form" >
-  <div class="form-item"  *ngFor="let field of fields">
-
-    <span class="block item-label">{{field.label}}</span>
+<form
+  class="form centered"
+  [ngClass]="{ 'form-con-max-width': backBtnOpt }"
+  [formGroup]="form"
+  *ngIf="form"
+>
+  <div class="form-item" *ngFor="let field of fields">
+    <span *ngIf="field.type !== 'nested'" class="block item-label">{{ field.label }}</span>
 
     <!--Campos normales-->
-    <input class="form-item" *ngIf="field.type !== 'select' && field.type !== 'nested'"
+    <input
+      class="form-item"
+      *ngIf="field.type !== 'select' && field.type !== 'nested'"
       [type]="field.type"
       [min]="field.min"
       [max]="field.max"
@@ -13,55 +19,128 @@
     />
 
     <!--Select de ejercicios y categorias-->
-    <select class="form-item" *ngIf="field.type === 'select'"
-      [formControlName]="field.name">
+    <select class="form-item" *ngIf="field.type === 'select'" [formControlName]="field.name">
       <option *ngFor="let opt of field.options" [value]="opt.value">
-        {{opt.label | primeraLetra}}
+        {{ opt.label | primeraLetra }}
       </option>
     </select>
 
     <!--Template-->
-    <div class="form-item" *ngIf="field.type === 'nested'" [formGroupName]="field.name">
-      <h4>{{field.label}}</h4>
-      <ng-container *ngFor="let subField of field.subFields">
-        <input [formControlName]="subField.name" [placeholder]="subField.label"/>
-      </ng-container>
+    <div class="categoria-group" *ngIf="field.type === 'nested'">
+      <div formArrayName="bloques">
+      <div
+        *ngFor="let bloqueGroup of bloquesControls; let i = index; trackBy: trackByControl"
+        [formGroupName]="i"
+      >
+        <!-- Select de Categoría -->
+        <div>
+          <label class="block item-label">{{getLabel('id_categoria')}}</label>
+          <select class="form-item" formControlName="id_categoria" (change)="onCategoriaChange(i)">
+            <option value="">Seleccionar Categoría</option>
+            <option *ngFor="let cat of categorias" [value]="cat.id">
+              {{ cat.nombre_categoria | primeraLetra }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Array de Defectos -->
+        <div class="ejercicio-group" formArrayName="defectos">
+          <div
+            *ngFor="let defectoGroup of getDefectosArray(i).controls; let j = index"
+            [formGroupName]="j"
+          >
+            <label class="block item-label">{{getLabel('id_ejercicio')}}</label>
+            <select class="form-item" formControlName="id_ejercicio">
+              <option value="">Seleccionar Ejercicio</option>
+              <option *ngFor="let ej of getEjerciciosFiltrados(i); trackBy: trackByEjercicio" [value]="ej.id">
+                {{ ej.nombre_ejercicio | primeraLetra }}
+              </option>
+            </select>
+
+            <div class="detalle">
+            <div *ngFor="let subField of getDefectosSubFields()">
+              <label class="detalle-label">{{ getLabel(subField.name) }}</label>
+              <input class="ejercicio-item" 
+                     [type]="subField.type" 
+                     [min]="subField.min" 
+                     [max]="subField.max" 
+                     formControlName="{{subField.name}}" />
+            </div>
+          </div>
+
+            <!-- Botón para eliminar ejercicio -->
+             <div *ngIf="getDefectosArray(i).length > 1">
+              <button class="block ejercicio-button"
+              type="button"
+              (click)="eliminarDefecto(i, j)"
+              [disabled]="getDefectosArray(i).length === 1"
+              >
+              - Eliminar ejercicio
+              </button>
+              <hr />
+             </div>
+          </div>
+
+          <!-- Botón para añadir ejercicio -->
+          <button class="block ejercicio-button" type="button" (click)="agregarDefectoEnBloque(i)">+ Añadir ejercicio</button>
+        </div>
+
+        <!-- Botón para eliminar bloque -->
+         <div *ngIf="getBloquesArray().length > 1">
+          <button class="block categoria-button"
+          type="button"
+          (click)="eliminarBloque(i)"
+          [disabled]="getBloquesArray().length === 1"
+          >
+          - Eliminar categoría
+          </button>
+          <hr />
+         </div>
+        </div>
+      </div>
+      <!-- Botón para añadir bloque -->
+      <button class="block categoria-button" type="button" (click)="agregarBloque()">+ Añadir categoría</button>
     </div>
 
     <!--Control de Excepciones-->
     <div *ngIf="form.get(field.name)?.invalid && form.get(field.name)?.touched">
-    <p class="error">El campo {{field.label | lowercase}} es obligatorio.</p>
+      <p class="error">El campo {{ field.label | lowercase }} es obligatorio.</p>
     </div>
-    
+
     <!--Formato de contraseña, solo debería aparecer al crear un cliente y cuando el mismo cambia la contraseña-->
     <div *ngIf="form.get('contraseña')?.hasError('pattern') && form.get('contraseña')?.touched">
-      <p class="error">La contraseña debe:
-      * Tener al menos {{field.validators?.minlength}} caracteres.
-      * Ser una combinación de caracteres alfanuméricos (al menos una minúscula, una mayúscula y un número).
-      * No contener espacios.</p>
+      <p class="error">
+        La contraseña debe: * Tener al menos {{ field.validators?.minlength }} caracteres. * Ser una
+        combinación de caracteres alfanuméricos (al menos una minúscula, una mayúscula y un número).
+        * No contener espacios.
+      </p>
     </div>
   </div>
 
   <!--Control de errores después de pulsar el botón-->
   <div *ngIf="hasErrorMessage">
-    <p class="error">{{errorMessage}}</p>
+    <p class="error">{{ errorMessage }}</p>
   </div>
-  
+
   <!--Parte de botones-->
   <div class="form-nav" [ngClass]="backBtnOpt ? 'form-nav-horizontal' : 'form-nav-vertical'">
     <div *ngIf="backBtnOpt == true" class="left-button medium-button">
-      <app-nav-button [estilo]="'back-button font-18px'" [texto]="'Volver'" [ruta]="'/welcome'"></app-nav-button>
+      <app-nav-button
+        [estilo]="'back-button font-18px'"
+        [texto]="'Volver'"
+        [ruta]="'/welcome'"
+      ></app-nav-button>
     </div>
     <div [class]="divBtnStyle">
-      <app-check-button  [deshabilitado]="form.invalid"
+      <app-check-button
+        [deshabilitado]="form.invalid"
         (accion)="onSubmit()"
         [texto]="btnText"
         [estilo]="btnStyle + ' font-18px'"
-        ></app-check-button>
+      ></app-check-button>
     </div>
     <div *ngIf="cancelBtnOpt == true">
       <button class="cancelBtn font-18px" type="button" (click)="closeModal()">Cancelar</button>
     </div>
   </div>
 </form>
-

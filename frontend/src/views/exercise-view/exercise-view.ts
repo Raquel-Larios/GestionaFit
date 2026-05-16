@@ -222,7 +222,7 @@ export class ExerciseView implements OnInit {
           }));
           this.linkerConfig = {
             ...this.linkerConfig,
-            listaItems: this.listaCategorias.map((item: any) => ({
+            listaItems: this.listaCategorias.filter((cat: Categoria) => cat.id !== 0).map((item: any) => ({
               id: item.id,
               nombre: item.nombre_categoria,
             })),

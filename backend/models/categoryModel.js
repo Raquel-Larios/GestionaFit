@@ -220,7 +220,7 @@ exports.linkCategoryToExercise = (params) => {
         }
 
         db.query(
-          `SELECT ejercicio.id, ejercicio.id_categoria, categoria.nombre_categoria FROM ejercicio INNER JOIN categoria ON ejercicio.id_categoria = categoria.id WHERE ejercicio.id = ? AND (ejercicio.id_categoria != ? AND ejercicio.id_categoria IS NOT NULL)`,
+          `SELECT ejercicio.id, ejercicio.id_categoria, categoria.nombre_categoria FROM ejercicio INNER JOIN categoria ON ejercicio.id_categoria = categoria.id WHERE ejercicio.id = ? AND ejercicio.id_categoria != ?`,
           [id_ejercicio, id_categoria],
           (err, result) => {
             if (err) {
@@ -231,7 +231,7 @@ exports.linkCategoryToExercise = (params) => {
                 statusCode: 500,
               });
             }
-            if (result.length > 0 && !forceReplace) {
+            if (result.length > 0 && id_categoria !== 0 && !forceReplace) {
               const categoria_asignada = result[0].nombre_categoria
               const categoria_asignada_estilizada = String(categoria_asignada).charAt(0).toUpperCase() + String(categoria_asignada).slice(1).toLowerCase()
               return reject({
@@ -240,7 +240,7 @@ exports.linkCategoryToExercise = (params) => {
               });
 
             }
-            if (result.length === 0 || (result.length > 0 && forceReplace)) {
+            if (result.length === 0 || (result.length > 0 && forceReplace )) {
               db.query(
                 `SELECT id, id_categoria FROM ejercicio WHERE id = ? AND id_categoria = ?`,
                 [id_ejercicio, id_categoria],
@@ -332,7 +332,7 @@ exports.unlinkCategoryFormExercise = (params) => {
             statusCode: 404,
           });
         }
-        db.query(`UPDATE ejercicio SET id_categoria = NULL WHERE id = ?`, [id_ejercicio], (err, result) => {
+        db.query(`UPDATE ejercicio SET id_categoria = 0 WHERE id = ?`, [id_ejercicio], (err, result) => {
           if(err){
             return reject({
               code: DEFAULT_ERROR,

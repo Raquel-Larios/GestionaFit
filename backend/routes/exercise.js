@@ -50,9 +50,14 @@ router.delete("/asignacion-ejercicio-categoria/desasignar/:id_ejercicio/:id_cate
 router.get("/asignacion-ejercicio-video", videoController.getLinksVideo_ExerciseControl);
 router.get("/asignacion-ejercicio-video/:id_ejercicio", (req, res) => {
     const id_ejercicio = parseInt(req.params.id_ejercicio, 10);
-    db.query('SELECT demostracion.id_video, video.nombre_video FROM demostracion INNER JOIN video ON demostracion.id_video = video.id WHERE demostracion.id_ejercicio = ? ORDER BY video.nombre_video', [id_ejercicio], (err, results) => {
+    db.query('SELECT demostracion.id_video, video.nombre_video, video.enlace_video FROM demostracion INNER JOIN video ON demostracion.id_video = video.id WHERE demostracion.id_ejercicio = ? ORDER BY video.nombre_video', [id_ejercicio], (err, results) => {
         if (err) throw err;
-        res.json(results);
+        else if(results.length === 0){
+          return res.status(404).json({
+            message: "Este ejercicio no tiene ningún vídeo asignado.",
+            statusCode: 404})
+        }
+        return res.json(results);
     })
 });
 router.post("/asignacion-ejercicio-video/asignar/:id_ejercicio/:id_video", exerciseController.linkExerciseToVideoControl);

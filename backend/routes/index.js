@@ -7,6 +7,8 @@ const categoryRoute = require("./category");
 const exerciseRoute = require("./exercise");
 const materialRoute = require("./material");
 const templateRoute = require("./template");
+const rutinaAdminRoute = require("./rutinaAdmin");
+const rutinaClienteRoute = require("./rutinaCliente")
 const videoRoute = require("./video");
 
 router.use("/auth", loginRoute);
@@ -15,8 +17,8 @@ router.use("/categorias", categoryRoute);
 router.use("/ejercicios", exerciseRoute);
 router.use("/materiales", materialRoute);
 router.use("/plantillas", templateRoute);
-router.use("/rutinas", templateRoute);
-router.use("/:userId/mis-rutinas", templateRoute);
+router.use("/rutinas/:id_usuario", rutinaAdminRoute);
+router.use("/:id_usuario/mis-rutinas", rutinaClienteRoute);
 router.use("/videos", videoRoute);
 
 

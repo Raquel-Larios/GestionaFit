@@ -5,7 +5,7 @@ const db = require('../database/db');
 const videoController = require("../controllers/videoController");
 
 //GESTIÓN VÍDEO
-router.get("/all/antiguedad", (req, res) => {
+router.get("/all", (req, res) => {
     const { by_nombre } = req.query;
 
     let query = 'SELECT id, nombre_video, enlace_video FROM video ORDER BY ';
@@ -20,7 +20,6 @@ router.get("/all/antiguedad", (req, res) => {
         if (err) throw err;
         res.json(results);
     });
-
 });
 
 router.get("/:id_video", (req, res) => {

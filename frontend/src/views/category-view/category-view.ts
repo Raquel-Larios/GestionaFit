@@ -89,7 +89,7 @@ export class CategoryView implements OnInit {
   ngOnInit() {
     this.categoryService.getCategorias().subscribe({
       next: (datos) => {
-        this.listaCategorias = datos;
+        this.listaCategorias = datos.filter((cat: Categoria) => cat.id !== 0);
         this.cd.detectChanges();
       },
       error: (err) => {
