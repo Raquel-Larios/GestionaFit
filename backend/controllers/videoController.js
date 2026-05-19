@@ -1,4 +1,10 @@
 const {
+  createVideoValidation,
+  updateVideoValidation,
+  deleteVideoValidation,
+  linkVideoValidation,
+} = require("../middleware/validation");
+const {
   createVideo,
   updateVideo,
   deleteVideo,
@@ -9,8 +15,12 @@ const {
 
 exports.createVideoControl = (req, res, next) => {
   const { nombre_video, enlace_video } = req.body;
+  const params = {nombre_video, enlace_video};
 
-  createVideo({ nombre_video, enlace_video })
+  const { error } = createVideoValidation(params);
+  if (error) throw { message: error.details[0].message, statusCode: 400 };
+
+  createVideo(params)
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -24,8 +34,12 @@ exports.createVideoControl = (req, res, next) => {
 exports.updateVideoControl = (req, res, next) => {
   const id_video = parseInt(req.params.id_video, 10);
   const { nombre_video, enlace_video } = req.body;
+  const params = { nombre_video, enlace_video, id_video}
 
-  updateVideo({ nombre_video, enlace_video, id_video })
+  const { error } = updateVideoValidation(params);
+  if (error) throw { message: error.details[0].message, statusCode: 400 };
+
+  updateVideo(params)
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -38,8 +52,12 @@ exports.updateVideoControl = (req, res, next) => {
 
 exports.deleteVideoControl = (req, res, next) => {
   const id_video = parseInt(req.params.id_video, 10);
+  const params = {id_video}
 
-  deleteVideo({ id_video })
+  const { error } = deleteVideoValidation(params);
+  if (error) throw { message: error.details[0].message, statusCode: 400 };
+
+  deleteVideo(params)
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });
@@ -55,7 +73,13 @@ exports.linkVideoToExerciseControl = (req, res, next) => {
     const id_ejercicio = parseInt(req.params.id_ejercicio, 10);
     let { forceReplace } = req.body || {};
 
-    linkVideoToExercise({ id_video, id_ejercicio, forceReplace })
+    const params = {id_video, id_ejercicio, forceReplace}
+
+    const { error } = linkVideoValidation(params);
+    if (error) throw { message: error.details[0].message, statusCode: 400 };
+
+
+    linkVideoToExercise(params)
     .then((result) => {
         const {statusCode = 200, message , data} = result;
         res.status(statusCode).send({message, data });
@@ -68,8 +92,12 @@ exports.linkVideoToExerciseControl = (req, res, next) => {
 
 exports.unlinkVideoFromExerciseControl = (req, res, next) => {
     const id_video = parseInt(req.params.id_video, 10);
+    const params = {id_video}
 
-    unlinkVideoFromExercise({ id_video})
+    const { error } = deleteVideoValidation(params);
+    if (error) throw { message: error.details[0].message, statusCode: 400 };
+
+    unlinkVideoFromExercise(params)
     .then((result) => {
         const {statusCode = 200, message , data} = result;
         res.status(statusCode).send({message, data });

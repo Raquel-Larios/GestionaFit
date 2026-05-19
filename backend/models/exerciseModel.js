@@ -1,16 +1,8 @@
-const {
-  createExerciseValidation,
-  updateExerciseValidation,
-  deleteExerciseValidation,
-  linkVideoValidation
-} = require("../middleware/validation");
 const db = require("../database/db");
 const { DEFAULT_ERROR } = require("../constants");
 
 //CREAR EJERCICIO
 exports.createExercise = (params) => {
-  const { error } = createExerciseValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { nombre_ejercicio, id_categoria } = params;
   const nombreMinusculas = String(nombre_ejercicio).toLowerCase();
@@ -71,8 +63,6 @@ exports.createExercise = (params) => {
 
 //ACTUALIZAR EJERCICIO
 exports.updateExercise = (params) => {
-  const { error } = updateExerciseValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { nombre_ejercicio, id_categoria, id_ejercicio } = params;
   const nombreMinusculas = String(nombre_ejercicio).toLowerCase();
@@ -171,8 +161,6 @@ exports.updateExercise = (params) => {
 
 //ELIMINAR EJERCICIO
 exports.deleteExercise = (params) => {
-  const { error } = deleteExerciseValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { id_ejercicio } = params;
 
@@ -217,8 +205,6 @@ exports.deleteExercise = (params) => {
 
 //ASIGNAR EJERCICIO-VIDEO
 exports.linkExerciseToVideo = (params) => {
-  const { error } = linkVideoValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { id_video, id_ejercicio, forceReplace } = params;
 
@@ -290,8 +276,6 @@ exports.linkExerciseToVideo = (params) => {
 
 //ELIMINAR ASIGNACIÓN EJERCICIO-VÍDEO
 exports.unlinkExerciseFromVideo = (params) => {
-  const { error } = deleteExerciseValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { id_ejercicio } = params;
 

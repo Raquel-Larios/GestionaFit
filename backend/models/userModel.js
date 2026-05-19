@@ -1,4 +1,3 @@
-const { getUserByIdValidation, createUserValidation, updateUserValidation, updateProfileValidation, updateProfilePhotoValidation, deleteUserValidation, linkUserToTemplateValidation } = require("../middleware/validation");
 const db = require("../database/db");
 const bcrypt = require("bcryptjs");
 const { DEFAULT_ERROR } = require("../constants");
@@ -7,8 +6,6 @@ const mailService = require("../middleware/mailService/mailService");
 
 //CREAR USUARIO DESDE CLIENTES (ADMIN ONLY)
 exports.createUser = (params) => {
-  const { error } = createUserValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { email, nombre, apellidos } = params;
   const  emailMinusculas = String(email).toLowerCase();
@@ -48,8 +45,6 @@ exports.createUser = (params) => {
 
 //ACTUALIZAR CLIENTE (ADMIN ONLY)
 exports.updateUser = (params) => {
-  const { error } = updateUserValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { id_usuario, email, nombre, apellidos} = params;
   const  emailMinusculas  = String(email).toLowerCase();
@@ -127,8 +122,6 @@ exports.updateUser = (params) => {
 
 //ACTUALIZAR PERFIL 
 exports.updateProfile = (params) => {
-  const { error } = updateProfileValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { id_usuario, email, nombre, apellidos, contraseña, peso, foto_perfil} = params;
   const emailMinusculas  = String(email).toLowerCase();
@@ -230,8 +223,6 @@ exports.updateProfile = (params) => {
 
 //ACTUALIZAR FOTO PERFIL
 exports.updateProfilePhoto = (params) => {
-  const { error } = updateProfilePhotoValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { id_usuario, foto_perfil} = params;
 
@@ -275,8 +266,6 @@ exports.updateProfilePhoto = (params) => {
 
 //ELIMINAR CLIENTE (ADMIN ONLY) 
 exports.deleteUser = (params) => {
-  const { error } = deleteUserValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { id_usuario } = params;
   
@@ -327,8 +316,6 @@ exports.deleteUser = (params) => {
 
 //ASIGNAR A PLANTILLA
 exports.linkUserToTemplate = (params) => {
-  const { error } = linkUserToTemplateValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { id_usuario, id_plantilla } = params;
 
@@ -369,8 +356,6 @@ exports.linkUserToTemplate = (params) => {
 
 //ELIMINAR ASIGNACIÓN DE PLANTILLA
 exports.unlinkUserFromTemplate = (params) => {
-  const { error } = linkUserToTemplateValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { id_usuario, id_plantilla } = params;
 

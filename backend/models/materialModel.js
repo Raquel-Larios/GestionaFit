@@ -1,15 +1,9 @@
-const {
-  createMaterialValidation,
-  updateMaterialValidation,
-  deleteMaterialValidation,
-} = require("../middleware/validation");
+
 const db = require("../database/db");
 const { DEFAULT_ERROR } = require("../constants");
 
 //CREAR MATERIAL
 exports.createMaterial = (params) => {
-  const { error } = createMaterialValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { nombre_material, contenido } = params;
   const nombreMinusculas = String(nombre_material).toLowerCase();
@@ -67,8 +61,6 @@ exports.createMaterial = (params) => {
 
 //ACTUALIZAR MATERIAL
 exports.updateMaterial = (params) => {
-  const { error } = updateMaterialValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { nombre_material, contenido, id_material } = params;
   const nombreMinusculas = String(nombre_material).toLowerCase();
@@ -188,8 +180,6 @@ exports.updateMaterial = (params) => {
 
 //ELIMINAR MATERIAL
 exports.deleteMaterial = (params) => {
-  const { error } = deleteMaterialValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { id_material} = params;
 

@@ -1,16 +1,9 @@
-const {
-  createTemplateValidation,
-  updateTemplateValidation,
-  deleteTemplateValidation,
-} = require("../middleware/validation");
+
 const db = require("../database/db");
 const { DEFAULT_ERROR } = require("../constants");
 
 //CREAR PLANTILLA DE ADMIN (DEFECTO)
 exports.createTemplate = (params) => {
-  const { error } = createTemplateValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
-  console.log("Pasa la validación.")
 
   const { nombre_plantilla, bloques } = params;
   const nombrePlantillaMinusculas = String(nombre_plantilla).toLowerCase();
@@ -100,16 +93,7 @@ exports.createTemplate = (params) => {
 
 //ACTUALIZAR PLANTILLA DE ADMIN
 exports.updateTemplate = (params) => {
-  const { error } = updateTemplateValidation(params);
-  if (error) {
-  console.error("Errores:", error.details.map(d => ({
-    campo: d.path.join('.'),
-    tipo: d.type,
-    mensaje: d.message
-  })));
-  throw { message: error.details[0].message, statusCode: 400 };
-}
-    
+  
   const { id_plantilla, nombre_plantilla, bloques } = params;
   const nombrePlantillaMinusculas = String(nombre_plantilla).toLowerCase();
 
@@ -293,8 +277,6 @@ exports.updateTemplate = (params) => {
 
 //ELIMINAR PLANTILLA DE ADMIN
 exports.deleteTemplate = (params) => {
-  const { error } = deleteTemplateValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { id_plantilla } = params;
 
@@ -339,3 +321,52 @@ exports.deleteTemplate = (params) => {
     );
   });
 };
+
+//ELIMINAR RUTINA ASIGNADA A CLIENTE DE ADMIN
+exports.deleteRutinaPlantilla = (params) => {
+
+  const { id_usuario, id_plantilla } = params;
+  
+   return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT id FROM historial_plantilla_usuario WHERE id_usuario = ? AND id_plantilla = ?`,
+      [id_usuario, id_plantilla],
+      (err, result) => {
+        if (err) {
+          return reject({
+            code: DEFAULT_ERROR,
+            message: "Error al buscar la rutina.",
+            statusCode: 500,
+          });
+        }
+        if (result.length === 0) {
+          return reject({
+            message: "Rutina no encontrada.",
+            statusCode: 404,
+          });
+        }
+
+        const id_historial = result[0].id
+
+        db.query(`
+          DELETE FROM variacion WHERE id_historial = ?;
+          DELETE FROM historial_plantilla_usuario WHERE id = ?;`,
+          [id_historial, id_historial],
+          (err, result) => {
+            if (err) {
+              return reject({
+                code: DEFAULT_ERROR,
+                message: "Error al desasignar la rutina.",
+                statusCode: 500,
+              });
+            }
+            resolve({
+              message: "Rutina desasignada correctamente.",
+              statusCode: 200,
+            });
+          },
+        );
+      },
+    );
+  });
+}

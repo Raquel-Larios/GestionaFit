@@ -1,7 +1,3 @@
-const {
-  loginValidation,
-  forgottenPassValidation,
-} = require("../middleware/validation");
 const db = require("../database/db");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -10,8 +6,6 @@ const passwordGenerator = require("../middleware/passwordGenerator");
 const mailService = require("../middleware/mailService/mailService");
 
 exports.loginUser = (params) => {
-  const { error } = loginValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { email, contraseña } = params;
   const  emailMinusculas = String(email).toLowerCase();
@@ -68,8 +62,6 @@ exports.loginUser = (params) => {
 };
 
 exports.forgottenPass = (params) => {
-  const { error } = forgottenPassValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { email } = params;
   const { emailMinusculas } = String(email).toLowerCase;

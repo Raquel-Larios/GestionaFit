@@ -1,16 +1,8 @@
-const {
-  createCategoryValidation,
-  updateCategoryValidation,
-  deleteCategoryValidation,
-  linkCategoryToExerciseValidation,
-} = require("../middleware/validation");
 const db = require("../database/db");
 const { DEFAULT_ERROR } = require("../constants");
 
 //CREAR CATEGORÍA
 exports.createCategory = (params) => {
-  const { error } = createCategoryValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { nombre_categoria } = params;
 
@@ -57,8 +49,6 @@ exports.createCategory = (params) => {
 
 //ACTUALIZAR CATEGORÍA
 exports.updateCategory = (params) => {
-  const { error } = updateCategoryValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { nombre_categoria, id_categoria } = params;
   const nombreMinusculas = String(nombre_categoria).toLowerCase();
@@ -140,8 +130,6 @@ exports.updateCategory = (params) => {
 
 //ELIMINAR CATEGORÍA Y DESVINCULAR DE LAS OTRAS TABLAS EN LA QUE ESTUVIERA
 exports.deleteCategory = (params) => {
-  const { error } = deleteCategoryValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
   
   const { id_categoria } = params;
 
@@ -188,8 +176,6 @@ exports.deleteCategory = (params) => {
 
 //ASIGNAR CATEGORÍA-EJERCICIO
 exports.linkCategoryToExercise = (params) => {
-  const { error } = linkCategoryToExerciseValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { id_categoria, id_ejercicio, forceReplace } = params;
 
@@ -231,7 +217,7 @@ exports.linkCategoryToExercise = (params) => {
                 statusCode: 500,
               });
             }
-            if (result.length > 0 && id_categoria !== 0 && !forceReplace) {
+            if (result.length > 0 && result[0].id_categoria !== 0 && !forceReplace) {
               const categoria_asignada = result[0].nombre_categoria
               const categoria_asignada_estilizada = String(categoria_asignada).charAt(0).toUpperCase() + String(categoria_asignada).slice(1).toLowerCase()
               return reject({
@@ -240,7 +226,7 @@ exports.linkCategoryToExercise = (params) => {
               });
 
             }
-            if (result.length === 0 || (result.length > 0 && forceReplace )) {
+            if (result.length === 0 || (result.length > 0 && (result[0].id_categoria === 0 || forceReplace) )) {
               db.query(
                 `SELECT id, id_categoria FROM ejercicio WHERE id = ? AND id_categoria = ?`,
                 [id_ejercicio, id_categoria],
@@ -292,8 +278,6 @@ exports.linkCategoryToExercise = (params) => {
 
 //ELIMINAR ASIGNACIÓN A EJERCICIO
 exports.unlinkCategoryFormExercise = (params) => {
-  const { error } = linkCategoryToExerciseValidation(params);
-  if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   const { id_categoria, id_ejercicio } = params;
 
