@@ -16,6 +16,7 @@
       [max]="field.max"
       [step]="field.step"
       [formControlName]="field.name"
+      [readonly]="field.visibility?.readonly"
     />
 
     <!--Select de ejercicios y categorias-->
@@ -44,9 +45,9 @@
         </div>
 
         <!-- Array de Defectos -->
-        <div class="ejercicio-group" formArrayName="defectos">
+        <div class="ejercicio-group" [formArrayName]="getNestedFieldName()">
           <div
-            *ngFor="let defectoGroup of getDefectosArray(i).controls; let j = index"
+            *ngFor="let defectoGroup of getNestedArray(i).controls; let j = index"
             [formGroupName]="j"
           >
             <label class="block item-label">{{getLabel('id_ejercicio')}}</label>
@@ -58,7 +59,7 @@
             </select>
 
             <div class="detalle">
-            <div *ngFor="let subField of getDefectosSubFields()">
+            <div *ngFor="let subField of getNestedSubFields()">
               <label class="detalle-label">{{ getLabel(subField.name) }}</label>
               <input class="ejercicio-item" 
                      [type]="subField.type" 
@@ -69,11 +70,11 @@
           </div>
 
             <!-- Botón para eliminar ejercicio -->
-             <div *ngIf="getDefectosArray(i).length > 1">
+             <div *ngIf="getNestedArray(i).length > 1">
               <button class="block ejercicio-button"
               type="button"
-              (click)="eliminarDefecto(i, j)"
-              [disabled]="getDefectosArray(i).length === 1"
+              (click)="eliminarNested(i, j)"
+              [disabled]="getNestedArray(i).length === 1"
               >
               - Eliminar ejercicio
               </button>
@@ -82,7 +83,7 @@
           </div>
 
           <!-- Botón para añadir ejercicio -->
-          <button class="block ejercicio-button" type="button" (click)="agregarDefectoEnBloque(i)">+ Añadir ejercicio</button>
+          <button class="block ejercicio-button" type="button" (click)="agregarNestedEnBloque(i)">+ Añadir ejercicio</button>
         </div>
 
         <!-- Botón para eliminar bloque -->

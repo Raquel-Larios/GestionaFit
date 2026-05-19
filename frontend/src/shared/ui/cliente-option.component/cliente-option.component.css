@@ -1,0 +1,16 @@
+button, select{
+    color: #0768A9;
+    border: 1px solid #0768A9;
+}
+
+.options{
+    display: flex;
+    gap: none;
+    height: 35px;
+    text-align: center;
+    justify-content: flex-end;
+}
+
+.cliente-option{
+    font-weight: bolder;
+}

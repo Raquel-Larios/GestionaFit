@@ -51,7 +51,7 @@ router.get("/all", (req, res) => {
                     ORDER BY `;
 
     if (by_antiguedad) {
-        query += "d.id_plantilla DESC;";
+        query += "p.id DESC;";
     } else {
         query += "p.nombre_plantilla ASC;";
     }
@@ -118,5 +118,7 @@ router.get("/:id_plantilla", (req, res) => {
 router.post("", templateController.createTemplateControl);
 router.put("/:id_plantilla", templateController.updateTemplateControl);
 router.delete("/:id_plantilla", templateController.deleteTemplateControl);
+
+router.delete("/:id_usuario/:id_plantilla", templateController.deleteRutinaPlantillaControl);
 
 module.exports = router;

@@ -38,13 +38,13 @@
                 </div>
                 <div class="exercise-group-container" *ngFor="let defecto of bloque.defectos;">
                     <div class="nombre-ejercicio dropdown-container">
-                        <span class="dropdown-toggle" #dropdownMenu (click)="$event.stopPropagation(); toggleDropdown(defecto.id_ejercicio)">
+                        <span class="dropdown-toggle" #dropdownMenu (click)="$event.stopPropagation(); toggleDropdown(plantilla.id_plantilla, defecto.id_ejercicio, index)">
                                 {{ defecto.nombre_ejercicio | primeraLetra}}
                             <span class="dropdown-arrow">▼</span>
                         </span>
-                        <div class="dropdown-menu"  *ngIf="dropdownOpen[defecto.id_ejercicio]">
-                            <div class="dropdown-item" *ngIf="hasVideo" (click)="verVideo(defecto.id_ejercicio)">Ver vídeo demostrativo</div>
-                            <div class="dropdown-item" (click)="verMateriales(defecto.id_ejercicio)">Ir a Materiales</div>
+                        <div class="dropdown-menu"  *ngIf="dropdownOpen[`${plantilla.id_plantilla}-${defecto.id_ejercicio}-${index}`]">
+                            <div class="dropdown-item" *ngIf="hasVideo" (click)="verVideo(plantilla.id_plantilla, defecto.id_ejercicio, index)">Ver vídeo demostrativo</div>
+                            <div class="dropdown-item" (click)="verMateriales(plantilla.id_plantilla, defecto.id_ejercicio, index)">Ir a Materiales</div>
                         </div>
                     </div>
                     <div class="defecto-content">

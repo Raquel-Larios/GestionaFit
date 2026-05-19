@@ -11,7 +11,7 @@ import { PrimeraLetraPipe } from '../../utils/pipes/primeraLetraPipe';
   styleUrl: './item-linker.component.css',
 })
 export class ItemLinkerComponent {
-
+  @Input() estilo: string = "linker-toggle-defecto"
   @Input() texto: string = "";
   @Input() config !: ItemLinkConfig;
   @Input() itemId!: number;

@@ -27,11 +27,14 @@ export class TemplateService {
   }
 
   actualizarPlantilla(data: any): Observable<any>{
-    console.log("Data Service: ", data)
     return this.http.put<any>(this.baseApiUrl+'/'+data.id, data);
   }
 
   borrarPlantilla(id: number): Observable<any>{
     return this.http.delete<any>(this.baseApiUrl+'/'+id);
+  }
+
+  desasignarRutinaPlantilla(data:any): Observable<any>{
+    return this.http.delete<any>(this.baseApiUrl+'/'+data.id_usuario+'/'+data.id_plantilla);
   }
 }

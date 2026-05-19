@@ -1,0 +1,158 @@
+.rutina-item{
+    width: auto;
+    height: 50px;
+    background-color: #FFF2CC;
+    color: #313131;
+    border-bottom: 1px solid #313131;
+    padding: 1%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: bold;
+    font-family: "Arial";
+}
+
+.section-header-container{
+    justify-content: space-between; 
+    width: 100%; 
+    align-items: center; 
+    padding: 10px;
+}
+
+.section-tools{
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 2px;
+}
+
+.button-box{
+    width: 40%;
+}
+
+.detalle{
+    background-color: #FFF2CC;
+    color: #313131;
+    padding: 0 0 1% 0;
+    font-weight: bold;
+    font-family: "Arial"
+}
+
+.rutina-container{
+    width: auto; 
+    display: block;
+    margin: 1% 2%;
+    background-color: #FFF2CC;
+    color: #313131;
+    border: 1px solid #313131;
+    border-radius: 4px;
+}
+
+.rutina-group-header{
+  padding: 12px 12px;
+  font-weight: bold;
+  font-size: 1em;
+}
+
+.rutina-group-header span {
+  margin: 1%;
+}
+
+.exercise-group-container{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 1%;
+    gap: 6px;
+    font-size: 0.95em;
+    min-width: 120px;
+}
+
+.exercise-field{
+    width: 10%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.95em;
+    min-width: 120px;
+}
+
+.exercise-field label {
+  font-weight: 600;
+  color: #313131;
+}
+
+.exercise-field span {
+  background-color: snow;
+  border: 1px solid #e0e0e0;
+  padding: 5px 15px;
+  border-radius: 4px;
+  flex: 1;
+}
+
+.nombre-ejercicio{
+  margin: 1% 2%;
+  padding: 0;
+  width: 30%;
+  justify-content: flex-start;
+}
+
+.variacion-content{
+  width: 70%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.nombre-ejercicio.dropdown-container {
+  min-width: 200px;
+  position: relative;
+}
+
+.dropdown-toggle {
+  background-color: snow;
+  border: 1px solid #e0e0e0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+}
+
+.dropdown-toggle:hover {
+  background-color: #f0f0f0;
+}
+
+.dropdown-arrow {
+  font-size: 0.7em;
+  color: #666;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: snow;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 1000;
+  min-width: 160px;
+}
+
+.dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f0f0;
+}

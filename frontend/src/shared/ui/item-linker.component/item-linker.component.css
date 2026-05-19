@@ -1,8 +1,15 @@
-.linker-toggle{
+.linker-toggle-defecto{
     padding: 8px; 
     color: #0768A9;
     background-color: none;
     border: none;
+}
+
+.linker-toggle-rutinas{
+    padding: 4px 5.5px; 
+    background-color: #3F95CF;
+    color: snow;
+    border: 1px solid #0768A9;
 }
 
 .menu, .submenu{

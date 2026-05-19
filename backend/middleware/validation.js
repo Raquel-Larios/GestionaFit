@@ -127,7 +127,7 @@ const updateTemplateValidation = (data) => {
     bloques: Joi.array().items(
       Joi.object({
         id_categoria: Joi.alternatives().try(
-          Joi.number().integer().positive(),
+          Joi.number().integer().min(0),
           Joi.string().pattern(/^[0-9]+$/).custom(value => parseInt(value, 10))
         ).required(),
         defectos: Joi.array().items(
@@ -159,27 +159,46 @@ const deleteTemplateValidation = (data) => {
 }
 
 //RUTINA-ADMIN VALIDATIONS
-
-createRutinaAdminValidation  = (data) => {
-  const schema = Joi.object ({
+const createRutinaAdminValidation = (data) => {
+  const schema = Joi.object({
     id_usuario: Joi.number().required().strict(),
     id_plantilla: Joi.number().required().strict(),
-    variaciones: Joi.array().required().strict(),
-  })
-  return schema.validate(data, options);
-}
+  });
 
-updateRutinaAdminValidation  = (data) => {
+  return schema.validate(data);
+};
+
+const updateRutinaAdminValidation = (data) => {
   const schema = Joi.object ({
     id_historial: Joi.number().required().strict(),
-    id_usuario: Joi.number().required().strict(),
-    id_plantilla: Joi.number().required().strict(),
-    variaciones: Joi.array().required().strict(),
-  })
+    bloques: Joi.array().items(
+      Joi.object({
+        id_categoria: Joi.alternatives().try(
+          Joi.number().integer().min(0),
+          Joi.string().pattern(/^[0-9]+$/).custom(value => parseInt(value, 10))
+        ).required(),
+        variaciones: Joi.array().items(
+          Joi.object({
+            id_ejercicio: Joi.alternatives().try(
+              Joi.number().integer().positive(),
+              Joi.string().pattern(/^[0-9]+$/).custom(value => parseInt(value, 10))
+            ).required(),
+            series: Joi.number().integer().min(1).required(),
+            repeticiones: Joi.number().integer().min(1).required(),
+            carga: Joi.number().min(0).required(),
+            RPE: Joi.number().integer().min(1).max(10).required(),
+            nombre_ejercicio: Joi.string().allow("")
+          }).required()
+        ).required()
+      }).required()
+    ).required()
+  });
+
+
   return schema.validate(data, options);
 }
 
-deleteRutinaAdminValidation = (data) => {
+const deleteRutinaAdminValidation = (data) => {
   const schema = Joi.object ({
     id_historial: Joi.number().required().strict(),
   })
@@ -306,32 +325,42 @@ const linkVideoValidation = (data) => {
 }
 
 module.exports = {
+  //login
   loginValidation,
   forgottenPassValidation,
+  //user
   createUserValidation,
   updateUserValidation,
   updateProfileValidation,
   updateProfilePhotoValidation,
   deleteUserValidation,
   linkUserToTemplateValidation,
+  //template
   createTemplateValidation,
   updateTemplateValidation,
   deleteTemplateValidation,
+  //rutinaAdmin
   createRutinaAdminValidation,
   updateRutinaAdminValidation,
   deleteRutinaAdminValidation,
+  //rutinaCliente
+  //categoria
   createCategoryValidation,
   updateCategoryValidation,
   deleteCategoryValidation,
   linkCategoryToExerciseValidation,
+  //ejercicio
   createExerciseValidation,
   updateExerciseValidation,
   deleteExerciseValidation,
+  //material
   createMaterialValidation,
   updateMaterialValidation,
   deleteMaterialValidation,
+  //video
   createVideoValidation,
   updateVideoValidation,
   deleteVideoValidation,
   linkVideoValidation,
+
 };

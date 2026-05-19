@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { Template, TemplateOrderOptions } from '../../assets/models/template.interface';
-import { TemplateService } from '../../shared/data/templateService.service';
+import { RutinaAdmin, RutinaAdminOrderOptions } from '../../assets/models/rutina-admin.interface';
+import { RutinaAdminService } from '../../shared/data/rutina-adminService.service';
 import { CommonModule } from '@angular/common';
 import { IconButtonComponent } from '../../shared/ui/icon-button/icon-button.component';
 import { OrderOptionComponent } from '../../shared/ui/order-option.component/order-option.component';
@@ -10,20 +10,21 @@ import { FormField } from '../../assets/models/form-field.interface';
 import { ModalService } from '../../shared/data/modalService.service';
 import { ModalConfig } from '../../assets/models/modal-config.interface';
 import { PrimeraLetraPipe } from '../../shared/utils/pipes/primeraLetraPipe';
-import { EMPTY, of, switchMap, tap } from 'rxjs';
+import { EMPTY, map, of, switchMap, tap } from 'rxjs';
 import { ItemLinkerComponent } from "../../shared/ui/item-linker.component/item-linker.component";
-import { Usuario } from '../../assets/models/usuario.interface';
 import { UserService } from '../../shared/data/userService.service';
 import { LinkItem, ItemLinkConfig, ItemLinkEvent, LinkOption } from '../../assets/models/item-linker.interface';
 import { mostrarMensajeTemporal } from '../../assets/scripts/pop-up';
-import { RutinaAdminService } from '../../shared/data/rutina-adminService.service';
 import { ExerciseService } from '../../shared/data/exerciseService.service';
 import { LightboxComponent } from '../../shared/ui/lightbox.component/lightbox.component';
 import { LightboxItem } from '../../assets/models/lightbox-item.interface';
 import { Router } from '@angular/router';
+import { Template } from '../../assets/models/template.interface';
+import { TemplateService } from '../../shared/data/templateService.service';
+import { ClienteOptionComponent } from '../../shared/ui/cliente-option.component/cliente-option.component';
 
 @Component({
-  selector: 'app-template-view',
+  selector: 'app-rutinas-clientes-view',
   imports: [
     FontAwesomeModule,
     CommonModule,
@@ -31,22 +32,23 @@ import { Router } from '@angular/router';
     OrderOptionComponent,
     PrimeraLetraPipe,
     ItemLinkerComponent,
-    LightboxComponent
-],
-  templateUrl: './template-view.html',
-  styleUrl: './template-view.css',
+    LightboxComponent,
+    ClienteOptionComponent
+  ],
+  templateUrl: './rutinas-clientes-view.html',
+  styleUrl: './rutinas-clientes-view.css',
 })
-export class TemplateView implements OnInit {
-  selectedTemplateId: number | null = null;
+export class RutinasClientesView implements OnInit {
+
+  selectedUsuarioId: number | null = null;
   orderOptionSelected: string = 'Nombre';
-  plantillaOrderOptions = TemplateOrderOptions;
-  listaPlantillas: Template[] = [];
-  plantillaFields: FormField[] = [
-    {
-      name: 'nombre_plantilla',
+  rutinaOrderOptions = RutinaAdminOrderOptions;
+  listaRutinas: RutinaAdmin[] = [];
+  rutinaFields: FormField[] = [
+    { name: 'nombre_plantilla',
       type: 'text',
-      label: 'Nombre de la plantilla',
-      validators: { required: true },
+      label: 'Nombre de la Rutina',
+      visibility: {readonly: true}
     },
     {
       name: 'bloques',
@@ -60,9 +62,9 @@ export class TemplateView implements OnInit {
           validators: { required: true},
         },
         {
-          name: 'defectos',
+          name: 'variaciones',
           type: 'nested',
-          label: 'Defectos',
+          label: 'Variaciones',
           subFields: [
             { name: 'id_ejercicio', type: 'select', label: 'Ejercicio', validators: { required: true } },
             { name: 'series', type: 'number', label: 'Series', value: 1 },
@@ -73,9 +75,9 @@ export class TemplateView implements OnInit {
         }
       ]
     },
-    
   ];
-  listaUsuarios: Usuario[] = [];
+  cliente: ({id_usuario: number, nombre: string}) = {id_usuario: 0, nombre: ""}; //Para que no chille
+  listaPlantillas: Template[] = [];
   assignedItems: LinkItem[] = [];
   iconoAdd = faPlus;
   iconoModify = faEdit;
@@ -89,13 +91,20 @@ export class TemplateView implements OnInit {
   linkerConfig: ItemLinkConfig = {
     listaItems: [],
     multipleLinkChoice: false,
-    listaLinkChoices: ['Cliente'],
+    listaLinkChoices: ['Plantilla'],
     assignedItems: [],
     selectionService: {
       assign: (data) => this.rutinaAdminService.asignarRutina(data),
-      unassign: (data) => this.templateService.desasignarRutinaPlantilla(data)
+      unassign: (data) => {
+                        return this.rutinaAdminService.getIdHistorial(data).pipe(
+                          switchMap((datos: any) => {
+                            let id_historial = datos[0].id; 
+                            return this.rutinaAdminService.desasignarRutina(id_historial);
+                          })
+                        );
+      }
     },
-    parentType: 'Plantilla'
+    parentType: 'Cliente'
   }
 
   constructor(
@@ -106,7 +115,9 @@ export class TemplateView implements OnInit {
     private cd: ChangeDetectorRef,
     private modalService: ModalService,
     private router: Router
-  ) {}
+  ) {
+    
+  }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
@@ -119,32 +130,26 @@ export class TemplateView implements OnInit {
   }
 
   ngOnInit() {
-    if (this.orderOptionSelected === 'Nombre') {
-      this.templateService.getPlantillas(false).subscribe({
-        next: (datos) => {
-          this.listaPlantillas = this.toPlantillaFormat(datos)
-          this.cd.detectChanges();
-        },
-        error: (err) => {
-          mostrarMensajeTemporal(err.error?.message, 2000);
-        },
-      });
-    } else if (this.orderOptionSelected === 'Antigüedad') {
-      this.templateService.getPlantillas(true).subscribe({
-        next: (datos) => {
-          this.listaPlantillas = this.toPlantillaFormat(datos)
-          this.cd.detectChanges();
-        },
-        error: (err) => {
-          mostrarMensajeTemporal(err.error?.message, 2000);
-        },
-      });
+    if(this.cliente.id_usuario === 0){
+      this.userService.getClientes(false).subscribe({
+      next: (data) => {
+        this.cliente = {
+          id_usuario: data[0].id,
+          nombre: data[0].apellidos + ", " + data[0].nombre
+        };
+        this.cargarRutinas();
+        this.selectedUsuarioId = this.cliente.id_usuario
+      },
+      error: (err) => {
+        mostrarMensajeTemporal(err.error?.messagge);
+      }
+    });
     }
 
-    this.userService.getClientes(true).subscribe({
+    this.templateService.getPlantillas(true).subscribe({
       next: (datos) => {
-        this.listaUsuarios = datos;
-        this.linkerConfig = { ...this.linkerConfig, listaItems: this.listaUsuarios.map((item: any) => ({ id: item.id, nombre: item.nombre+" "+item.apellidos }))};
+        this.listaPlantillas = this.toPlantillaFormat(datos);
+        this.linkerConfig = { ...this.linkerConfig, listaItems: this.listaPlantillas.map((item: any) => ({ id: item.id_plantilla, nombre: item.nombre_plantilla}))};
         this.cd.detectChanges();
       },
       error: (err) => {
@@ -153,22 +158,46 @@ export class TemplateView implements OnInit {
     });
   }
 
-  onItemsReversed(reversed: Template[]) {
-    this.listaPlantillas = reversed;
+  cargarRutinas(){
+    if (this.orderOptionSelected === 'Nombre') {
+      this.rutinaAdminService.getRutinas(this.cliente.id_usuario, false).subscribe({
+        next: (datos) => {
+          this.listaRutinas = this.toRutinaFormat(datos)
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          mostrarMensajeTemporal(err.error?.message, 2000);
+        },
+      });
+    } else if (this.orderOptionSelected === 'Antigüedad') {
+      this.rutinaAdminService.getRutinas(this.cliente.id_usuario, true).subscribe({
+        next: (datos) => {
+          this.listaRutinas = this.toRutinaFormat(datos)
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          mostrarMensajeTemporal(err.error?.message, 2000);
+        },
+      });
+    }
+  }
+
+  onItemsReversed(reversed: RutinaAdmin[]) {
+    this.listaRutinas = reversed;
   }
 
   onLoadForId(event: { id: number; choice?: LinkOption | null}) {
-    this.onTemplateSelected(event.id);
+    this.onRutinaSelected(event.id);
   }
 
-  onTemplateSelected(id:number) {
-    this.selectedTemplateId = id;
-    this.rutinaAdminService.getRutinaByPlantillaId(id).subscribe({
+  onRutinaSelected(id:number) {
+    this.selectedUsuarioId = id;
+    this.rutinaAdminService.getRutinaByUsuarioId(this.selectedUsuarioId).subscribe({
       next: (datos) => {
-        this.assignedItems = datos.map((item: any) => ({ id: item.id_usuario, nombre: item.nombre+" "+item.apellidos}));
+        this.assignedItems = datos.map((item: any) => ({ id: item.id_plantilla, nombre: item.nombre_plantilla}));
         this.linkerConfig = {
         ...this.linkerConfig,
-        assignedItems: datos.map((item: any) => ({ id: item.id_usuario, nombre: item.nombre+" "+item.apellidos})), 
+        assignedItems: datos.map((item: any) => ({ id: item.id_plantilla, nombre: item.nombre_plantilla})), 
         };
         this.cd.detectChanges();
       },
@@ -187,7 +216,8 @@ export class TemplateView implements OnInit {
     service(event.data).subscribe({
       next: (res) => {
         mostrarMensajeTemporal(res.message, 2000);
-        this.onTemplateSelected(event.data.id_plantilla);
+        this.onRutinaSelected(event.data.id_usuario);
+        this.refrescarRutinas();
       },
       error: (err) => { 
         const mensaje = err.error?.message;
@@ -197,34 +227,31 @@ export class TemplateView implements OnInit {
   }
 
   abrirModal(option: 'create' | 'edit', idSelected?: number): void {
-    this.modalService.setDataFields(this.plantillaFields);
+    this.modalService.setDataFields(this.rutinaFields);
     this.modalService.setMessages(null, null);
 
-    const plantilla$ =
+    const rutina$ =
       option === 'edit' && idSelected
-        ? this.templateService.getPlantillaById(idSelected)
+        ? this.rutinaAdminService.getVariacionesById(idSelected)
         : of(null);
 
-    plantilla$
+    rutina$
       .pipe(
-        switchMap((plantilla) => {
-          const plantillaFormateada = plantilla ? this.toPlantillaFormat(plantilla) : null;
+        switchMap((rutina) => {
+          const rutinaFormateada = rutina ? this.toRutinaFormat(rutina) : null;
           const config: ModalConfig = {
             action: option,
             service: {
               create:
-                option === 'create'
-                  ? (data) => this.templateService.crearPlantilla(data).pipe(
-                              tap(res => mostrarMensajeTemporal(res.message, 2000)))
-                  : () => EMPTY,
+                () => EMPTY,
               update:
                 option === 'edit' && idSelected
-                  ? (data) => this.templateService.actualizarPlantilla(data).pipe(
+                  ? (data) => this.rutinaAdminService.actualizarRutina(data).pipe(
                               tap(res => mostrarMensajeTemporal(res.message, 2000)))
                   : () => EMPTY,
             },
             id: idSelected,
-            data: plantillaFormateada,
+            data: rutinaFormateada
           };
           this.modalService.openModal(config);
 
@@ -233,17 +260,17 @@ export class TemplateView implements OnInit {
       )
       .subscribe((isOpen) => {
         if (!isOpen) {
-          this.refrescarPlantillas();
+          this.refrescarRutinas();
         }
       });
   }
 
-  deletePlantilla(id: number): void {
-    this.templateService.borrarPlantilla(id).subscribe({
+  deleteRutina(id: number): void {
+    this.rutinaAdminService.desasignarRutina(id).subscribe({
       next: (res) => {
         const mensaje = res.message;
         mostrarMensajeTemporal(mensaje, 2000);
-        this.refrescarPlantillas();
+        this.refrescarRutinas();
         setTimeout(() => this.cd.detectChanges());
       },
       error: (err) => {
@@ -255,18 +282,19 @@ export class TemplateView implements OnInit {
 
   onOrderSelected(order: string) {
     this.orderOptionSelected = order;
-    this.refrescarPlantillas();
+    this.refrescarRutinas();
   }
 
-  refrescarPlantillas(): void {
-    this.templateService.getPlantillas(false).subscribe((data) => {
-      this.listaPlantillas = [...this.toPlantillaFormat(data)];
+  refrescarRutinas(): void {
+    this.rutinaAdminService.getRutinas(this.cliente.id_usuario, false).subscribe((data) => {
+      this.listaRutinas = [...this.toRutinaFormat(data)];
+      console.log("listaRutinas: ", this.listaRutinas)
       this.cd.detectChanges();
     });
   }
 
-  toggleDropdown(id_plantilla: number, id_ejercicio: number, bloqueIndex: number) {
-    const key = `${id_plantilla}-${id_ejercicio}-${bloqueIndex}`;
+  toggleDropdown(id_historial: number, id_ejercicio: number, bloqueIndex: number) {
+    const key = `${id_historial}-${id_ejercicio}-${bloqueIndex}`;
     Object.keys(this.dropdownOpen).forEach(key => {
       this.dropdownOpen[key] = false;
     });
@@ -274,14 +302,14 @@ export class TemplateView implements OnInit {
     this.dropdownOpen[key] = !this.dropdownOpen[key];
   }
 
-  verVideo(id_plantilla: number, id_ejercicio: number, bloqueIndex: number) {
-    const key = `${id_plantilla}-${id_ejercicio}-${bloqueIndex}`;
+  verVideo(id_historial: number, id_ejercicio: number, bloqueIndex: number) {
+    const key = `${id_historial}-${id_ejercicio}-${bloqueIndex}`;
     this.lightbox.open(this.exerciseVideoItem[0].src)
     this.dropdownOpen[key] = false;
   }
 
-  verMateriales(id_plantilla: number, id_ejercicio: number, bloqueIndex: number) {
-    const key = `${id_plantilla}-${id_ejercicio}-${bloqueIndex}`;
+  verMateriales(id_historial: number, id_ejercicio: number, bloqueIndex: number) {
+    const key = `${id_historial}-${id_ejercicio}-${bloqueIndex}`;
     this.router.navigate(['/materiales'])
     this.dropdownOpen[key] = false;
   }
@@ -327,5 +355,28 @@ export class TemplateView implements OnInit {
 
   return [];
 }
-}
 
+  private toRutinaFormat(data: any){
+
+    if (Array.isArray(data)) {
+      return data.map((item: any) => ({
+        id_historial: item.result.id_historial,
+        id_plantilla: item.result.id_plantilla,
+        nombre_plantilla: item.result.nombre_plantilla,
+        bloques: item.result.bloques
+      }));
+    }
+  
+    // Si data es un objeto único (caso de edición), envuélvelo en un array
+    if (data) {
+      return [{
+        id_historial: data.id_historial,
+        id_plantilla: data.id_plantilla,
+        nombre_plantilla: data.nombre_plantilla,
+        bloques: data.bloques
+      }];
+    }
+
+  return [];
+}
+}

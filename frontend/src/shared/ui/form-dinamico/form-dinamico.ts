@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnChanges, ChangeDetectorRef} from '@angular/core';
 import { CommonModule, TitleCasePipe} from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray} from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray, FormControl} from '@angular/forms';
 import { FormField } from '../../../assets/models/form-field.interface';
 import { CheckButtonComponent } from "../check-button.component/check-button.component";
 import { NavButtonComponent } from "../nav-button.component/nav-button.component";
@@ -10,7 +10,6 @@ import { Categoria } from '../../../assets/models/categoria.interface';
 import { Ejercicio } from '../../../assets/models/ejercicio.interface';
 import { CategoryService } from '../../data/categoryService.service';
 import { ExerciseService } from '../../data/exerciseService.service';
-import { Defecto } from '../../../assets/models/template.interface';
 import { merge, take } from 'rxjs';
 
 @Component({
@@ -35,7 +34,6 @@ export class FormDinamico implements OnChanges{
   private titleCasePipe = new TitleCasePipe()
   categorias: Categoria[] = []
   ejercicios: Ejercicio[] = []
-  defectos: Defecto[] = []
   private inicializado = false;
 
   get hasSuccessMessage(): boolean {
@@ -104,7 +102,11 @@ export class FormDinamico implements OnChanges{
     if (field.type === 'nested') {
       group[field.name] = this.fb.array([]);
     } else {
-      group[field.name] = ['', this.getValidators(field.validators || {})];
+      const control = new FormControl(
+        '', 
+        this.getValidators(field.validators || {})
+      );
+      group[field.name] = control;
     }
   });
 
@@ -169,16 +171,16 @@ export class FormDinamico implements OnChanges{
           const subField = field.subFields?.find(sf => sf.name === subKey);
           let subValue = item[subKey];
 
-          if (subKey === 'defectos' && Array.isArray(subValue)) {
-            const defectosArray = this.fb.array([]) as FormArray;
-            subValue.forEach((defecto: any) => {
-              const defectoGroup = this.fb.group({});
-              Object.keys(defecto).forEach(defKey => {
-                defectoGroup.addControl(defKey, this.fb.control(defecto[defKey]));
+          if (subField?.type === 'nested' && Array.isArray(subValue)) {
+            const nestedArray = this.fb.array([]) as FormArray;
+            subValue.forEach((nestedItem: any) => {
+              const nestedGroup = this.fb.group({});
+              Object.keys(nestedItem).forEach(nesKey => {
+                nestedGroup.addControl(nesKey, this.fb.control(nestedItem[nesKey]));
               });
-              defectosArray.push(defectoGroup);
+              nestedArray.push(nestedGroup);
             });
-            group.addControl(subKey, defectosArray);
+            group.addControl(subKey, nestedArray);
           } else if (subKey !== 'nombre_categoria') {
             group.addControl(subKey, this.fb.control(subValue));
           }
@@ -203,10 +205,13 @@ export class FormDinamico implements OnChanges{
   if (bloquesArray) {
     bloquesArray.valueChanges.subscribe(() => {
       bloquesArray.controls.forEach((bloqueGroup) => {
-        const defectosArray = (bloqueGroup as FormGroup).get('defectos') as FormArray;
+        const nestedField = this.fields.find(f => f.name === 'bloques')?.subFields?.find(sf => sf.type === 'nested');
+        const nestedFieldName = nestedField?.name || 'defectos';
+
+        const nestedArray = (bloqueGroup as FormGroup).get(nestedFieldName) as FormArray;
         
-        defectosArray.controls.forEach(defectoGroup => {
-          const idEjercicio = defectoGroup.get('id_ejercicio')?.value;
+        nestedArray.controls.forEach(nestedGroup => {
+          const idEjercicio = nestedGroup.get('id_ejercicio')?.value;
           const idCategoria = bloqueGroup.get('id_categoria')?.value;
 
           if (idEjercicio && !idCategoria) {
@@ -227,11 +232,11 @@ agregarBloque(): void {
     defectos: this.fb.array([])
   });
   this.getBloquesArray().push(bloque);
-  this.agregarDefectoEnBloque(this.getBloquesArray().length - 1);
+  this.agregarNestedEnBloque(this.getBloquesArray().length - 1);
 }
 
-agregarDefectoEnBloque(bloqueIndex: number): void {
-  const defectosArray = this.getDefectosArray(bloqueIndex);
+agregarNestedEnBloque(bloqueIndex: number): void {
+  const defectosArray = this.getNestedArray(bloqueIndex);
   const defecto = this.fb.group({
     id_ejercicio: ['', Validators.required],
     series: [1],
@@ -243,10 +248,10 @@ agregarDefectoEnBloque(bloqueIndex: number): void {
   defectosArray.push(defecto);
 }
 
-eliminarDefecto(bloqueIndex: number, defectoIndex: number): void {
-  const defectos = this.getDefectosArray(bloqueIndex);
-  if (defectos.length > 1) {
-    defectos.removeAt(defectoIndex);
+eliminarNested(bloqueIndex: number, nestedIndex: number): void {
+  const nested = this.getNestedArray(bloqueIndex);
+  if (nested.length > 1) {
+    nested.removeAt(nestedIndex);
   }
 }
 
@@ -260,23 +265,29 @@ getBloquesArray(): FormArray {
   return this.form.get('bloques') as FormArray;
 }
 
-getDefectosArray(bloqueIndex: number): FormArray {
-  const bloque = this.getBloquesArray().at(bloqueIndex) as FormGroup;
-  return bloque.get('defectos') as FormArray;
+getNestedFieldName(): string {
+  const bloqueField = this.fields.find(f => f.name === 'bloques');
+  const nestedField = bloqueField?.subFields?.find(sf => sf.type === 'nested');
+  return nestedField?.name || 'defectos';
 }
 
-getDefectosSubFields() {
+getNestedArray(bloqueIndex: number): FormArray {
+  const field = this.getNestedFieldName();
+  return this.form.get(['bloques', bloqueIndex, field]) as FormArray;
+}
+
+getNestedSubFields() {
   const bloquesField = this.fields.find(f => f.name === 'bloques');
-  const defectosField = bloquesField?.subFields?.find(sf => sf.name === 'defectos');
-  return defectosField?.subFields?.filter(subField => subField.name !== 'id_ejercicio') || [];
+  const nestedField = bloquesField?.subFields?.find(sf => sf.type === 'nested');
+  return nestedField?.subFields?.filter(subField => subField.name !== 'id_ejercicio') || [];
 }
 
 
 onCategoriaChange(bloqueIndex: number): void {
   const idCategoria = this.getBloquesArray().at(bloqueIndex).get('id_categoria')?.value;
-  const defectosArray = this.getDefectosArray(bloqueIndex);
+  const nestedArray = this.getNestedArray(bloqueIndex);
 
-  defectosArray.controls.forEach(control => {
+  nestedArray.controls.forEach(control => {
     const idEjercicio = control.get('id_ejercicio')?.value;
     const ejercicio = this.ejercicios.find(e => e.id === +idEjercicio);
     if (ejercicio && ejercicio.id_categoria !== idCategoria) {

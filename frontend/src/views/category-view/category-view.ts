@@ -209,7 +209,7 @@ export class CategoryView implements OnInit {
 
   refrescarCategorias(): void {
     this.categoryService.getCategorias().subscribe((data) => {
-      this.listaCategorias = [...data];
+      this.listaCategorias = [...data.filter((cat: Categoria) => cat.id !== 0)];
       this.cd.detectChanges();
     });
   }

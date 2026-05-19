@@ -149,3 +149,10 @@ input{
     text-align: center;
     padding: 7px 0 12px;
 }
+
+input:read-only{
+    background-color: #F2F2F7;
+    border: none;
+    cursor: default;
+    font-style: italic;
+}

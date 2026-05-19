@@ -1,0 +1,7 @@
+<div class="options">
+    <select class="cliente-option font-20px" [(ngModel)]="clienteSelected" (change)="onClienteChange()">
+        <option *ngFor="let cliente of listaClientes" [ngValue]="cliente">
+        {{cliente.nombre | titlecase}}
+        </option>
+    </select>
+</div>

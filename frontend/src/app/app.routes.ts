@@ -11,6 +11,8 @@ import { VideoView } from '../views/video-view/video-view';
 import { authGuard } from '../core/guards/auth.guard';
 import { adminGuard } from '../core/guards/admin.guard';
 import { ErrorView } from '../views/error-view/error-view';
+import { RutinasClientesView } from '../views/rutinas-clientes-view/rutinas-clientes-view';
+import { MisRutinasView } from '../views/mis-rutinas-view/mis-rutinas-view';
 
 export const routes: Routes = [
     {path: 'welcome', component: WelcomeView},
@@ -20,8 +22,8 @@ export const routes: Routes = [
     {path: 'gestionar/plantillas', component: TemplateView, canActivate: [authGuard, adminGuard]}, //Admin
     {path: 'gestionar/categorias', component: CategoryView, canActivate: [authGuard, adminGuard]},
     {path: 'gestionar/ejercicios', component: ExerciseView, canActivate: [authGuard, adminGuard]},
-    {path: 'gestionar/rutinas-clientes', component: TemplateView, canActivate: [authGuard, adminGuard]},
-    {path: 'mis-rutinas', component: TemplateView, canActivate: [authGuard]}, //Cliente
+    {path: 'gestionar/rutinas-clientes', component: RutinasClientesView, canActivate: [authGuard, adminGuard]},
+    {path: 'mis-rutinas', component: MisRutinasView, canActivate: [authGuard]}, //Cliente
     //{path: 'estadisticas', component: , canActivate: [authGuard]},
     {path: 'materiales', component: MaterialView, canActivate: [authGuard]},
     {path: 'demostraciones', component: VideoView, canActivate: [authGuard]},

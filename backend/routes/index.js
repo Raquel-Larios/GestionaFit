@@ -17,8 +17,8 @@ router.use("/categorias", categoryRoute);
 router.use("/ejercicios", exerciseRoute);
 router.use("/materiales", materialRoute);
 router.use("/plantillas", templateRoute);
-router.use("/rutinas/:id_usuario", rutinaAdminRoute);
-router.use("/:id_usuario/mis-rutinas", rutinaClienteRoute);
+router.use("/rutinas", rutinaAdminRoute);
+router.use("/mis-rutinas", rutinaClienteRoute);
 router.use("/videos", videoRoute);
 
 

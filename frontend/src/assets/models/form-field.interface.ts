@@ -7,6 +7,9 @@ export interface FormField{
     step?: number;
     options?: { value: any; label: string }[]; 
     subFields?: FormField[]; 
+    visibility?: {
+        readonly?: boolean;
+    }
     validators?: {
         required?: boolean;
         pattern?: string;

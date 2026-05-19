@@ -1,4 +1,4 @@
-<button #linkerButton class="linker-toggle" (click)="onButtonClick($event)">{{ texto }}</button>
+<button #linkerButton [class]="estilo" (click)="onButtonClick($event)">{{ texto }}</button>
 <!-- Menú para un solo tipo de vínculo -->
 <div #menu *ngIf="!config.multipleLinkChoice && showMenu" class="menu"
    (mouseleave)="leaveMenu()">
