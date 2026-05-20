@@ -85,13 +85,23 @@ h4{
   color: #313131;
 }
 
-.exercise-field span {
+.exercise-field span,
+.exercise-field input {
   background-color: snow;
   border: 1px solid #e0e0e0;
   padding: 5px 15px;
   border-radius: 4px;
   flex: 1;
 }
+
+.exercise-field input{
+  font-weight: bold;
+  width: 35%;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95em;
+}
+
 
 .nombre-ejercicio{
   margin: 1% 2%;
@@ -102,7 +112,7 @@ h4{
 
 .detalle-content{
   display: block;
-  width: 100%;
+  margin: 20px;
 }
 
 .lectura-content, .variacion-content{

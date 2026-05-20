@@ -1,0 +1,133 @@
+<div class="content-container block font-20px">
+  <div class="flex section-header-container">
+    <h2 class="section-name">Mis Rutinas</h2>
+    <div class="flex flex-end section-tools">
+      <app-order-option
+        [orderOptions]="rutinaOrderOptions.orderOptions"
+        [ascOptions]="rutinaOrderOptions.ascOptions"
+        [descOptions]="rutinaOrderOptions.descOptions"
+        [listaItems]="listaLecturas"
+        (itemsReversed)="onItemsReversed($event)"
+        (orderSelected)="onOrderSelected($event)"
+      >
+      </app-order-option>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="rutina-container flex" *ngFor="let rutina of listaRutinasCombinadas">
+      <div class="rutina-item">
+        <p>{{ rutina.cliente.nombre_plantilla | primeraLetra }}</p>
+      </div>
+      <div
+        class="detalle block"
+        *ngFor="let bloque of rutina.cliente.bloques; let index = index; let isLast = last"
+      >
+        <div
+          class="rutina-group-header"
+          *ngIf="
+            index === 0 ||
+            bloque.nombre_categoria !== rutina.cliente.bloques[index - 1].nombre_categoria
+          "
+        >
+          <span>{{ bloque.nombre_categoria || 'Sin agrupar' | primeraLetra }} </span>
+        </div>
+        <div
+          class="exercise-group-container"
+          *ngFor="let lectura of bloque.lecturas; let j = index"
+        >
+          <div class="nombre-ejercicio dropdown-container">
+            <span
+              class="dropdown-toggle"
+              #dropdownMenu
+              (click)="
+                $event.stopPropagation();
+                toggleDropdown(rutina.cliente.id_historial, lectura.id_ejercicio, index)
+              "
+            >
+              {{ lectura.nombre_ejercicio | primeraLetra }}
+              <span class="dropdown-arrow">▼</span>
+            </span>
+            <div
+              class="dropdown-menu"
+              *ngIf="
+                dropdownOpen[`${rutina.cliente.id_historial}-${lectura.id_ejercicio}-${index}`]
+              "
+            >
+              <div
+                class="dropdown-item"
+                *ngIf="hasVideo"
+                (click)="verVideo(rutina.cliente.id_historial, lectura.id_ejercicio, index)"
+              >
+                Ver vídeo demostrativo
+              </div>
+              <div
+                class="dropdown-item"
+                (click)="verMateriales(rutina.cliente.id_historial, lectura.id_ejercicio, index)"
+              >
+                Ir a Materiales
+              </div>
+            </div>
+          </div>
+          <div class="detalle-content">
+            <div *ngIf="rutina.admin" class="variacion-content">
+              <h4>Pedido:</h4>
+              <br>
+              <div class="exercise-field">
+                <label>Series</label>
+                <span>{{ rutina.admin.bloques[index].variaciones[j].series }}</span>
+              </div>
+              <div class="exercise-field">
+                <label>Repeticiones</label>
+                <span>{{ rutina.admin.bloques[index].variaciones[j].repeticiones }}</span>
+              </div>
+              <div class="exercise-field">
+                <label>Carga</label>
+                <span>{{ rutina.admin.bloques[index].variaciones[j].carga }} kg</span>
+              </div>
+              <div class="exercise-field">
+                <label>RPE</label>
+                <span>{{ rutina.admin.bloques[index].variaciones[j].RPE }}</span>
+              </div>
+            </div>
+            <form class="block " [formGroup]="rutina.form">
+              <div formArrayName="lecturasForm">
+                <div class="block" [formGroupName]="index * bloque.lecturas.length + j">
+                  <div class="lectura-content">
+                    <h4>Hecho:</h4>
+                    <div class="exercise-field">
+                      <label>Series</label>
+                      <input type="number" formControlName="series" [min]="0"/>
+                    </div>
+                    <div class="exercise-field">
+                      <label>Repeticiones</label>
+                      <input type="number" formControlName="repeticiones" [min]="0" />
+                    </div>
+                    <div class="exercise-field">
+                      <label>Carga</label>
+                      <input type="number" formControlName="carga" [min]="0" />
+                    </div>
+                    <div class="exercise-field">
+                      <label>RPE</label>
+                      <input type="number" formControlName="RPE" [min]="1" [max]="10" />
+                    </div>
+                  </div>
+                  <div class="right-button">
+                    <app-check-button
+                    [deshabilitado]="rutina.form.invalid"
+                    (accion)="onSubmit()"
+                    [texto]="'Guardar'"
+                    [estilo]="'rutinas-cliente-button font-18px'"
+                    ></app-check-button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <hr *ngIf="!isLast" />
+      </div>
+      <app-lightbox [items]="exerciseVideoItem"></app-lightbox>
+    </div>
+  </div>
+</div>

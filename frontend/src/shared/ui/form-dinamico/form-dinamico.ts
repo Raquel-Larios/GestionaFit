@@ -315,10 +315,6 @@ getEjerciciosFiltrados(bloqueIndex: number): any[] {
     this.resetMessageParams();
   }
 
-  resetForm(){
-    this.form.reset();
-  }
-
   resetMessageParams(){
     this.errorMessage= "";
     this.successMessage="";

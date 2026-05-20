@@ -10,7 +10,7 @@ import { FormField } from '../../assets/models/form-field.interface';
 import { ModalService } from '../../shared/data/modalService.service';
 import { ModalConfig } from '../../assets/models/modal-config.interface';
 import { PrimeraLetraPipe } from '../../shared/utils/pipes/primeraLetraPipe';
-import { EMPTY, map, of, switchMap, tap } from 'rxjs';
+import { EMPTY, of, switchMap, tap } from 'rxjs';
 import { ItemLinkerComponent } from "../../shared/ui/item-linker.component/item-linker.component";
 import { UserService } from '../../shared/data/userService.service';
 import { LinkItem, ItemLinkConfig, ItemLinkEvent, LinkOption } from '../../assets/models/item-linker.interface';
@@ -22,6 +22,8 @@ import { Router } from '@angular/router';
 import { Template } from '../../assets/models/template.interface';
 import { TemplateService } from '../../shared/data/templateService.service';
 import { ClienteOptionComponent } from '../../shared/ui/cliente-option.component/cliente-option.component';
+import { Lectura, RutinaCliente } from '../../assets/models/rutina-cliente.interface';
+import { RutinaClienteService } from '../../shared/data/rutina-clienteService.service';
 
 @Component({
   selector: 'app-rutinas-clientes-view',
@@ -106,9 +108,12 @@ export class RutinasClientesView implements OnInit {
     },
     parentType: 'Cliente'
   }
+  listaLecturas: RutinaCliente[]=[];
+  listaRutinasCombinadas: {admin: RutinaAdmin, cliente: RutinaCliente}[] = []
 
   constructor(
     private rutinaAdminService: RutinaAdminService,
+    private rutinaClienteService: RutinaClienteService,
     private templateService: TemplateService,
     private userService: UserService,
     private exerciseService: ExerciseService,
@@ -160,9 +165,19 @@ export class RutinasClientesView implements OnInit {
 
   cargarRutinas(){
     if (this.orderOptionSelected === 'Nombre') {
+      this.rutinaClienteService.getLecturas(this.cliente.id_usuario, false).subscribe({
+        next: (datos) => {
+          this.listaLecturas = this.toRutinaFormat(datos);
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          mostrarMensajeTemporal(err.error?.message, 2000);
+        },
+      });
       this.rutinaAdminService.getRutinas(this.cliente.id_usuario, false).subscribe({
         next: (datos) => {
-          this.listaRutinas = this.toRutinaFormat(datos)
+          this.listaRutinas = this.toRutinaFormat(datos);
+          this.combinarListas();
           this.cd.detectChanges();
         },
         error: (err) => {
@@ -170,9 +185,19 @@ export class RutinasClientesView implements OnInit {
         },
       });
     } else if (this.orderOptionSelected === 'Antigüedad') {
+      this.rutinaClienteService.getLecturas(this.cliente.id_usuario, true).subscribe({
+        next: (datos) => {
+          this.listaLecturas = this.toRutinaFormat(datos);
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          mostrarMensajeTemporal(err.error?.message, 2000);
+        },
+      });
       this.rutinaAdminService.getRutinas(this.cliente.id_usuario, true).subscribe({
         next: (datos) => {
           this.listaRutinas = this.toRutinaFormat(datos)
+          this.combinarListas();
           this.cd.detectChanges();
         },
         error: (err) => {
@@ -180,6 +205,15 @@ export class RutinasClientesView implements OnInit {
         },
       });
     }
+  }
+
+  combinarListas(){
+    this.listaRutinasCombinadas = this.listaRutinas.map((adminRutina, index) => {
+    return {
+      admin: adminRutina,
+      cliente: this.listaLecturas[index] || { bloques: [] },
+    };
+  });
   }
 
   onItemsReversed(reversed: RutinaAdmin[]) {
@@ -271,7 +305,7 @@ export class RutinasClientesView implements OnInit {
         const mensaje = res.message;
         mostrarMensajeTemporal(mensaje, 2000);
         this.refrescarRutinas();
-        setTimeout(() => this.cd.detectChanges());
+        this.cd.detectChanges();
       },
       error: (err) => {
         const mensaje = err.error?.message;
@@ -288,7 +322,7 @@ export class RutinasClientesView implements OnInit {
   refrescarRutinas(): void {
     this.rutinaAdminService.getRutinas(this.cliente.id_usuario, false).subscribe((data) => {
       this.listaRutinas = [...this.toRutinaFormat(data)];
-      console.log("listaRutinas: ", this.listaRutinas)
+      this.combinarListas();
       this.cd.detectChanges();
     });
   }

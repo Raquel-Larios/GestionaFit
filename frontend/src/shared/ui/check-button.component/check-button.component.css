@@ -20,7 +20,7 @@ button{
     bottom: 0;
 }
 
-.save-button{
+.save-button, .rutinas-cliente-button{
     width: 100%;
     text-align: center;
     background-color: #0768A9;
@@ -38,4 +38,8 @@ button{
     color: snow;
     padding: 10px 50px;
     margin: 5px;
+}
+
+.rutinas-cliente-button{
+    padding: 10px 30px;
 }

@@ -27,7 +27,7 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  private getUserFromToken(): any {
+  public getUserFromToken(): any {
     const token = localStorage.getItem('token');
     if (token && !this.jwtHelper.isTokenExpired(token)) {
       return this.jwtHelper.decodeToken(token);
@@ -60,7 +60,7 @@ export class AuthService {
           this.isLoggedInSubject.next(true);
           this.currentUserSubject.next(decoded);
         } else {
-          console.error('No se recibió token');
+          console.error('No se recibió token.');
         }
     }));
   }

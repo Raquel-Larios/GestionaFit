@@ -42,21 +42,34 @@ exports.createRutinaAdmin = (params) => {
 
             db.query(
               `INSERT INTO variacion (id_historial, id_ejercicio, series, repeticiones, carga, RPE, fecha)
-               SELECT ?, d.id_ejercicio, d.series, d.repeticiones, d.carga, d.RPE, ?
-               FROM defecto d
-               WHERE d.id_plantilla = ?`,
+              SELECT ?, d.id_ejercicio, d.series, d.repeticiones, d.carga, d.RPE, ?
+              FROM defecto d
+              WHERE d.id_plantilla = ?;`,
               [id_historial, fecha, id_plantilla],
-              (err) => {
+              (err, results) => {
                 if (err) return reject({
                   message: "Error al copiar los ejercicios de la plantilla a la rutina.",
                   statusCode: 500,
                 });
 
+                db.query(
+                `INSERT INTO lectura (id_historial, id_usuario, id_ejercicio, series, repeticiones, carga, RPE, fecha)
+                SELECT ?, ?, d.id_ejercicio, 0, 0, 0, 1, ?
+                FROM defecto d
+                WHERE d.id_plantilla = ?;`,
+                [id_historial, id_usuario, fecha, id_plantilla],
+                (err, results) => {
+                  if (err) return reject({
+                    message: "Error al crear las lecturas con valor inicial de la rutina del cliente.",
+                    statusCode: 500,
+                  });
+
                 resolve({
                   data: { id_historial },
-                  message: "Rutina creada correctamente.",
+                  message: "Rutina asignada correctamente.",
                   statusCode: 200,
                 });
+              });
               }
             );
           },
@@ -223,7 +236,7 @@ exports.deleteRutinaAdmin = (params) => {
           });
         }
         if (result.length === 0) {
-          return reject({
+          return resolve({
             message: "Rutina no encontrada.",
             statusCode: 404,
           });
@@ -231,8 +244,9 @@ exports.deleteRutinaAdmin = (params) => {
 
         db.query(`
           DELETE FROM variacion WHERE id_historial = ?;
+          DELETE FROM lectura WHERE id_historial = ?;
           DELETE FROM historial_plantilla_usuario WHERE id = ?;`,
-          [id_historial, id_historial],
+          [id_historial, id_historial, id_historial],
           (err, result) => {
             if (err) {
               return reject({
@@ -241,7 +255,7 @@ exports.deleteRutinaAdmin = (params) => {
                 statusCode: 500,
               });
             }
-            resolve({
+            return resolve({
               message: "Rutina desasignada correctamente.",
               statusCode: 200,
             });

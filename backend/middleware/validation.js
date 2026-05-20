@@ -106,8 +106,8 @@ const createTemplateValidation = (data) => {
               Joi.number().integer().positive(),
               Joi.string().pattern(/^[0-9]+$/).custom(value => parseInt(value, 10))
             ).required(),
-            series: Joi.number().integer().min(1).required(),
-            repeticiones: Joi.number().integer().min(1).required(),
+            series: Joi.number().integer().min(0).required(),
+            repeticiones: Joi.number().integer().min(0).required(),
             carga: Joi.number().min(0).required(),
             RPE: Joi.number().integer().min(1).max(10).required(),
             nombre_ejercicio: Joi.string().allow("")
@@ -136,8 +136,8 @@ const updateTemplateValidation = (data) => {
               Joi.number().integer().positive(),
               Joi.string().pattern(/^[0-9]+$/).custom(value => parseInt(value, 10))
             ).required(),
-            series: Joi.number().integer().min(1).required(),
-            repeticiones: Joi.number().integer().min(1).required(),
+            series: Joi.number().integer().min(0).required(),
+            repeticiones: Joi.number().integer().min(0).required(),
             carga: Joi.number().min(0).required(),
             RPE: Joi.number().integer().min(1).max(10).required(),
             nombre_ejercicio: Joi.string().allow("")
@@ -183,8 +183,8 @@ const updateRutinaAdminValidation = (data) => {
               Joi.number().integer().positive(),
               Joi.string().pattern(/^[0-9]+$/).custom(value => parseInt(value, 10))
             ).required(),
-            series: Joi.number().integer().min(1).required(),
-            repeticiones: Joi.number().integer().min(1).required(),
+            series: Joi.number().integer().min(0).required(),
+            repeticiones: Joi.number().integer().min(0).required(),
             carga: Joi.number().min(0).required(),
             RPE: Joi.number().integer().min(1).max(10).required(),
             nombre_ejercicio: Joi.string().allow("")
@@ -206,7 +206,36 @@ const deleteRutinaAdminValidation = (data) => {
 }
 
 //RUTINA-CLIENTE VALIDATIONS
+const updateRutinaClienteValidation = (data) => {
+  const schema = Joi.object ({
+    id_historial: Joi.number().required().strict(),
+    id_usuario: Joi.number().required().strict(),
+    bloques: Joi.array().items(
+      Joi.object({
+        id_categoria: Joi.alternatives().try(
+          Joi.number().integer().min(0),
+          Joi.string().pattern(/^[0-9]+$/).custom(value => parseInt(value, 10))
+        ).required(),
+        lecturas: Joi.array().items(
+          Joi.object({
+            id_ejercicio: Joi.alternatives().try(
+              Joi.number().integer().positive(),
+              Joi.string().pattern(/^[0-9]+$/).custom(value => parseInt(value, 10))
+            ).required(),
+            series: Joi.number().integer().min(0).required(),
+            repeticiones: Joi.number().integer(0).min(0).required(),
+            carga: Joi.number().min(0).required(),
+            RPE: Joi.number().integer().min(1).max(10).required(),
+            nombre_ejercicio: Joi.string().allow("")
+          }).required()
+        ).required()
+      }).required()
+    ).required()
+  });
 
+
+  return schema.validate(data, options);
+}
 
 //CATEGORY VALIDATIONS
 const createCategoryValidation = (data) => {
@@ -344,6 +373,7 @@ module.exports = {
   updateRutinaAdminValidation,
   deleteRutinaAdminValidation,
   //rutinaCliente
+  updateRutinaClienteValidation,
   //categoria
   createCategoryValidation,
   updateCategoryValidation,

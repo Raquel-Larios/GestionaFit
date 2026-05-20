@@ -29,48 +29,72 @@
         </div>
     
     <div class="block">
-        <div class="rutina-container flex" *ngFor="let rutina of listaRutinas">
+        <div class="rutina-container flex" *ngFor="let rutina of listaRutinasCombinadas">
             <div class="rutina-item">
-                <p>{{rutina.nombre_plantilla | primeraLetra}}</p>
+                <p>{{rutina.admin.nombre_plantilla | primeraLetra}}</p>
                 <div class="section-tools button-box flex-end">
-                    <app-icon-button [icon]="iconoModify" [estilo]="'modify-button'" (accion)="abrirModal('edit', rutina.id_historial)"></app-icon-button>
-                    <app-icon-button [icon]="iconoDelete" [estilo]="'delete-button'" (accion)="deleteRutina(rutina.id_historial)"></app-icon-button>
+                    <app-icon-button [icon]="iconoModify" [estilo]="'modify-button'" (accion)="abrirModal('edit', rutina.admin.id_historial)"></app-icon-button>
+                    <app-icon-button [icon]="iconoDelete" [estilo]="'delete-button'" (accion)="deleteRutina(rutina.admin.id_historial)"></app-icon-button>
                 </div>
             </div>
-            <div class="detalle block" *ngFor="let bloque of rutina.bloques; let index = index; let isLast = last">
+            <div class="detalle block" *ngFor="let bloque of rutina.admin.bloques; let index = index; let isLast = last">
                 <div class="rutina-group-header" 
                 *ngIf="(
-                index === 0 || bloque.nombre_categoria !== rutina.bloques[index-1].nombre_categoria
+                index === 0 || bloque.nombre_categoria !== rutina.admin.bloques[index-1].nombre_categoria
                 )">
                     <span>{{bloque.nombre_categoria || 'Sin agrupar' | primeraLetra}} </span>
                 </div>
-                <div class="exercise-group-container" *ngFor="let variacion of bloque.variaciones;">
+                <div class="exercise-group-container" *ngFor="let variacion of bloque.variaciones; let j = index">
                     <div class="nombre-ejercicio dropdown-container">
-                        <span class="dropdown-toggle" #dropdownMenu (click)="$event.stopPropagation(); toggleDropdown(rutina.id_historial, variacion.id_ejercicio, index)">
+                        <span class="dropdown-toggle" #dropdownMenu (click)="$event.stopPropagation(); toggleDropdown(rutina.admin.id_historial, variacion.id_ejercicio, index)">
                                 {{ variacion.nombre_ejercicio | primeraLetra}}
                             <span class="dropdown-arrow">▼</span>
                         </span>
-                        <div class="dropdown-menu"  *ngIf="dropdownOpen[`${rutina.id_historial}-${variacion.id_ejercicio}-${index}`]">
-                            <div class="dropdown-item" *ngIf="hasVideo" (click)="verVideo(rutina.id_historial, variacion.id_ejercicio, index)">Ver vídeo demostrativo</div>
-                            <div class="dropdown-item" (click)="verMateriales(rutina.id_historial, variacion.id_ejercicio, index)">Ir a Materiales</div>
+                        <div class="dropdown-menu"  *ngIf="dropdownOpen[`${rutina.admin.id_historial}-${variacion.id_ejercicio}-${index}`]">
+                            <div class="dropdown-item" *ngIf="hasVideo" (click)="verVideo(rutina.admin.id_historial, variacion.id_ejercicio, index)">Ver vídeo demostrativo</div>
+                            <div class="dropdown-item" (click)="verMateriales(rutina.admin.id_historial, variacion.id_ejercicio, index)">Ir a Materiales</div>
                         </div>
                     </div>
-                    <div class="variacion-content">
-                        <div class="exercise-field">
-                            <label>Series</label>
-                            <span>{{ variacion.series }}</span>
+                    <div class="detalle-content">
+                        <div *ngIf="rutina.admin" class="variacion-content">
+                            <h4>Pedido:</h4>
+                            <br>
+                            <div class="exercise-field">
+                                <label>Series</label>
+                                <span>{{ rutina.admin.bloques[index].variaciones[j].series }}</span>
+                            </div>
+                            <div class="exercise-field">
+                                <label>Repeticiones</label>
+                                <span>{{ rutina.admin.bloques[index].variaciones[j].repeticiones }}</span>
+                            </div>
+                            <div class="exercise-field">
+                                <label>Carga</label>
+                                <span>{{ rutina.admin.bloques[index].variaciones[j].carga }} kg</span>
+                            </div>
+                            <div class="exercise-field">
+                                <label>RPE</label>
+                                <span>{{ rutina.admin.bloques[index].variaciones[j].RPE }}</span>
+                            </div>
                         </div>
-                        <div class="exercise-field">
-                            <label>Repeticiones</label>
-                            <span>{{ variacion.repeticiones }}</span>
-                        </div>
-                        <div class="exercise-field">
-                            <label>Carga</label>
-                            <span>{{ variacion.carga }} kg</span>
-                        </div>
-                        <div class="exercise-field">
-                            <label>RPE</label>
-                            <span>{{ variacion.RPE }}</span>
+                        <div *ngIf="rutina.cliente" class="lectura-content">
+                            <h4>Hecho:</h4>
+                            <br>
+                            <div class="exercise-field">
+                                <label>Series</label>
+                                <span>{{ rutina.cliente.bloques[index].lecturas[j].series }}</span>
+                            </div>
+                            <div class="exercise-field">
+                                <label>Repeticiones</label>
+                                <span>{{ rutina.cliente.bloques[index].lecturas[j].repeticiones }}</span>
+                            </div>
+                            <div class="exercise-field">
+                                <label>Carga</label>
+                                <span>{{ rutina.cliente.bloques[index].lecturas[j].carga }} kg</span>
+                            </div>
+                            <div class="exercise-field">
+                                <label>RPE</label>
+                                <span>{{ rutina.cliente.bloques[index].lecturas[j].RPE }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
