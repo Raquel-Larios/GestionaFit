@@ -1,1 +1,59 @@
-<p>home-view works!</p>
+<div class="content-container block font-20px">
+  <div class="flex section-header-container">
+    <h2 class="section-name">Home</h2>
+  </div>
+  <nav id="home-menu">
+    <ul>
+        <li>
+            <a routerLink="/gestionar/clientes" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <app-icon-button [icon]="iconoUser" [estilo]="'add-button round'"></app-icon-button>
+                <h3>Gestionar Clientes</h3>
+                <p>Crear, modificar, borrar y asignar plantillas a clientes.</p>
+            </a>
+        </li>
+        <li>
+            <a routerLink="/gestionar/categorias" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <app-icon-button [icon]="iconoCategoria" [estilo]="'add-button round'"></app-icon-button> 
+                <h3>Gestionar Categorías</h3>
+                <p>Crear, modificar, borrar y asignar ejercicios a categorías.</p>
+            </a>
+        </li>
+        <li>
+            <a routerLink="/gestionar/ejercicios" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <app-icon-button [icon]="iconoEjercicio" [estilo]="'add-button round'"></app-icon-button> 
+                <h3>Gestionar Ejercicios</h3>
+                <p>Crear, modificar, borrar y asignar categorías y vídeos a ejercicios.</p>
+            </a>
+        </li>
+        <li>
+            <a routerLink="/gestionar/plantillas" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <app-icon-button [icon]="iconoPlantilla" [estilo]="'add-button round'"></app-icon-button>
+                <h3>Gestionar Plantillas</h3>
+                <p>Crear, modificar, borrar y asignar clientes a plantillas.</p>
+            </a>
+        </li>
+        <li>
+            <a routerLink="/gestionar/rutinas-clientes" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <app-icon-button [icon]="iconoRutinasClientes" [estilo]="'add-button round'"></app-icon-button>
+                <h3>Gestionar Rutinas de Clientes</h3>
+                <p>Modificar, borrar y asignar nuevas rutinas a clientes.</p>
+
+            </a>
+        </li>
+        <li>
+            <a routerLink="/materiales" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <app-icon-button [icon]="iconoMateriales" [estilo]="'add-button round'"></app-icon-button>
+                <h3>Gestionar Materiales</h3>
+                <p>Ver, crear, modificar y borrar materiales en forma de imagen para ayudar a los clientes a entender conceptos.</p>
+            </a>
+        </li>
+        <li>
+            <a routerLink="/demostraciones" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <app-icon-button [icon]="iconoVideos" [estilo]="'add-button round'"></app-icon-button>
+                <h3>Gestionar Demostraciones</h3>
+                <p>Ver, crear, modificar, borrar y asignar ejericios a vídeos de demostración de los ejercicios.</p>
+            </a>
+        </li>
+    </ul>
+  </nav>
+</div>

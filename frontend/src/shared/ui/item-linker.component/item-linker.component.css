@@ -6,10 +6,11 @@
 }
 
 .linker-toggle-rutinas{
-    padding: 4px 5.5px; 
+    padding: 6px 24px; 
     background-color: #3F95CF;
     color: snow;
     border: 1px solid #0768A9;
+    font-family: 'Arial';
 }
 
 .menu, .submenu{

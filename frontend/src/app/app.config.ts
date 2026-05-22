@@ -5,12 +5,7 @@ import { JwtModule} from '@auth0/angular-jwt';
 
 import { routes } from './app.routes';
 
-
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faPlus, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { PrimeraLetraPipe } from '../shared/utils/pipes/primeraLetraPipe';
-
-library.add(faPlus, faEdit, faTrash);
 
 export function tokenGetter() {
   return localStorage.getItem('token');
