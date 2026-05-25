@@ -66,7 +66,6 @@ export class AuthService {
   }
 
   forgottenPass(data: any): Observable<any> {
-    console.log("Email service: ", data)
     return this.http.put<any>(this.baseApiUrl+'/forgotten-pass', data)
   }
 

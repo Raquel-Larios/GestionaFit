@@ -376,7 +376,6 @@ getEjerciciosFiltrados(bloqueIndex: number): any[] {
     this.form.markAllAsTouched();
 
     if (this.form.invalid){
-      console.log("Es invalido.")
       return;
     }
     

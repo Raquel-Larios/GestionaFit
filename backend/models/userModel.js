@@ -147,11 +147,8 @@ exports.updateProfile = (params) => {
             statusCode: 404,
           });
         } else {
-          console.log("Result: ", result[0])
-          console.log("Contraseña recibida: ", contraseña)
           const hashGuardado = result[0].contraseña;
           const passMatch = bcrypt.compareSync(contraseña, hashGuardado);
-          console.log("PassMatch: ", passMatch)
           if (emailMinusculas === result[0].email && nombreMinusculas === result[0].nombre && apellidosMinusculas === result[0].apellidos && passMatch && foto_perfilMinusculas === result[0].foto_perfil && peso === result[0].peso){
             return resolve({
               message: "No se ha introducido ningún cambio.",

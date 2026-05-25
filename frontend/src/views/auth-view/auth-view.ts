@@ -82,12 +82,5 @@ export class AuthView {
       },
     };
     this.modalService.openModal(config);
-
-    // Maneja el evento de envío del formulario
-    this.modalService.isOpen$.subscribe((isOpen) => {
-      if (!isOpen) {
-        
-      }
-    })
-    }
+  }
 }

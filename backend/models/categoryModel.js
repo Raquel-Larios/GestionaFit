@@ -20,7 +20,7 @@ exports.createCategory = (params) => {
             statusCode: 400,
           });
         } else if (result.length === 0) {
-          console.log("Valor a insertar:", nombreMinusculas);
+
           db.query(
             `INSERT INTO categoria (nombre_categoria) VALUE (?)`,
             [nombreMinusculas],

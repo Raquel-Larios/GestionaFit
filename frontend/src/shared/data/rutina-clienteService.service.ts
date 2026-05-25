@@ -27,7 +27,6 @@ export class RutinaClienteService {
   }
 
   actualizarLectura(data: any): Observable<any>{
-    console.log("Data service: ", data)
     return this.http.put<any>(this.baseApiUrl+"/"+data.id_usuario+"/"+data.id_historial, data);
   }
 
