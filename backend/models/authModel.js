@@ -63,8 +63,8 @@ exports.loginUser = (params) => {
 
 exports.forgottenPass = (params) => {
 
-  const { email } = params;
-  const { emailMinusculas } = String(email).toLowerCase;
+  const {email}  = params;
+  const emailMinusculas = String(email).toLowerCase();
 
   return new Promise ((resolve, reject) => {
     db.query(
@@ -84,7 +84,7 @@ exports.forgottenPass = (params) => {
 
         const cliente = result[0];
         const generatedPassword = passwordGenerator.generatePassword(10, false);
-        const hashedPass = bcrypt.hash(generatedPassword, 10);
+        const hashedPass = bcrypt.hashSync(generatedPassword, 10);
 
         db.query(`
           UPDATE usuario SET contraseña = ?, isPassGenerated = TRUE WHERE id = ?`, [hashedPass, cliente.id], (err, result) => {
@@ -101,7 +101,7 @@ exports.forgottenPass = (params) => {
               statusCode: 200,
             })
 
-            mailService.enviarCorreoCliente(emailMinusculas, cliente.nombre, hashedPass, "Contraseña Olvidada");
+            mailService.enviarCorreoCliente(emailMinusculas, cliente.nombre, generatedPassword, "ConOlvidada");
 
           });
 

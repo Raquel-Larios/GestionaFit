@@ -5,12 +5,12 @@
   *ngIf="form"
 >
   <div class="form-item" *ngFor="let field of fields">
-    <span *ngIf="field.type !== 'nested'" class="block item-label">{{ field.label }}</span>
+    <span *ngIf="field.type !== 'nested' && field.type !== 'password'" class="block item-label">{{ field.label }}</span>
 
     <!--Campos normales-->
     <input
       class="form-item"
-      *ngIf="field.type !== 'select' && field.type !== 'nested'"
+      *ngIf="field.type !== 'select' && field.type !== 'nested' && field.type !=='password'"
       [type]="field.type"
       [min]="field.min"
       [max]="field.max"
@@ -18,6 +18,17 @@
       [formControlName]="field.name"
       [readonly]="field.visibility?.readonly"
     />
+
+    <div *ngIf="field.name === 'contraseña'" class="password-container">
+      <span class="block item-label">{{ field.label }}</span>
+      <input
+        class="form-item"
+        [type]="showPassword ? 'text' : 'password'"
+        [formControlName]="field.name"
+        [readonly]="field.visibility?.readonly"
+      />
+      <app-icon-button [estilo]="'toggle-btn'" [icon]="showPassword ? visibility_on : visibility_off" (accion)="togglePasswordVisibility()"></app-icon-button>
+    </div>
 
     <!--Select de ejercicios y categorias-->
     <select class="form-item" *ngIf="field.type === 'select'" [formControlName]="field.name">
@@ -104,18 +115,39 @@
     </div>
 
     <!--Control de Excepciones-->
-    <div *ngIf="form.get(field.name)?.invalid && form.get(field.name)?.touched">
+    <div *ngIf="field.validators?.required && form.get(field.name)?.invalid && form.get(field.name)?.touched">
       <p class="error">El campo {{ field.label | lowercase }} es obligatorio.</p>
     </div>
 
-    <!--Formato de contraseña, solo debería aparecer al crear un cliente y cuando el mismo cambia la contraseña-->
-    <div *ngIf="form.get('contraseña')?.hasError('pattern') && form.get('contraseña')?.touched">
-      <p class="error">
-        La contraseña debe: * Tener al menos {{ field.validators?.minlength }} caracteres. * Ser una
-        combinación de caracteres alfanuméricos (al menos una minúscula, una mayúscula y un número).
-        * No contener espacios.
-      </p>
+    <!--Formato de contraseña, solo debería aparecer cuando el usuario cambia la contraseña-->
+    <div class="error" *ngIf="field.name ==='contraseña' && form.get('contraseña')?.touched">
+      <div *ngIf="form.get('contraseña')?.invalid" class="pass-error">
+        <p>La contraseña debe:</p>
+        <p *ngIf="form.get('contraseña')?.hasError('minlength')">
+          * Tener al menos {{ field.validators?.minlength }} caracteres.
+        </p>
+        <p *ngIf="form.get('contraseña')?.hasError('lowercase')">
+          * Contener al menos una minúscula.
+        </p>
+        <p *ngIf="form.get('contraseña')?.hasError('uppercase')">
+          * Contener al menos una mayúscula.
+        </p>
+        <p *ngIf="form.get('contraseña')?.hasError('number')">
+          * Contener al menos un número.
+        </p>
+        <p *ngIf="form.get('contraseña')?.hasError('spaces')">
+          * No contener espacios.
+        </p>
+      </div>
     </div>
+
+      <!-- Campo de confirmación de contraseña, mostrado solo si 'contraseña' es válida -->
+      <div *ngIf="field.name === 'confirmarContraseña' && form.get('contraseña')?.valid" class="form-item">
+        <!-- Mensaje de error si no coinciden -->
+        <div *ngIf="form.hasError('mismatch') && form.get('confirmarContraseña')?.touched" class="error">
+          <p>Las contraseñas no coinciden.</p>
+        </div>
+      </div>
   </div>
 
   <!--Control de errores después de pulsar el botón-->

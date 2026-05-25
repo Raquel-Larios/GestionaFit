@@ -1,0 +1,18 @@
+.forgotten-pass{
+    position: absolute;
+    bottom: 33%; 
+    right: 48%; 
+    background: none;
+    border: none;
+    box-shadow: none;
+    cursor: pointer;
+    padding: 0;
+    color: #007bff;
+    text-decoration: underline;
+    font-size: 14px;
+    z-index: 5;
+}
+
+.auth-form-container{
+   position: relative;
+}

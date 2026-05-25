@@ -4,8 +4,9 @@ import { CheckButtonComponent } from '../check-button.component/check-button.com
 import { ModalService } from '../../data/modalService.service';
 import { UserService } from '../../data/userService.service';
 import { FormField } from '../../../assets/models/form-field.interface';
-import { EMPTY, switchMap } from 'rxjs';
+import { EMPTY, switchMap, tap } from 'rxjs';
 import { ModalConfig } from '../../../assets/models/modal-config.interface';
+import { mostrarMensajeTemporal } from '../../../assets/scripts/pop-up';
 
 
 @Component({
@@ -23,7 +24,7 @@ export class MenuUsuarioComponent {
   menuDesplegado = false;
   perfilFields: FormField[] = [
     { name: 'email', type: 'email', label: 'Correo electrónico', validators: { required: true } },
-    { name: 'contraseña', type : 'password', label: 'Nueva Contraseña', validators: { required: false, pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)\S{8,}$", minlength: 8}, },
+    { name: 'contraseña', type : 'password', label: 'Nueva Contraseña', validators: { required: false, pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)\\S{8,}$", minlength: 8}, },
     { name: 'nombre', type: 'text', label: 'Nombre', validators: { required: true } },
     { name: 'apellidos', type: 'text', label: 'Apellidos', validators: { required: true } },
     { name: 'peso', type: 'number', label: 'Peso (en Kg)', min: 0, max: 999, step: 0.01, validators: { required: false}},
@@ -83,7 +84,7 @@ export class MenuUsuarioComponent {
                 create: () => EMPTY,
                 update:
                   option === 'edit'
-                    ? (data) => this.userService.actualizarPerfil(data)
+                    ? (data) => this.userService.actualizarPerfil(data).pipe(tap(res => mostrarMensajeTemporal(res.message, 2000)))
                     : () => EMPTY,
               },
               id: idSelected,
@@ -95,9 +96,6 @@ export class MenuUsuarioComponent {
           })
         )
         .subscribe();
-    }
-    else {
-      console.log("No se encuentra el usuario.")
     }
   }
 

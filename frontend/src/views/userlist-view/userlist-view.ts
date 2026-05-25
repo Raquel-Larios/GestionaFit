@@ -91,6 +91,7 @@ export class UserlistView implements OnInit {
                 option === 'create'
                   ? (data) =>
                       this.userService.crearCliente(data).pipe(
+                        tap(res => mostrarMensajeTemporal(res.message, 2000)),
                         concatMap((clienteCreado) => {
                           const nuevoCliente = {
                             id: clienteCreado.data.insertId,
@@ -102,7 +103,6 @@ export class UserlistView implements OnInit {
                             generatedPhoto,
                           );
                         }),
-                        tap(res => mostrarMensajeTemporal(res.message, 2000))
                       )
                   : () => EMPTY,
               update:

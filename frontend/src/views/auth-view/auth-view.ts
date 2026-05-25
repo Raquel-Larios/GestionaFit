@@ -6,6 +6,9 @@ import { WelcomeMsgComponent } from "../../shared/ui/welcome-msg.component/welco
 import { Router } from '@angular/router';
 import { UserService } from '../../shared/data/userService.service';
 import { mostrarMensajeTemporal } from '../../assets/scripts/pop-up';
+import { ModalService } from '../../shared/data/modalService.service';
+import { ModalConfig } from '../../assets/models/modal-config.interface';
+import { EMPTY, tap } from 'rxjs';
 
 @Component({
   selector: 'app-auth-view',
@@ -21,12 +24,16 @@ export class AuthView {
     { name: 'contraseña', type: 'password', label: 'Contraseña', validators: { required: true} }
   ];
 
+  forgottenPassFields: FormField[] = [
+    { name: 'email', type: 'email', label: 'Correo Electrónico', validators: { required: true}}
+  ]
+
   errorMessage: string = "";
   successMessage: string = "";
   token = "";
 
 
-  constructor(private authService: AuthService, private userService: UserService, private router: Router, private cd: ChangeDetectorRef){
+  constructor(private authService: AuthService, private userService: UserService, private modalService: ModalService, private router: Router, private cd: ChangeDetectorRef){
   };
 
   onLogin(datos: any){
@@ -60,4 +67,27 @@ export class AuthView {
       }
     });
   }
+
+  onForgottenPass(){
+    this.modalService.setDataFields(this.forgottenPassFields);
+    this.modalService.setMessages(null, null);
+    
+    const config: ModalConfig = {
+      action: 'create',
+      service: {
+        create: (data) => this.authService.forgottenPass(data).pipe(
+          tap(res => mostrarMensajeTemporal(res.message, 2000)),
+        ),
+        update: () => EMPTY,
+      },
+    };
+    this.modalService.openModal(config);
+
+    // Maneja el evento de envío del formulario
+    this.modalService.isOpen$.subscribe((isOpen) => {
+      if (!isOpen) {
+        
+      }
+    })
+    }
 }

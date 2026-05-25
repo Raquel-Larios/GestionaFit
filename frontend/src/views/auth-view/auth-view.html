@@ -1,7 +1,7 @@
 <div style="padding: 3%;">
     <app-welcome-msg></app-welcome-msg>
 </div>
-<div class="centered" style="padding: 3% 0;">
+<div class="centered auth-form-container" style="padding: 3% 0;">
     <app-form-dinamico 
     [fields]="loginFields" 
     [backBtnOpt]="true"
@@ -12,4 +12,6 @@
     [successMessage]="successMessage"
     [token]="token"
     (formSubmit)="onLogin($event)"></app-form-dinamico>
+    <span class="forgotten-pass" (click)="onForgottenPass()">¿Olvidaste tu contraseña?</span>
 </div>
+

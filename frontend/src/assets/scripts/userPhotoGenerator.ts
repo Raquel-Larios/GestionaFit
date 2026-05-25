@@ -18,3 +18,4 @@ export function generateInitialUserPhoto(nombre: string): string {
 
   return canvas.toDataURL('image/png');
 }
+

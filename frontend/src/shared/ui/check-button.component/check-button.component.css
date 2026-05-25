@@ -43,3 +43,8 @@ button{
 .rutinas-cliente-button{
     padding: 10px 30px;
 }
+
+.save-button:disabled{
+    background-color: #3a4b57;
+    border: 1px solid #232e36;
+}

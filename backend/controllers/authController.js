@@ -23,10 +23,10 @@ exports.loginUserControl = (req, res, next) => {
 };
 
 exports.forgottenPassControl = (req, res, next) => {
-  const { email } = req.body;
-  const params = {email}
+  const {email}  = req.body;
+  const params = {email};
 
-  const { error } = forgottenPassValidation(params);
+  const {error} = forgottenPassValidation(params);
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   forgottenPass(params)

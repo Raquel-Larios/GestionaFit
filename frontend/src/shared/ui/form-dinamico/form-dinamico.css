@@ -156,3 +156,18 @@ input:read-only{
     cursor: default;
     font-style: italic;
 }
+
+.pass-error{
+    display: block;
+    text-align: left;
+}
+
+.pass-error p {
+    margin-bottom: 8px;
+}
+
+.password-container{
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}

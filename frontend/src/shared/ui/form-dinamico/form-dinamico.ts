@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnChanges, ChangeDetectorRef} from '@angular/core';
 import { CommonModule, TitleCasePipe} from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray, FormControl} from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray, FormControl, ValidatorFn, AbstractControl} from '@angular/forms';
 import { FormField } from '../../../assets/models/form-field.interface';
 import { CheckButtonComponent } from "../check-button.component/check-button.component";
 import { NavButtonComponent } from "../nav-button.component/nav-button.component";
@@ -11,10 +11,15 @@ import { Ejercicio } from '../../../assets/models/ejercicio.interface';
 import { CategoryService } from '../../data/categoryService.service';
 import { ExerciseService } from '../../data/exerciseService.service';
 import { merge, take } from 'rxjs';
+import { hasLowercase, hasNoSpaces, hasNumber, hasUppercase } from '../../utils/validators/password.validators';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { IconButtonComponent } from "../icon-button/icon-button.component";
+
+
 
 @Component({
   selector: 'app-form-dinamico',
-  imports: [CommonModule, ReactiveFormsModule, CheckButtonComponent, NavButtonComponent, PrimeraLetraPipe],
+  imports: [CommonModule, ReactiveFormsModule, CheckButtonComponent, NavButtonComponent, PrimeraLetraPipe, IconButtonComponent],
   templateUrl: './form-dinamico.html',
   styleUrl: './form-dinamico.css',
 })
@@ -34,6 +39,9 @@ export class FormDinamico implements OnChanges{
   private titleCasePipe = new TitleCasePipe()
   categorias: Categoria[] = []
   ejercicios: Ejercicio[] = []
+  showPassword: boolean = false;
+  visibility_on = faEye;
+  visibility_off = faEyeSlash;
   private inicializado = false;
 
   get hasSuccessMessage(): boolean {
@@ -53,6 +61,12 @@ export class FormDinamico implements OnChanges{
   constructor(private fb: FormBuilder, private cd: ChangeDetectorRef, private modalService: ModalService, private primeraLetraPipe: PrimeraLetraPipe, private categoryService: CategoryService, private exerciseService: ExerciseService){
     this.form = this.fb.group({});
   };
+
+  
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
 
   trackByControl(index: number) {
   return index;
@@ -91,8 +105,33 @@ export class FormDinamico implements OnChanges{
       fieldValidators.push(Validators.pattern(validatorsConfig.pattern));
     }
 
+    if (this.isPasswordField(validatorsConfig)) {
+    fieldValidators.push(
+      hasLowercase,
+      hasUppercase,
+      hasNumber,
+      hasNoSpaces
+    );
+  }
+
     return fieldValidators;
 }
+
+private isPasswordField(validatorsConfig: any): boolean {
+  return validatorsConfig.pattern && validatorsConfig.pattern.includes('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)\\S{8,}$');
+}
+
+private passwordMatchValidator(): ValidatorFn {
+  return (group: AbstractControl): { [key: string]: any } | null => {
+    const password = group.get('contraseña')?.value;
+    const confirm = group.get('confirmarContraseña')?.value;
+
+    if (!confirm) return null;
+
+    return password === confirm ? null : { mismatch: true };
+  };
+}
+
 
   ngOnChanges() {
     if (this.inicializado) return;
@@ -108,6 +147,12 @@ export class FormDinamico implements OnChanges{
       );
       group[field.name] = control;
     }
+  });
+
+  this.form = this.fb.group(group, { validators: this.passwordMatchValidator() });
+
+  this.form.get('contraseña')?.valueChanges.subscribe(() => {
+    this.updateConfirmPasswordField();
   });
 
   this.form = this.fb.group(group);
@@ -134,6 +179,29 @@ export class FormDinamico implements OnChanges{
       cargarDatos();
       subscription.unsubscribe();
     });
+  }
+}
+
+private updateConfirmPasswordField(): void {
+  const valid = this.form.get('contraseña')?.valid;
+  const hasConfirmField = this.fields.some(f => f.name === 'confirmarContraseña');
+  const index = this.fields.findIndex(f => f.name === 'contraseña');
+
+  if (this.fields.length > 2 && valid && !hasConfirmField) {
+    this.fields = [
+      ...this.fields.slice(0, index + 1),
+      {
+        name: 'confirmarContraseña',
+        type: 'password',
+        label: 'Repetir Contraseña',
+        validators: { required: true }
+      },
+      ...this.fields.slice(index + 1)
+    ];
+    this.form.addControl('confirmarContraseña', this.fb.control('', Validators.required));
+  } else if (!valid && hasConfirmField) {
+    this.fields = this.fields.filter(f => f.name !== 'confirmarContraseña');
+    this.form.removeControl('confirmarContraseña');
   }
 }
 
@@ -308,6 +376,7 @@ getEjerciciosFiltrados(bloqueIndex: number): any[] {
     this.form.markAllAsTouched();
 
     if (this.form.invalid){
+      console.log("Es invalido.")
       return;
     }
     

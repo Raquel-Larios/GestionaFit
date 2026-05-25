@@ -55,7 +55,7 @@ constructor(private authService: AuthService, private userService: UserService, 
       
       const userSub = this.authService.currentUser$.subscribe(user => {
         if (user) {
-          this.userPhoto = user.foto_perfil;
+          this.userPhoto = user.foto_perfil ? `${user.foto_perfil}?t=${Date.now()}` : null;
           this.userFullName = user.username;
           this.userId = user.id;
 

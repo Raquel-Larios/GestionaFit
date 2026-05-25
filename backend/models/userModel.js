@@ -29,12 +29,12 @@ exports.createUser = (params) => {
           (err, result) => {
             if(err) return reject({ code: DEFAULT_ERROR, message: "Error al crear el nuevo cliente, inténtelo de nuevo.", statusCode: 400});
             else{
+              mailService.enviarCorreoCliente(emailMinusculas, nombreMinusculas, generatedPassword, "Bienvenida");
               resolve({
                 data: result,
                 message: "Cliente creado correctamente.",
                 statusCode: 200,
               });
-              //mailService.enviarCorreoCliente(emailMinusculas, nombreMinusculas, generatedPassword, "Bienvenida");
             }
           }
         )
@@ -129,12 +129,9 @@ exports.updateProfile = (params) => {
   const apellidosMinusculas  = String(apellidos).toLowerCase();
   let foto_perfilMinusculas = foto_perfil;
   const fotoHeader = String(foto_perfil).slice(0,14);
-  console.log("FotoHeader: ", fotoHeader)
-  console.log("Foto_perfil Before: ", foto_perfilMinusculas)
   if (fotoHeader === "Data:image/png"){
     foto_perfilMinusculas = String(foto_perfil).charAt(0).toLowerCase() + String(foto_perfil).slice(1, foto_perfil.length);
   }
-  console.log("Foto_perfil After: ", foto_perfilMinusculas) 
 
   return new Promise((resolve, reject) => {
 
@@ -150,8 +147,11 @@ exports.updateProfile = (params) => {
             statusCode: 404,
           });
         } else {
+          console.log("Result: ", result[0])
+          console.log("Contraseña recibida: ", contraseña)
           const hashGuardado = result[0].contraseña;
-          const passMatch = bcrypt.compare(contraseña, hashGuardado);
+          const passMatch = bcrypt.compareSync(contraseña, hashGuardado);
+          console.log("PassMatch: ", passMatch)
           if (emailMinusculas === result[0].email && nombreMinusculas === result[0].nombre && apellidosMinusculas === result[0].apellidos && passMatch && foto_perfilMinusculas === result[0].foto_perfil && peso === result[0].peso){
             return resolve({
               message: "No se ha introducido ningún cambio.",
@@ -187,7 +187,7 @@ exports.updateProfile = (params) => {
             values.push(apellidosMinusculas)
           }
           if (!passMatch){
-            const newPass = bcrypt.hash(contraseña, 10);
+            const newPass = bcrypt.hashSync(contraseña, 10);
             fields.push('contraseña = ?, isPassGenerated = ?')
             values.push(newPass, false)
           }
