@@ -131,13 +131,27 @@ export class UserService {
   actualizarFotoPerfil(id: number, photo: any): Observable<any> {
     const headers = new HttpHeaders().set('Content-Type', 'text/plain; charset=utf-8');
     return this.http.put(this.baseApiUrl+'/'+id+'/profile/photo', photo, { headers }).pipe(
-    tap(user => { this.authService.currentUserValue = user;})
-    );
+    tap(nuevaUrlFoto => {
+      const usuarioActual = this.authService.currentUserValue;
+      if (usuarioActual) {
+        const usuarioActualizado = {
+          ...usuarioActual,
+          foto_perfil: nuevaUrlFoto
+        };
+        this.authService.currentUserValue = usuarioActualizado;
+      }
+    })
+  );
   }
 
   actualizarPerfil(data: any): Observable<any>{
     return this.http.put<any>(this.baseApiUrl+'/'+data.id+'/profile', data)
-    .pipe(tap(user => this.authService.currentUserValue = user));
+    .pipe(tap(response => {
+      if (response && response.data) {
+        this.authService.currentUserValue = response.data;
+      }
+    })
+  );
   }
 
   borrarCliente(id: number): Observable<any>{

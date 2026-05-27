@@ -19,7 +19,7 @@
       [readonly]="field.visibility?.readonly"
     />
 
-    <div *ngIf="field.name === 'contraseña'" class="password-container">
+    <div *ngIf="field.name === 'contraseña' || field.name === 'confirmarContraseña'" class="password-container">
       <span class="block item-label">{{ field.label }}</span>
       <input
         class="form-item"
@@ -121,7 +121,7 @@
 
     <!--Formato de contraseña, solo debería aparecer cuando el usuario cambia la contraseña-->
     <div class="error" *ngIf="field.name ==='contraseña' && form.get('contraseña')?.touched">
-      <div *ngIf="form.get('contraseña')?.invalid" class="pass-error">
+      <div *ngIf="form.get('contraseña')?.invalid && !field.validators?.required" class="pass-error">
         <p>La contraseña debe:</p>
         <p *ngIf="form.get('contraseña')?.hasError('minlength')">
           * Tener al menos {{ field.validators?.minlength }} caracteres.

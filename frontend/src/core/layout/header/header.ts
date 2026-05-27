@@ -55,17 +55,34 @@ constructor(private authService: AuthService, private userService: UserService, 
       
       const userSub = this.authService.currentUser$.subscribe(user => {
         if (user) {
-          this.userPhoto = user.foto_perfil ? `${user.foto_perfil}?t=${Date.now()}` : null;
           this.userFullName = user.username;
           this.userId = user.id;
+          const fotoBD = user.foto_perfil;
 
-          if (!this.userPhoto && this.userFullName) { //Para los admin introducidos a pelo
-            this.userPhoto = generateInitialUserPhoto(this.userFullName); 
+          if (user.foto_perfil && user.foto_perfil.trim() !== '') {
+            if (fotoBD.startsWith('http') || fotoBD.startsWith('/')) {
+              this.userPhoto = `${fotoBD}?t=${Date.now()}`;
+            } 
+            else {
+              //Añadir prefijo si viene el base64 crudo
+              if (!fotoBD.startsWith('data:image')) {
+                this.userPhoto = `data:image/png;base64,${fotoBD}`;
+              } 
+              //En el caso poco probable de que ya tenga el prefijo
+              else {
+                this.userPhoto = fotoBD;
+              }
+            }
+          }
+          else if (this.userFullName) {
+            //Se borra la foto o está metido a piñón
+            this.userPhoto = generateInitialUserPhoto(this.userFullName);
             this.userService.actualizarFotoPerfil(user.id, this.userPhoto).subscribe();
+          } else {
+            this.userPhoto = null;
           }
           
         } else {
-          this.userPhoto = null;
           this.userRol = null;
           this.showMenu = false;
         }

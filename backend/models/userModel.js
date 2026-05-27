@@ -127,16 +127,17 @@ exports.updateProfile = (params) => {
   const emailMinusculas  = String(email).toLowerCase();
   const nombreMinusculas  = String(nombre).toLowerCase();
   const apellidosMinusculas  = String(apellidos).toLowerCase();
-  let foto_perfilMinusculas = foto_perfil;
-  const fotoHeader = String(foto_perfil).slice(0,14);
-  if (fotoHeader === "Data:image/png"){
-    foto_perfilMinusculas = String(foto_perfil).charAt(0).toLowerCase() + String(foto_perfil).slice(1, foto_perfil.length);
+  let fotoPerfilLimpia = foto_perfil;
+  if (foto_perfil && typeof foto_perfil === 'string') {
+    if (foto_perfil.includes('base64,')) {
+      fotoPerfilLimpia = foto_perfil.split(',')[1];
+    }
   }
 
   return new Promise((resolve, reject) => {
 
     db.query(
-      `SELECT id, email, nombre, apellidos, contraseña, foto_perfil, peso FROM usuario WHERE id = ?`,
+      `SELECT id, email, nombre, apellidos, contraseña, foto_perfil, peso, rol FROM usuario WHERE id = ?`,
       [id_usuario],
       (err, result) => {
         if (err) return reject({ code: DEFAULT_ERROR, message: "Error al buscar el cliente.", statusCode: 500 });
@@ -149,9 +150,11 @@ exports.updateProfile = (params) => {
         } else {
           const hashGuardado = result[0].contraseña;
           const passMatch = bcrypt.compareSync(contraseña, hashGuardado);
-          if (emailMinusculas === result[0].email && nombreMinusculas === result[0].nombre && apellidosMinusculas === result[0].apellidos && passMatch && foto_perfilMinusculas === result[0].foto_perfil && peso === result[0].peso){
+          const fotoEnBD = result[0].foto_perfil || '';
+          if (emailMinusculas === result[0].email && nombreMinusculas === result[0].nombre && apellidosMinusculas === result[0].apellidos && passMatch && fotoPerfilLimpia === fotoEnBD && peso === result[0].peso){
             return resolve({
               message: "No se ha introducido ningún cambio.",
+              data:result[0],
               statusCode: 200,
             });
           }
@@ -188,10 +191,9 @@ exports.updateProfile = (params) => {
             fields.push('contraseña = ?, isPassGenerated = ?')
             values.push(newPass, false)
           }
-          if (foto_perfilMinusculas !== result[0].foto_perfil){
-          
-            fields.push('foto_perfil = ?')
-            values.push(foto_perfilMinusculas)
+          if (fotoPerfilLimpia !== fotoEnBD) {
+            fields.push('foto_perfil = ?');
+            values.push(fotoPerfilLimpia); 
           }
           if (peso !== result[0].peso){
             fields.push('peso = ?')
@@ -205,11 +207,20 @@ exports.updateProfile = (params) => {
             query, values,
             (err, result) => {
               if (err) return reject({ code: DEFAULT_ERROR, message: "Error al actualizar el perfil.", statusCode: 500 }) ;
-              return resolve({
-                message: "Perfil actualizado correctamente.",
-                data: result,
-                statusCode: 200,
-              });
+              
+              db.query(
+                `SELECT id, email, nombre, apellidos, foto_perfil, peso, rol FROM usuario WHERE id = ?`,
+                [id_usuario],
+                (err, resultFinal) => {
+                  if (err) return reject({ code: DEFAULT_ERROR, message: "Error al obtener datos actualizados.", statusCode: 500 });
+                  
+                  return resolve({
+                    message: "Perfil actualizado correctamente.",
+                    data: resultFinal[0],
+                    statusCode: 200,
+                  });
+                }
+              );
             }
           );
         }
@@ -222,6 +233,11 @@ exports.updateProfile = (params) => {
 exports.updateProfilePhoto = (params) => {
 
   const { id_usuario, foto_perfil} = params;
+
+  let fotoPerfilLimpia = foto_perfil;
+  if (foto_perfil && typeof foto_perfil === 'string' && foto_perfil.includes('base64,')) {
+    fotoPerfilLimpia = foto_perfil.split(',')[1];
+  }
 
   return new Promise((resolve, reject) => {
     db.query(
@@ -245,13 +261,17 @@ exports.updateProfilePhoto = (params) => {
         
           db.query(
             `UPDATE usuario SET foto_perfil = ? WHERE id = ?`,
-            [foto_perfil, id_usuario],
+            [fotoPerfilLimpia, id_usuario],
             (err, result) => {
               if (err) return reject({ code: DEFAULT_ERROR, message: "Error al actualizar la foto de perfil.", statusCode: 500 }) ;
-              return resolve({
-                message: "Foto de perfil actualizada correctamente.",
-                data: result,
-                statusCode: 200,
+
+              db.query(`SELECT id, email, nombre, apellidos, foto_perfil, peso, rol FROM usuario WHERE id = ?`, [id_usuario], (err, result) => {
+                if (err) return reject({ code: DEFAULT_ERROR, message: "Error al obtener usuario.", statusCode: 500 });
+                resolve({
+                  message: "Foto actualizada",
+                  data: result[0],
+                  statusCode: 200
+                });
               });
             }
           );

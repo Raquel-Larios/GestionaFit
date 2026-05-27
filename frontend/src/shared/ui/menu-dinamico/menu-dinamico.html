@@ -16,7 +16,7 @@
         </li>
         <li *ngIf="isUser()"><a routerLink="/mis-rutinas" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Mis Rutinas</a></li>
         <!--<li><a routerLink="/estadisticas" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Estadísticas</a></li>-->
-        <li><a routerLink="/materiales" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Materiales</a></li>
-        <li><a routerLink="/demostraciones" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Demostraciones</a></li>
+        <li *ngIf="isAdmin()"><a routerLink="/materiales" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Materiales</a></li>
+        <li *ngIf="isAdmin()"><a routerLink="/demostraciones" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Demostraciones</a></li>
     </ul>
 </nav>

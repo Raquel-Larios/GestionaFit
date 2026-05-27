@@ -22,8 +22,9 @@ import { Router } from '@angular/router';
 import { Template } from '../../assets/models/template.interface';
 import { TemplateService } from '../../shared/data/templateService.service';
 import { ClienteOptionComponent } from '../../shared/ui/cliente-option.component/cliente-option.component';
-import { Lectura, RutinaCliente } from '../../assets/models/rutina-cliente.interface';
+import { RutinaCliente } from '../../assets/models/rutina-cliente.interface';
 import { RutinaClienteService } from '../../shared/data/rutina-clienteService.service';
+import { Usuario } from '../../assets/models/usuario.interface';
 
 @Component({
   selector: 'app-rutinas-clientes-view',
@@ -319,7 +320,15 @@ export class RutinasClientesView implements OnInit {
     this.refrescarRutinas();
   }
 
+  onClienteSelected(cliente: Usuario){
+    this.cliente = {id_usuario: cliente.id, nombre: cliente.apellidos+", "+cliente.nombre};
+    this.refrescarRutinas();
+  }
+
   refrescarRutinas(): void {
+    this.rutinaClienteService.getLecturas(this.cliente.id_usuario, false).subscribe((data) => {
+      this.listaLecturas = [...this.toRutinaFormat(data)];
+    })
     this.rutinaAdminService.getRutinas(this.cliente.id_usuario, false).subscribe((data) => {
       this.listaRutinas = [...this.toRutinaFormat(data)];
       this.combinarListas();
@@ -378,7 +387,7 @@ export class RutinasClientesView implements OnInit {
       }));
     }
   
-    // Si data es un objeto único (caso de edición), envuélvelo en un array
+    //Data es un objeto único (modificar)
     if (data) {
       return [{
         id_plantilla: data.id_plantilla,
@@ -401,7 +410,7 @@ export class RutinasClientesView implements OnInit {
       }));
     }
   
-    // Si data es un objeto único (caso de edición), envuélvelo en un array
+    //Data es un objeto único (modificar)
     if (data) {
       return [{
         id_historial: data.id_historial,

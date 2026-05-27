@@ -48,7 +48,7 @@ exports.updateRutinaCliente = (params) => {
               })),
             );
 
-            // Función para comparar dos arrays de defectos
+            //Función para comparar dos arrays de lecturas
             const arraysIguales = (arr1, arr2) => {
               if (arr1.length !== arr2.length) return false;
               return arr1.every((lec1) =>
@@ -68,7 +68,7 @@ exports.updateRutinaCliente = (params) => {
               lecturasExistentes,
             );
 
-            // Si no hay cambios, resolver inmediatamente
+            //Si no hay cambios, resolver inmediatamente
             if (!bloquesCambiados) {
               return resolve({
                 message: "No se ha introducido ningún cambio.",
@@ -76,11 +76,11 @@ exports.updateRutinaCliente = (params) => {
               });
             }
         
-            // Actualizar lecturas solo si han cambiado
+            //Actualizar lecturas solo si han cambiado
             if (bloquesCambiados) {
               db.query(
-                "DELETE FROM lectura WHERE id_historial = ?",
-                [id_historial],
+                "DELETE FROM lectura WHERE id_historial = ? AND id_ejercicio = ?",
+                [id_historial, lecturasExistentes[0].id_ejercicio],
                 (err) => {
                   if (err)
                     return reject({

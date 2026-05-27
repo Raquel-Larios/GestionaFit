@@ -115,7 +115,7 @@
                   <div class="right-button">
                     <app-check-button
                     [deshabilitado]="rutina.form.invalid"
-                    (accion)="onSubmit()"
+                    (accion)="onSubmitFila(rutina, index, j)"
                     [texto]="'Guardar'"
                     [estilo]="'rutinas-cliente-button font-18px'"
                     ></app-check-button>

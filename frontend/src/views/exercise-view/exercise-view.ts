@@ -162,7 +162,8 @@ export class ExerciseView implements OnInit {
             name: 'id_categoria',
             type: 'select',
             label: 'Añadir a categoría (opcional)',
-            options: datos.map((cat: Categoria) => ({
+            options: datos.filter((cat: Categoria) => cat.id !== 0)
+            .map((cat: Categoria) => ({
               value: cat.id,
               label: cat.nombre_categoria,
             })),

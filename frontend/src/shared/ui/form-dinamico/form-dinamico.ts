@@ -10,7 +10,7 @@ import { Categoria } from '../../../assets/models/categoria.interface';
 import { Ejercicio } from '../../../assets/models/ejercicio.interface';
 import { CategoryService } from '../../data/categoryService.service';
 import { ExerciseService } from '../../data/exerciseService.service';
-import { merge, take } from 'rxjs';
+import { filter, merge, take } from 'rxjs';
 import { hasLowercase, hasNoSpaces, hasNumber, hasUppercase } from '../../utils/validators/password.validators';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { IconButtonComponent } from "../icon-button/icon-button.component";
@@ -167,13 +167,16 @@ private passwordMatchValidator(): ValidatorFn {
       }
     }
     this.setupDynamicListeners();
+    setTimeout(() => {
+      this.cd.detectChanges();
+    }, 0);
   };
 
   if (this.categorias.length > 0 && this.ejercicios.length > 0) {
     cargarDatos();
   } else {
     const subscription = merge(
-      this.categoryService.getCategorias(),
+      this.categoryService.getCategorias().pipe(filter((cat: Categoria) => cat.id !== 0)),
       this.exerciseService.getEjercicios(true)
     ).pipe(take(2)).subscribe(() => {
       cargarDatos();
@@ -256,7 +259,7 @@ private updateConfirmPasswordField(): void {
         formArray.push(group);
       });
     } else if (this.form.get(key)) {
-      if (field?.type === 'text' && value) {
+      if (field?.type === 'text' && field?.name !== 'apellidos' && value) {
         formattedData[key] = this.primeraLetraPipe.transform(value);
       } else if (field?.name === 'apellidos' && value) {
         formattedData[key] = this.titleCasePipe.transform(value);

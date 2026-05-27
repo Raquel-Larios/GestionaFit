@@ -202,35 +202,35 @@ export class MisRutinasView implements OnInit {
     this.listaLecturas = reversed;
   }
 
-  onSubmit(){
-    this.listaRutinasCombinadas.forEach(rutinaCombinada => {
-      this.markFormGroupTouched(rutinaCombinada.form);
-    });
-
-    const algunoInvalido = this.listaRutinasCombinadas.some(rutinaCombinada => rutinaCombinada.form.invalid);
-    if (algunoInvalido) {
+  onSubmitFila(rutina: any, bloqueIndex: number, lecturaIndex: number){
+    if (rutina.form.invalid) {
       return;
     }
 
+    const formValue = rutina.form.value;
 
-    let datosParaEnviar;
+    let offset = 0;
+    for (let i = 0; i < bloqueIndex; i++) {
+      offset += rutina.bloques[i].lecturas.length;
+    }
+    const indiceReal = offset + lecturaIndex;
 
-    this.listaRutinasCombinadas.forEach(rutinaCombinada => {
-    const formValue = rutinaCombinada.form.value;
-    datosParaEnviar = {
-      id_historial: rutinaCombinada.cliente.id_historial,
-      id_usuario: this.userId,
-      bloques: rutinaCombinada.cliente.bloques.map((bloque, bloqueIndex) => {
-        return {
-          id_categoria: bloque.id_categoria,
-          lecturas: formValue.lecturasForm.slice(
-            bloqueIndex * bloque.lecturas.length,
-            (bloqueIndex + 1) * bloque.lecturas.length
-          )
-        };
-      })
-    };
-  });
+    const datosCrudos = formValue.lecturasForm[indiceReal];
+
+    const datosParaEnviar = {
+    id_historial: rutina.cliente.id_historial, 
+    id_usuario: this.userId,  
+    bloques: [{
+      id_categoria: rutina.cliente.bloques[bloqueIndex].id_categoria,
+      lecturas: [{
+        id_ejercicio: datosCrudos.id_ejercicio,
+        series: datosCrudos.series,
+        repeticiones: datosCrudos.repeticiones,
+        carga: datosCrudos.carga,
+        RPE: datosCrudos.RPE
+      }]
+    }]        
+  };
 
     this.rutinaClienteService.actualizarLectura(datosParaEnviar).subscribe({
       next: (res) => {
@@ -242,16 +242,6 @@ export class MisRutinasView implements OnInit {
         mostrarMensajeTemporal(err.error?.message, 2000);
       }
     })
-  }
-
-  markFormGroupTouched(formGroup: FormGroup) {
-    Object.keys(formGroup.controls).forEach(key => {
-      const control = formGroup.get(key);
-      control?.markAsTouched();
-      if (control instanceof FormGroup) {
-        this.markFormGroupTouched(control);
-      }
-    });
   }
 
   onOrderSelected(order: string) {
