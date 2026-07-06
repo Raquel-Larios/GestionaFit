@@ -4,9 +4,22 @@ const db = require('../database/db');
 
 const rutinaClienteController = require("../controllers/rutinaClienteController");
 
-//ESTA ES LA RUTINA QUE VE Y RELLENA EL CLIENTE, SOLO LOS CAMPOS RELLENABLES
-//Get los datos de todas las rutinas
-router.get("/:id_usuario/all", (req, res) => {
+/**
+ * @route GET /api/mis-rutinas/:id_usuario/all
+ * @name Obtener Todas las Rutinas de Lectura del Cliente
+ * @memberof module:routes/rutinaCliente
+ * @description Obtiene la lista de rutinas activas de un cliente con sus registros de lectura (series, repeticiones, carga, RPE).
+ * Construye un JSON anidado agrupando lecturas por categorías y ejercicios. Filtra rutinas sin registros de lectura.
+ * 
+ * @access Private (Cliente)
+ * 
+ * @param {number} id_usuario - ID del usuario cliente.
+ * 
+ * @returns {Object} 200 - Éxito. Array de objetos JSON con la estructura de rutinas y lecturas.
+ * @returns {Object} 404 - Not Found. El usuario no tiene rutinas con lecturas registradas.
+ * @returns {Object} 500 - Error interno. Fallo en la agregación JSON o consulta SQL.
+ */
+router.get("/:id_usuario/all", (req, res, next) => {
     const id_usuario = parseInt(req.params.id_usuario, 10);
     let query = `SELECT 
     JSON_OBJECT(
@@ -54,7 +67,7 @@ router.get("/:id_usuario/all", (req, res) => {
     ORDER BY p.nombre_plantilla ASC;`;
 
     db.query(query, [id_usuario], (err, results) => {
-        if (err) throw err;
+        if (err) return next(err);
         if (results.length === 0 || results[0].result === null) {
             return res.status(404).json({ message: "Rutinas no encontradas" });
         }
@@ -62,18 +75,47 @@ router.get("/:id_usuario/all", (req, res) => {
     });
 });
 
-//Get id_historial a partir de los ids de usuario y plantilla
-router.get("/id-historial/:id_usuario/:id_plantilla", (req, res) => {
+/**
+ * @route GET /api/mis-rutinas/id-historial/:id_usuario/:id_plantilla
+ * @name Obtener ID de Historial por Usuario y Plantilla
+ * @memberof module:routes/rutinaCliente
+ * @description Recupera el ID de historial específico cruzando los datos de usuario y plantilla.
+ * Útil para obtener la referencia interna antes de realizar operaciones de lectura/escritura.
+ * 
+ * @access Private (Cliente)
+ * 
+ * @param {number} id_usuario - ID del usuario cliente.
+ * @param {number} id_plantilla - ID de la plantilla base.
+ * 
+ * @returns {Object} 200 - Éxito. Array con el objeto { id } del historial encontrado.
+ * @returns {Object} 404 - Not Found. No existe tal asignación (array vacío).
+ * @returns {Object} 500 - Error interno. Fallo en la consulta de búsqueda.
+ */
+router.get("/id-historial/:id_usuario/:id_plantilla", (req, res, next) => {
     const id_usuario = parseInt(req.params.id_usuario, 10);
     const id_plantilla = parseInt(req.params.id_plantilla, 10)
     db.query('SELECT id FROM historial_plantilla_usuario WHERE id_usuario = ? AND id_plantilla= ?', [id_usuario, id_plantilla], (err, results) => {
-        if (err) throw err;
+        if (err) return next(err);
         res.json(results);
     });
 })
 
-//Get los datos de una única rutina
-router.get("/:id_historial", (req, res) => {
+/**
+ * @route GET /api/mis-rutinas/:id_historial
+ * @name Obtener Detalle de Rutina de Cliente por Historial
+ * @memberof module:routes/rutinaCliente
+ * @description Obtiene la estructura completa de una rutina específica con los datos de lectura actuales.
+ * Devuelve un objeto JSON único (no un array) con bloques, categorías y ejercicios rellenados.
+ * 
+ * @access Private (Cliente)
+ * 
+ * @param {number} id_historial - ID del registro de historial de la rutina.
+ * 
+ * @returns {Object} 200 - Éxito. Objeto JSON con la estructura de la rutina y sus lecturas.
+ * @returns {Object} 404 - Not Found. La rutina no existe o no tiene lecturas registradas.
+ * @returns {Object} 500 - Error interno. Fallo en la consulta SQL o agregación JSON.
+ */
+router.get("/:id_historial", (req, res, next) => {
     const id_historial = parseInt(req.params.id_historial, 10);
     let query = `SELECT 
     JSON_OBJECT(
@@ -121,7 +163,7 @@ router.get("/:id_historial", (req, res) => {
     ORDER BY p.nombre_plantilla ASC;`;
 
     db.query(query, [id_historial], (err, results) => {
-        if (err) throw err;
+        if (err) return next(err);
         if (results.length === 0 || results[0].result === null) {
             return res.status(404).json({ message: "Rutina no encontrada" });
         }
@@ -129,6 +171,24 @@ router.get("/:id_historial", (req, res) => {
     });
 });
 
+/**
+ * @route PUT /api/mis-rutinas/:id_usuario/:id_historial
+ * @name Actualizar Lecturas de Rutina de Cliente
+ * @memberof module:routes/rutinaCliente
+ * @description Ejecuta el controlador para actualizar los valores de series, repeticiones, carga y RPE
+ * de los ejercicios de una rutina específica. Valida la propiedad del usuario sobre la rutina.
+ * 
+ * @access Private (Cliente)
+ * 
+ * @param {number} id_usuario - ID del usuario cliente (validación de propiedad).
+ * @param {number} id_historial - ID del historial de la rutina a actualizar.
+ * @param {Object} req.body - Cuerpo con los nuevos datos de lecturas/bloques.
+ * 
+ * @returns {Object} 200 - Éxito. Lecturas actualizadas o mensaje de "sin cambios".
+ * @returns {Object} 400 - Bad Request. Error de validación en los datos de entrada.
+ * @returns {Object} 404 - Not Found. Rutina no encontrada.
+ * @returns {Object} 500 - Error interno. Fallo en la base de datos.
+ */
 router.put("/:id_usuario/:id_historial", rutinaClienteController.updateRutinaClienteControl);
 
 module.exports = router;

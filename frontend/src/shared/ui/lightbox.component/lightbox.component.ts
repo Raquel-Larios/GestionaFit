@@ -1,13 +1,12 @@
 import { Component, Input} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LightboxItem } from '../../../assets/models/lightbox-item.interface';
-import { LightgalleryModule } from 'lightgallery/angular';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 
 @Component({
   selector: 'app-lightbox',
-  imports: [CommonModule, LightgalleryModule],
+  imports: [CommonModule],
   templateUrl: './lightbox.component.html',
   styleUrl: './lightbox.component.css',
 })
