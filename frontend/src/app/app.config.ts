@@ -1,9 +1,11 @@
 import { ApplicationConfig, importProvidersFrom, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+
 import { JwtModule} from '@auth0/angular-jwt';
 
 import { routes } from './app.routes';
+import { authInterceptor } from '../core/interceptors/auth.interceptor';
 
 import { PrimeraLetraPipe } from '../shared/utils/pipes/primeraLetraPipe';
 
@@ -16,8 +18,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
-    provideHttpClient(),
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(withInterceptors([authInterceptor])),
     importProvidersFrom(
       JwtModule.forRoot({
         config: {

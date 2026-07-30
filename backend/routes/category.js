@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require('../database/db');
 const categoryController = require("../controllers/categoryController");
+const verifyToken = require("../middleware/auth")
 
 // ==========================================================
 // GESTIÓN DE CATEGORÍAS (CRUD)
@@ -25,7 +26,7 @@ const categoryController = require("../controllers/categoryController");
  *   { "id": 2, "nombre_categoria": "Fuerza" }
  * ]
  */
-router.get("/all", (req, res, next) => {
+router.get("/all", verifyToken, (req, res, next) => {
     db.query('SELECT id, nombre_categoria FROM categoria ORDER BY nombre_categoria ASC', (err, results) => {
         if (err) return next(err);
         res.json(results);
@@ -47,7 +48,7 @@ router.get("/all", (req, res, next) => {
  * @returns {Object} 400 - Bad Request. ID inválido.
  * @returns {Object} 500 - Error interno del servidor.
  */
-router.get("/:id_categoria", (req, res, next) => {
+router.get("/:id_categoria", verifyToken, (req, res, next) => {
     // Conversión explícita a entero para seguridad de tipos
     const id_categoria = parseInt(req.params.id_categoria, 10);
     db.query('SELECT * FROM categoria WHERE id = ?', [id_categoria], (err, results) => {
@@ -71,7 +72,7 @@ router.get("/:id_categoria", (req, res, next) => {
  * @returns {Object} 400 - Bad Request. Nombre duplicado o datos inválidos.
  * @returns {Object} 500 - Error interno del servidor.
  */
-router.post("", categoryController.createCategoryControl);
+router.post("", verifyToken, categoryController.createCategoryControl);
 
 /**
  * @route PUT /api/categorias/:id_categoria
@@ -89,7 +90,7 @@ router.post("", categoryController.createCategoryControl);
  * @returns {Object} 400 - Bad Request. Nombre duplicado.
  * @returns {Object} 404 - Not Found. Categoría no encontrada.
  */
-router.put("/:id_categoria", categoryController.updateCategoryControl);
+router.put("/:id_categoria", verifyToken, categoryController.updateCategoryControl);
 
 /**
  * @route DELETE /api/categorias/:id_categoria
@@ -106,7 +107,7 @@ router.put("/:id_categoria", categoryController.updateCategoryControl);
  * @returns {Object} 404 - Not Found. Categoría no encontrada.
  * @returns {Object} 500 - Error interno del servidor.
  */
-router.delete("/:id_categoria", categoryController.deleteCategoryControl);
+router.delete("/:id_categoria", verifyToken, categoryController.deleteCategoryControl);
 
 // ==========================================================
 // GESTIÓN DE ASIGNACIONES CATEGORÍA-EJERCICIO
@@ -124,7 +125,7 @@ router.delete("/:id_categoria", categoryController.deleteCategoryControl);
  * @returns {Object} 200 - Éxito. Array de asignaciones { id_ejercicio, nombre_ejercicio, id_categoria, nombre_categoria }.
  * @returns {Object} 500 - Error interno del servidor.
  */
-router.get("/asignacion-categoria-ejercicio", categoryController.getLinksCategory_ExerciseControl);
+router.get("/asignacion-categoria-ejercicio", verifyToken, categoryController.getLinksCategory_ExerciseControl);
 
 /**
  * @route GET /api/categorias/asignacion-categoria-ejercicio/:id_categoria
@@ -141,7 +142,7 @@ router.get("/asignacion-categoria-ejercicio", categoryController.getLinksCategor
  * @returns {Object} 400 - Bad Request. ID de categoría inválido.
  * @returns {Object} 500 - Error interno del servidor.
  */
-router.get("/asignacion-categoria-ejercicio/:id_categoria", (req, res, next) => {
+router.get("/asignacion-categoria-ejercicio/:id_categoria", verifyToken, (req, res, next) => {
     const id_categoria = parseInt(req.params.id_categoria, 10);
     // 1. Optimización: Solo trae lo necesario (id y nombre del ejercicio)
     db.query('SELECT ejercicio.id, ejercicio.nombre_ejercicio FROM ejercicio INNER JOIN categoria ON ejercicio.id_categoria = categoria.id WHERE id_categoria = ? ORDER BY ejercicio.nombre_ejercicio', [id_categoria], (err, results) => {
@@ -167,7 +168,7 @@ router.get("/asignacion-categoria-ejercicio/:id_categoria", (req, res, next) => 
  * @returns {Object} 409 - Conflict. El ejercicio ya tiene categoría (se requiere forceReplace).
  * @returns {Object} 404 - Not Found. Categoría o ejercicio no existen.
  */
-router.post("/asignar/:id_categoria/:id_ejercicio", categoryController.linkCategoryToExerciseControl);
+router.post("/asignar/:id_categoria/:id_ejercicio", verifyToken, categoryController.linkCategoryToExerciseControl);
 
 /**
  * @route DELETE /api/categorias/desasignar/:id_categoria/:id_ejercicio
@@ -184,7 +185,7 @@ router.post("/asignar/:id_categoria/:id_ejercicio", categoryController.linkCateg
  * @returns {Object} 404 - Not Found. La asignación no existe.
  * @returns {Object} 500 - Error interno del servidor.
  */
-router.delete("/desasignar/:id_categoria/:id_ejercicio", categoryController.unlinkCategoryFromExerciseControl);
+router.delete("/desasignar/:id_categoria/:id_ejercicio", verifyToken, categoryController.unlinkCategoryFromExerciseControl);
 
 // Exportación del router para ser montado en el archivo principal
 module.exports = router;

@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../database/db');
 
 const rutinaClienteController = require("../controllers/rutinaClienteController");
+const verifyToken = require("../middleware/auth")
 
 /**
  * @route GET /api/mis-rutinas/:id_usuario/all
@@ -19,7 +20,7 @@ const rutinaClienteController = require("../controllers/rutinaClienteController"
  * @returns {Object} 404 - Not Found. El usuario no tiene rutinas con lecturas registradas.
  * @returns {Object} 500 - Error interno. Fallo en la agregación JSON o consulta SQL.
  */
-router.get("/:id_usuario/all", (req, res, next) => {
+router.get("/:id_usuario/all", verifyToken, (req, res, next) => {
     const id_usuario = parseInt(req.params.id_usuario, 10);
     let query = `SELECT 
     JSON_OBJECT(
@@ -91,7 +92,7 @@ router.get("/:id_usuario/all", (req, res, next) => {
  * @returns {Object} 404 - Not Found. No existe tal asignación (array vacío).
  * @returns {Object} 500 - Error interno. Fallo en la consulta de búsqueda.
  */
-router.get("/id-historial/:id_usuario/:id_plantilla", (req, res, next) => {
+router.get("/id-historial/:id_usuario/:id_plantilla", verifyToken, (req, res, next) => {
     const id_usuario = parseInt(req.params.id_usuario, 10);
     const id_plantilla = parseInt(req.params.id_plantilla, 10)
     db.query('SELECT id FROM historial_plantilla_usuario WHERE id_usuario = ? AND id_plantilla= ?', [id_usuario, id_plantilla], (err, results) => {
@@ -115,7 +116,7 @@ router.get("/id-historial/:id_usuario/:id_plantilla", (req, res, next) => {
  * @returns {Object} 404 - Not Found. La rutina no existe o no tiene lecturas registradas.
  * @returns {Object} 500 - Error interno. Fallo en la consulta SQL o agregación JSON.
  */
-router.get("/:id_historial", (req, res, next) => {
+router.get("/:id_historial", verifyToken, (req, res, next) => {
     const id_historial = parseInt(req.params.id_historial, 10);
     let query = `SELECT 
     JSON_OBJECT(
@@ -189,6 +190,6 @@ router.get("/:id_historial", (req, res, next) => {
  * @returns {Object} 404 - Not Found. Rutina no encontrada.
  * @returns {Object} 500 - Error interno. Fallo en la base de datos.
  */
-router.put("/:id_usuario/:id_historial", rutinaClienteController.updateRutinaClienteControl);
+router.put("/:id_usuario/:id_historial", verifyToken, rutinaClienteController.updateRutinaClienteControl);
 
 module.exports = router;

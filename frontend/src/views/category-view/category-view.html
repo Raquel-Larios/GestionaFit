@@ -1,17 +1,17 @@
 <div class="content-container block font-20px">
-        <div class= "flex section-header-container">
-            <h2 class="section-name">Categorías</h2>
-            <div class="flex flex-end section-tools">
-                <app-icon-button [icon]="iconoAdd" [estilo]="'add-button'" (accion)="abrirModal('create')"></app-icon-button>
-                <app-order-option
-                [orderOptions]="categoriaOrderOptions.orderOptions"
-                [ascOptions]="categoriaOrderOptions.ascOptions"
-                [descOptions]="categoriaOrderOptions.descOptions"
-                [listaItems] ="listaCategorias"
-                (itemsReversed)="onItemsReversed($event)">
-                </app-order-option>
-            </div>
+    <div class= "flex section-header-container">
+        <h2 class="section-name">Categorías</h2>
+        <div class="flex flex-end section-tools">
+            <app-icon-button [icon]="iconoAdd" [estilo]="'add-button'" (accion)="abrirModal('create')"></app-icon-button>
+            <app-order-option
+            [orderOptions]="categoriaOrderOptions.orderOptions"
+            [ascOptions]="categoriaOrderOptions.ascOptions"
+            [descOptions]="categoriaOrderOptions.descOptions"
+            [listaItems] ="listaCategorias"
+            (itemsReversed)="onItemsReversed($event)">
+            </app-order-option>
         </div>
+    </div>
     
     <div class="block">
         <div class="categoria-item flex" *ngFor="let categoria of listaCategorias">
@@ -24,8 +24,11 @@
                 [itemId]="categoria.id"
                 (linkEvent)="onLinkAction($event)"
                 (loadForId)="onLoadForId($event)"></app-item-linker>
-                <app-icon-button [icon]="iconoModify" [estilo]="'modify-button'" (accion)="abrirModal('edit', categoria.id)"></app-icon-button>
-                <app-icon-button [icon]="iconoDelete" [estilo]="'delete-button'" (accion)="deleteCategoria(categoria.id)"></app-icon-button>
+                <app-icon-button [icon]="iconoModify" [estilo]="'modify-button'" 
+                (accion)="abrirModal('edit', categoria.id)">
+                </app-icon-button>
+                <app-icon-button [icon]="iconoDelete" [estilo]="'delete-button'" 
+                (accion)="deleteCategoria(categoria.id)"></app-icon-button>
             </div>
         </div> 
     </div>

@@ -1,5 +1,4 @@
 const Joi = require("joi");
-const { createRutinaAdmin } = require("../models/rutinaAdminModel");
 
 var options = {
   errors: {

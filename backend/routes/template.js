@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require("../database/db");
 
 const templateController = require("../controllers/templateController");
+const verifyToken = require("../middleware/auth")
 
 /**
  * @route GET /api/plantillas/all
@@ -19,7 +20,7 @@ const templateController = require("../controllers/templateController");
  * @returns {Object} 200 - Éxito. Array de objetos JSON con la estructura de las plantillas.
  * @returns {Object} 500 - Error interno. Fallo en la construcción de la consulta dinámica o agregación JSON.
  */
-router.get("/all", (req, res, next) => {
+router.get("/all", verifyToken, (req, res, next) => {
     const { by_antiguedad } = req.query;
 
     // 1. Construcción base de la consulta con agregación JSON
@@ -95,7 +96,7 @@ router.get("/all", (req, res, next) => {
  * @returns {Object} 404 - Not Found. La plantilla no existe o está vacía.
  * @returns {Object} 500 - Error interno. Fallo en la consulta SQL o agregación JSON.
  */
-router.get("/:id_plantilla", (req, res, next) => {
+router.get("/:id_plantilla", verifyToken, (req, res, next) => {
     const id_plantilla = parseInt(req.params.id_plantilla, 10);
     let query = `SELECT 
     JSON_OBJECT(
@@ -163,7 +164,7 @@ router.get("/:id_plantilla", (req, res, next) => {
  * @returns {Object} 400 - Bad Request. Validación fallida o nombre duplicado.
  * @returns {Object} 500 - Error interno.
  */
-router.post("", templateController.createTemplateControl);
+router.post("", verifyToken, templateController.createTemplateControl);
 
 /**
  * @route PUT /api/plantillas/:id_plantilla
@@ -181,7 +182,7 @@ router.post("", templateController.createTemplateControl);
  * @returns {Object} 404 - Not Found. Plantilla no encontrada.
  * @returns {Object} 500 - Error interno.
  */
-router.put("/:id_plantilla", templateController.updateTemplateControl);
+router.put("/:id_plantilla", verifyToken, templateController.updateTemplateControl);
 
 /**
  * @route DELETE /api/plantillas/:id_plantilla
@@ -197,7 +198,7 @@ router.put("/:id_plantilla", templateController.updateTemplateControl);
  * @returns {Object} 404 - Not Found. Plantilla no encontrada.
  * @returns {Object} 500 - Error interno.
  */
-router.delete("/:id_plantilla", templateController.deleteTemplateControl);
+router.delete("/:id_plantilla", verifyToken, templateController.deleteTemplateControl);
 
 /**
  * @route DELETE /api/plantillas/:id_usuario/:id_plantilla
@@ -215,6 +216,6 @@ router.delete("/:id_plantilla", templateController.deleteTemplateControl);
  * @returns {Object} 404 - Not Found. No existe tal asignación.
  * @returns {Object} 500 - Error interno.
  */
-router.delete("/:id_usuario/:id_plantilla", templateController.deleteRutinaPlantillaControl);
+router.delete("/:id_usuario/:id_plantilla", verifyToken, templateController.deleteRutinaPlantillaControl);
 
 module.exports = router;

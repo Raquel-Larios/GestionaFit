@@ -22,11 +22,6 @@ const videoRoute = require("./video");                  // Gestión de videos as
  * Centraliza y delega las peticiones a los sub-módulos según el prefijo de la URL.
  */
 
-/**
- * Montaje de sub-rutas (Middleware de Enrutamiento).
- * Express delega el tráfico entrante basándose en el prefijo de la URL.
- */
-
 // /api/auth/* -> Delega a auth.js
 router.use("/auth", loginRoute);
 

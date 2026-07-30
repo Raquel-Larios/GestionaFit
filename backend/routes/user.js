@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require("../database/db");
 const userController = require("../controllers/userController");
 const templateController = require("../controllers/templateController");
+const verifyToken = require("../middleware/auth")
 
 /**
  * @route GET /api/clientes
@@ -19,7 +20,7 @@ const templateController = require("../controllers/templateController");
  * @returns {Object} 200 - Éxito. Array de objetos cliente.
  * @returns {Object} 500 - Error interno. Fallo en la consulta SQL dinámica.
  */
-router.get("/clientes", (req, res, next) => {
+router.get("/clientes", verifyToken, (req, res, next) => {
     const { by_nombre } = req.query;
 
     // 1. Construcción base de la consulta con ordenamiento dinámico seguro
@@ -52,7 +53,7 @@ router.get("/clientes", (req, res, next) => {
  * @returns {Object} 200 - Éxito. Array con los datos del cliente (vacío si no existe o no es cliente).
  * @returns {Object} 500 - Error interno. Fallo en la consulta SQL.
  */
-router.get("/clientes/:id_usuario", (req, res, next) =>{
+router.get("/clientes/:id_usuario", verifyToken, (req, res, next) =>{
     db.query('SELECT id, email, nombre, apellidos FROM usuario WHERE id = ? AND rol = 0', [req.params.id_usuario], (err, results) => {
         if(err) return next(err);
         res.json(results);
@@ -73,7 +74,7 @@ router.get("/clientes/:id_usuario", (req, res, next) =>{
  * @returns {Object} 200 - Éxito. Array con los datos completos del perfil.
  * @returns {Object} 500 - Error interno. Fallo en la consulta SQL.
  */
-router.get("/:id_usuario/profile", (req, res, next) =>{
+router.get("/:id_usuario/profile", verifyToken, (req, res, next) =>{
     db.query('SELECT id, email, nombre, apellidos, isPassGenerated, foto_perfil, peso FROM usuario WHERE id = ?', [req.params.id_usuario], (err, results) => {
         if(err) return next(err);
         res.json(results);
@@ -95,7 +96,7 @@ router.get("/:id_usuario/profile", (req, res, next) =>{
  * @returns {Object} 400 - Bad Request. Validación fallida o email duplicado.
  * @returns {Object} 500 - Error interno.
  */
-router.post("/clientes", userController.createUserControl);
+router.post("/clientes", verifyToken, userController.createUserControl);
 
 /**
  * @route PUT /api/clientes/:id_usuario
@@ -113,7 +114,7 @@ router.post("/clientes", userController.createUserControl);
  * @returns {Object} 404 - Not Found. Cliente no encontrado.
  * @returns {Object} 500 - Error interno.
  */
-router.put("/clientes/:id_usuario", userController.updateUserControl);
+router.put("/clientes/:id_usuario", verifyToken, userController.updateUserControl);
 
 /**
  * @route PUT /api/:id_usuario/profile
@@ -131,7 +132,7 @@ router.put("/clientes/:id_usuario", userController.updateUserControl);
  * @returns {Object} 400 - Bad Request. Validación fallida.
  * @returns {Object} 500 - Error interno.
  */
-router.put("/:id_usuario/profile", userController.updateProfileControl);
+router.put("/:id_usuario/profile", verifyToken, userController.updateProfileControl);
 
 /**
  * @route PUT /api/:id_usuario/profile/photo
@@ -148,7 +149,7 @@ router.put("/:id_usuario/profile", userController.updateProfileControl);
  * @returns {Object} 400 - Bad Request. Validación fallida.
  * @returns {Object} 500 - Error interno.
  */
-router.put("/:id_usuario/profile/photo", userController.updateProfilePhotoControl);
+router.put("/:id_usuario/profile/photo", verifyToken, userController.updateProfilePhotoControl);
 
 /**
  * @route DELETE /api/clientes/:id_usuario
@@ -164,7 +165,7 @@ router.put("/:id_usuario/profile/photo", userController.updateProfilePhotoContro
  * @returns {Object} 404 - Not Found. Cliente no encontrado.
  * @returns {Object} 500 - Error interno.
  */
-router.delete("/clientes/:id_usuario", userController.deleteUserControl);
+router.delete("/clientes/:id_usuario", verifyToken, userController.deleteUserControl);
 
 //GESTIÓN ASIGNACIÓN A PLANTILLA DENTRO DE CLIENTE (Preparado para implementar)
 //router.get("/clientes/:id_usuario/:id_plantilla", templateController.getUserTemplatesControl);

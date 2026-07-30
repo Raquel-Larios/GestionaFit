@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../database/db');
 
 const rutinaAdminController = require("../controllers/rutinaAdminController");
+const verifyToken = require("../middleware/auth")
 
 /**
  * @route GET /api/rutinas/all/:id_usuario
@@ -20,7 +21,7 @@ const rutinaAdminController = require("../controllers/rutinaAdminController");
  * @returns {Object} 404 - Not Found. El usuario no tiene rutinas asignadas o están vacías.
  * @returns {Object} 500 - Error interno. Fallo en la consulta de agregación JSON.
  */
-router.get("/all/:id_usuario", (req, res, next) => {
+router.get("/all/:id_usuario", verifyToken, (req, res, next) => {
     // 1. Normalización del ID de usuario
     const id_usuario = parseInt(req.params.id_usuario, 10);
 
@@ -95,7 +96,7 @@ router.get("/all/:id_usuario", (req, res, next) => {
  * @returns {Object} 200 - Éxito. Array con el ID de historial encontrado (vacío si no existe).
  * @returns {Object} 500 - Error interno. Fallo en la consulta de verificación.
  */
-router.get("/id-historial/:id_usuario/:id_plantilla", (req, res, next) => {
+router.get("/id-historial/:id_usuario/:id_plantilla", verifyToken, (req, res, next) => {
     const id_usuario = parseInt(req.params.id_usuario, 10);
     const id_plantilla = parseInt(req.params.id_plantilla, 10)
     db.query('SELECT id FROM historial_plantilla_usuario WHERE id_usuario = ? AND id_plantilla= ?', [id_usuario, id_plantilla], (err, results) => {
@@ -120,7 +121,7 @@ router.get("/id-historial/:id_usuario/:id_plantilla", (req, res, next) => {
  * @returns {Object} 404 - Not Found. La rutina no existe o no tiene ejercicios.
  * @returns {Object} 500 - Error interno. Fallo en la agregación JSON.
  */
-router.get("/:id_historial", (req, res, next) => {
+router.get("/:id_historial", verifyToken, (req, res, next) => {
     const id_historial = parseInt(req.params.id_historial, 10);
     let query = `SELECT 
     JSON_OBJECT(
@@ -191,7 +192,7 @@ router.get("/:id_historial", (req, res, next) => {
  * @returns {Object} 200 - Éxito. Array de objetos { id_usuario, nombre, apellidos }.
  * @returns {Object} 500 - Error interno. Fallo en el JOIN o consulta.
  */
-router.get("/asignaciones/por-plantilla/:id_plantilla", (req, res, next) => {
+router.get("/asignaciones/por-plantilla/:id_plantilla", verifyToken, (req, res, next) => {
     const id_plantilla = parseInt(req.params.id_plantilla, 10);
 
     db.query("SELECT h.id_usuario, u.nombre, u.apellidos FROM historial_plantilla_usuario as h INNER JOIN usuario as u ON u.id = h.id_usuario WHERE h.id_plantilla = ?",
@@ -217,7 +218,7 @@ router.get("/asignaciones/por-plantilla/:id_plantilla", (req, res, next) => {
  * @returns {Object} 200 - Éxito. Array de objetos { id_plantilla, nombre_plantilla, id_usuario }.
  * @returns {Object} 500 - Error interno. Fallo en el JOIN o consulta.
  */
-router.get("/asignaciones/por-usuario/:id_usuario", (req, res, next) => {
+router.get("/asignaciones/por-usuario/:id_usuario", verifyToken, (req, res, next) => {
     const id_usuario = parseInt(req.params.id_usuario, 10);
 
     db.query("SELECT h.id_plantilla, p.nombre_plantilla, h.id_usuario FROM historial_plantilla_usuario as h INNER JOIN plantilla as p ON p.id = h.id_plantilla WHERE h.id_usuario = ?",
@@ -244,7 +245,7 @@ router.get("/asignaciones/por-usuario/:id_usuario", (req, res, next) => {
  * @returns {Object} 400 - Bad Request. Validación fallida o duplicidad.
  * @returns {Object} 500 - Error interno.
  */
-router.post("/:id_usuario/:id_plantilla", rutinaAdminController.createRutinaAdminControl);
+router.post("/:id_usuario/:id_plantilla", verifyToken, rutinaAdminController.createRutinaAdminControl);
 
 /**
  * @route PUT /api/rutinas/:id_historial
@@ -261,7 +262,7 @@ router.post("/:id_usuario/:id_plantilla", rutinaAdminController.createRutinaAdmi
  * @returns {Object} 404 - Not Found. Rutina no encontrada.
  * @returns {Object} 500 - Error interno.
  */
-router.put("/:id_historial", rutinaAdminController.updateRutinaAdminControl);
+router.put("/:id_historial", verifyToken, rutinaAdminController.updateRutinaAdminControl);
 
 /**
  * @route DELETE /api/rutinas/:id_historial
@@ -277,6 +278,6 @@ router.put("/:id_historial", rutinaAdminController.updateRutinaAdminControl);
  * @returns {Object} 404 - Not Found. Rutina no encontrada (o ya eliminada).
  * @returns {Object} 500 - Error interno.
  */
-router.delete("/:id_historial", rutinaAdminController.deleteRutinaAdminControl);
+router.delete("/:id_historial", verifyToken, rutinaAdminController.deleteRutinaAdminControl);
 
 module.exports = router;

@@ -6,11 +6,16 @@
         </div>
 
         <div class="header-menu" *ngIf="showMenu === true">
-            <app-menu-dinamico [userRol]="userRol"></app-menu-dinamico>
+            <app-menu-dinamico 
+            [userRol]="userRol"></app-menu-dinamico>
         </div>
 
         <div class="header-user" *ngIf="showMenu === true">
-            <app-menu-usuario [userPhoto]="userPhoto" [userFullName]="userFullName" [userId]="userId" (logout)="cerrarSesion()"></app-menu-usuario>
+            <app-menu-usuario 
+            [userPhoto]="userPhoto" 
+            [userFullName]="userFullName"
+            [userId]="userId" 
+            (logout)="cerrarSesion()"></app-menu-usuario>
         </div>
     </div>
 </header>

@@ -4,6 +4,7 @@ const db = require('../database/db');
 const exerciseController = require("../controllers/exerciseController");
 const categoryController = require("../controllers/categoryController");
 const videoController = require("../controllers/videoController");
+const verifyToken = require("../middleware/auth")
 
 // ==========================================================
 // GESTIÓN DE EJERCICIOS (CRUD)
@@ -28,7 +29,7 @@ const videoController = require("../controllers/videoController");
  *   { "id": 1, "nombre_ejercicio": "Sentadilla", "nombre_categoria": "Pierna" }
  * ]
  */
-router.get("/all", (req, res, next) => {
+router.get("/all", verifyToken, (req, res, next) => {
   const { by_categoria } = req.query;
 
   // Construcción dinámica de la consulta: Base común
@@ -63,7 +64,7 @@ router.get("/all", (req, res, next) => {
  * @returns {Object} 400 - Bad Request. ID inválido.
  * @returns {Object} 500 - Error interno.
  */
-router.get("/:id_ejercicio", (req, res, next) => {
+router.get("/:id_ejercicio", verifyToken, (req, res, next) => {
     const id_ejercicio = parseInt(req.params.id_ejercicio, 10);
     db.query('SELECT id, nombre_ejercicio, id_categoria FROM ejercicio WHERE id = ?', [id_ejercicio], (err, results) => {
         if (err) return next(err);
@@ -84,7 +85,7 @@ router.get("/:id_ejercicio", (req, res, next) => {
  * @returns {Object} 200/201 - Éxito.
  * @returns {Object} 400 - Bad Request (duplicado).
  */
-router.post("", exerciseController.createExerciseControl);
+router.post("", verifyToken, exerciseController.createExerciseControl);
 
 /**
  * @route PUT /api/ejercicios/:id_ejercicio
@@ -100,7 +101,7 @@ router.post("", exerciseController.createExerciseControl);
  * @returns {Object} 200 - Éxito.
  * @returns {Object} 400/404 - Error de validación o no encontrado.
  */
-router.put("/:id_ejercicio", exerciseController.updateExerciseControl);
+router.put("/:id_ejercicio", verifyToken, exerciseController.updateExerciseControl);
 
 /**
  * @route DELETE /api/ejercicios/:id_ejercicio
@@ -114,7 +115,7 @@ router.put("/:id_ejercicio", exerciseController.updateExerciseControl);
  * @returns {Object} 200 - Éxito.
  * @returns {Object} 404/500 - Error.
  */
-router.delete("/:id_ejercicio", exerciseController.deleteExerciseControl);
+router.delete("/:id_ejercicio", verifyToken, exerciseController.deleteExerciseControl);
 
 // ==========================================================
 // GESTIÓN DE ASIGNACIÓN EJERCICIO-CATEGORÍA
@@ -129,7 +130,7 @@ router.delete("/:id_ejercicio", exerciseController.deleteExerciseControl);
  * @access Public
  * @returns {Object} 200 - Array de asignaciones.
  */
-router.get("/asignacion-ejercicio-categoria", categoryController.getLinksCategory_ExerciseControl);
+router.get("/asignacion-ejercicio-categoria", verifyToken, categoryController.getLinksCategory_ExerciseControl);
 
 /**
  * @route GET /api/ejercicios/asignacion-ejercicio-categoria/:id_ejercicio
@@ -143,7 +144,7 @@ router.get("/asignacion-ejercicio-categoria", categoryController.getLinksCategor
  * @returns {Object} 200 - Éxito. Array con datos de la categoría (o vacío si no tiene).
  * @returns {Object} 400 - ID inválido.
  */
-router.get("/asignacion-ejercicio-categoria/:id_ejercicio", (req, res, next) => {
+router.get("/asignacion-ejercicio-categoria/:id_ejercicio", verifyToken, (req, res, next) => {
     const id_ejercicio = parseInt(req.params.id_ejercicio, 10);
     db.query('SELECT categoria.id, categoria.nombre_categoria FROM categoria INNER JOIN ejercicio ON categoria.id = ejercicio.id_categoria WHERE ejercicio.id = ? ORDER BY categoria.nombre_categoria', [id_ejercicio], (err, results) => {
         if (err) return next(err);
@@ -163,7 +164,7 @@ router.get("/asignacion-ejercicio-categoria/:id_ejercicio", (req, res, next) => 
  * @returns {Object} 200 - Éxito.
  * @returns {Object} 409 - Conflict (ya asignado).
  */
-router.post("/asignacion-ejercicio-categoria/asignar/:id_ejercicio/:id_categoria", categoryController.linkCategoryToExerciseControl);
+router.post("/asignacion-ejercicio-categoria/asignar/:id_ejercicio/:id_categoria", verifyToken, categoryController.linkCategoryToExerciseControl);
 
 /**
  * @route DELETE /api/ejercicios/asignacion-ejercicio-categoria/desasignar/:id_ejercicio/:id_categoria
@@ -174,7 +175,7 @@ router.post("/asignacion-ejercicio-categoria/asignar/:id_ejercicio/:id_categoria
  * @access Private
  * @returns {Object} 200 - Éxito.
  */
-router.delete("/asignacion-ejercicio-categoria/desasignar/:id_ejercicio/:id_categoria", categoryController.unlinkCategoryFromExerciseControl);
+router.delete("/asignacion-ejercicio-categoria/desasignar/:id_ejercicio/:id_categoria", verifyToken, categoryController.unlinkCategoryFromExerciseControl);
 
 // ==========================================================
 // GESTIÓN DE ASIGNACIÓN EJERCICIO-VÍDEO
@@ -188,7 +189,7 @@ router.delete("/asignacion-ejercicio-categoria/desasignar/:id_ejercicio/:id_cate
  * 
  * @access Public
  */
-router.get("/asignacion-ejercicio-video", videoController.getLinksVideo_ExerciseControl);
+router.get("/asignacion-ejercicio-video", verifyToken, videoController.getLinksVideo_ExerciseControl);
 
 /**
  * @route GET /api/ejercicios/asignacion-ejercicio-video/:id_ejercicio
@@ -203,7 +204,7 @@ router.get("/asignacion-ejercicio-video", videoController.getLinksVideo_Exercise
  * @returns {Object} 200 - Éxito. Datos del video.
  * @returns {Object} 404 - Not Found (sin video asignado).
  */
-router.get("/asignacion-ejercicio-video/:id_ejercicio", (req, res, next) => {
+router.get("/asignacion-ejercicio-video/:id_ejercicio", verifyToken, (req, res, next) => {
     const id_ejercicio = parseInt(req.params.id_ejercicio, 10);
     db.query('SELECT demostracion.id_video, video.nombre_video, video.enlace_video FROM demostracion INNER JOIN video ON demostracion.id_video = video.id WHERE demostracion.id_ejercicio = ? ORDER BY video.nombre_video', [id_ejercicio], (err, results) => {
         if (err) return next(err);
@@ -227,7 +228,7 @@ router.get("/asignacion-ejercicio-video/:id_ejercicio", (req, res, next) => {
  * @returns {Object} 200 - Éxito.
  * @returns {Object} 409 - Conflict.
  */
-router.post("/asignacion-ejercicio-video/asignar/:id_ejercicio/:id_video", exerciseController.linkExerciseToVideoControl);
+router.post("/asignacion-ejercicio-video/asignar/:id_ejercicio/:id_video", verifyToken, exerciseController.linkExerciseToVideoControl);
 
 /**
  * @route DELETE /api/ejercicios/asignacion-ejercicio-video/desasignar/:id_ejercicio
@@ -238,6 +239,6 @@ router.post("/asignacion-ejercicio-video/asignar/:id_ejercicio/:id_video", exerc
  * @access Private
  * @returns {Object} 200 - Éxito.
  */
-router.delete("/asignacion-ejercicio-video/desasignar/:id_ejercicio", exerciseController.unlinkExerciseFromVideoControl);
+router.delete("/asignacion-ejercicio-video/desasignar/:id_ejercicio", verifyToken, exerciseController.unlinkExerciseFromVideoControl);
 
 module.exports = router;

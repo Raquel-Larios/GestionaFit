@@ -120,7 +120,7 @@ exports.deleteTemplateControl = (req, res, next) => {
 /**
  * Controlador: Eliminación de asignación específica Plantilla-Usuario.
  * 
- * Elimina el vínculo entre una plantilla y un usuario sin borrar la plantilla base.
+ * Elimina el vínculo entre una rutina y un usuario sin borrar la plantilla base.
  * Valida que ambos IDs sean correctos antes de proceder.
  * 
  * @function deleteRutinaPlantillaControl

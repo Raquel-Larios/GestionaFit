@@ -47,6 +47,4 @@ getDomain(url: string): string {
  
 
 }
-
-//"https://www.google.com/s2/favicons?domain=facebook.com"
 }

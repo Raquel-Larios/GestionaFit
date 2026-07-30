@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../database/db');
 
 const materialController = require("../controllers/materialController");
+const verifyToken = require("../middleware/auth")
 
 /**
  * @route GET /api/materiales/all
@@ -23,7 +24,7 @@ const materialController = require("../controllers/materialController");
  *   { "id": 1, "nombre_material": "Tabla RPE", "contenido": "..." }
  * ]
  */
-router.get("/all", (req, res, next) => {
+router.get("/all", verifyToken, (req, res, next) => {
     const { by_nombre } = req.query;
 
   let query = 'SELECT id, nombre_material, contenido FROM material ORDER BY ';
@@ -55,7 +56,7 @@ router.get("/all", (req, res, next) => {
  * @returns {Object} 400 - Bad Request. ID inválido.
  * @returns {Object} 500 - Error interno.
  */
-router.get("/:id_material", (req, res, next) => {
+router.get("/:id_material", verifyToken, (req, res, next) => {
     const id_material = parseInt(req.params.id_material, 10);
     db.query('SELECT id, nombre_material, contenido FROM material WHERE id = ?', [id_material], (err, results) => {
         if (err) return next(err);
@@ -75,7 +76,7 @@ router.get("/:id_material", (req, res, next) => {
  * @returns {Object} 200/201 - Éxito.
  * @returns {Object} 400 - Bad Request (duplicado).
  */
-router.post("", materialController.createMaterialControl);
+router.post("", verifyToken, materialController.createMaterialControl);
 
 /**
  * @route PUT /api/materiales/:id_material
@@ -88,7 +89,7 @@ router.post("", materialController.createMaterialControl);
  * @returns {Object} 200 - Éxito.
  * @returns {Object} 400/404 - Error de validación o no encontrado.
  */
-router.put("/:id_material", materialController.updateMaterialControl);
+router.put("/:id_material", verifyToken, materialController.updateMaterialControl);
 
 /**
  * @route DELETE /api/materiales/:id_material
@@ -101,6 +102,6 @@ router.put("/:id_material", materialController.updateMaterialControl);
  * @returns {Object} 200 - Éxito.
  * @returns {Object} 404/500 - Error.
  */
-router.delete("/:id_material", materialController.deleteMaterialControl);
+router.delete("/:id_material", verifyToken, materialController.deleteMaterialControl);
 
 module.exports = router;

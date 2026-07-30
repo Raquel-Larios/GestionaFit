@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../database/db');
 
 const videoController = require("../controllers/videoController");
+const verifyToken = require("../middleware/auth")
 
 /**
  * @route GET /api/videos/all
@@ -18,7 +19,7 @@ const videoController = require("../controllers/videoController");
  * @returns {Object} 200 - Éxito. Array de objetos video.
  * @returns {Object} 500 - Error interno. Fallo en la consulta SQL dinámica.
  */
-router.get("/all", (req, res, next) => {
+router.get("/all", verifyToken, (req, res, next) => {
     const { by_nombre } = req.query;
 
     // 1. Construcción base de la consulta con ordenamiento dinámico seguro
@@ -50,7 +51,7 @@ router.get("/all", (req, res, next) => {
  * @returns {Object} 200 - Éxito. Array con los datos del video (vacío si no existe).
  * @returns {Object} 500 - Error interno. Fallo en la consulta SQL.
  */
-router.get("/:id_video", (req, res, next) => {
+router.get("/:id_video", verifyToken, (req, res, next) => {
     const id_video = parseInt(req.params.id_video, 10);
     db.query('SELECT id, nombre_video, enlace_video FROM video WHERE id = ?', [id_video], (err, results) => {
         if (err) return next(err);
@@ -73,7 +74,7 @@ router.get("/:id_video", (req, res, next) => {
  * @returns {Object} 400 - Bad Request. Validación fallida o duplicidad.
  * @returns {Object} 500 - Error interno.
  */
-router.post("", videoController.createVideoControl);
+router.post("", verifyToken, videoController.createVideoControl);
 
 /**
  * @route PUT /api/videos/:id_video
@@ -91,7 +92,7 @@ router.post("", videoController.createVideoControl);
  * @returns {Object} 404 - Not Found. Video no encontrado.
  * @returns {Object} 500 - Error interno.
  */
-router.put("/:id_video", videoController.updateVideoControl);
+router.put("/:id_video", verifyToken, videoController.updateVideoControl);
 
 /**
  * @route DELETE /api/videos/:id_video
@@ -107,7 +108,7 @@ router.put("/:id_video", videoController.updateVideoControl);
  * @returns {Object} 404 - Not Found. Video no encontrado.
  * @returns {Object} 500 - Error interno.
  */
-router.delete("/:id_video", videoController.deleteVideoControl);
+router.delete("/:id_video", verifyToken, videoController.deleteVideoControl);
 
 //GESTIÓN ASIGNACIÓN VIDEO-EJERCICIO
 
@@ -145,7 +146,7 @@ router.get("/asignacion-video-ejercicio", (req, res, next) => {
  * @returns {Object} 200 - Éxito. Array de objetos { id_ejercicio, nombre_ejercicio }.
  * @returns {Object} 500 - Error interno. Fallo en el JOIN o consulta.
  */
-router.get("/asignacion-video-ejercicio/:id_video", (req, res, next) => {
+router.get("/asignacion-video-ejercicio/:id_video", verifyToken, (req, res, next) => {
     const id_video = parseInt(req.params.id_video, 10);
     db.query('SELECT demostracion.id_ejercicio, ejercicio.nombre_ejercicio FROM demostracion INNER JOIN ejercicio ON demostracion.id_ejercicio = ejercicio.id WHERE demostracion.id_video = ? ORDER BY ejercicio.nombre_ejercicio', [id_video], (err, results) => {
         if (err) return next(err);
@@ -170,7 +171,7 @@ router.get("/asignacion-video-ejercicio/:id_video", (req, res, next) => {
  * @returns {Object} 409 - Conflict. El video ya está asignado (si no se fuerza).
  * @returns {Object} 500 - Error interno.
  */
-router.post("/asignar/:id_video/:id_ejercicio", videoController.linkVideoToExerciseControl);
+router.post("/asignar/:id_video/:id_ejercicio", verifyToken, videoController.linkVideoToExerciseControl);
 
 /**
  * @route DELETE /api/videos/desasignar/:id_video
@@ -187,6 +188,6 @@ router.post("/asignar/:id_video/:id_ejercicio", videoController.linkVideoToExerc
  * @returns {Object} 404 - Not Found. No existía tal asignación.
  * @returns {Object} 500 - Error interno.
  */
-router.delete("/desasignar/:id_video", videoController.unlinkVideoFromExerciseControl);
+router.delete("/desasignar/:id_video", verifyToken, videoController.unlinkVideoFromExerciseControl);
 
 module.exports = router;
