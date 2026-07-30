@@ -5,11 +5,12 @@ const { DEFAULT_ERROR } = require("../constants");
 /**
  * Modelo: Asignación de plantilla a usuario con replicación de datos (Admin).
  * 
- * Crea una nueva rutina para un usuario clonando los datos de una plantilla base.
- * Verifica que la asignación no exista previamente para evitar duplicados.
- * Ejecuta una secuencia transaccional manual: inserta el registro en el historial,
- * copia los ejercicios por defecto a la tabla de variaciones e inicializa la tabla
- * de lecturas con valores cero.
+ * Crea una nueva instancia de rutina para un usuario clonando los datos de una plantilla base.
+ * Verifica previamente que no exista una asignación activa idéntica para evitar duplicados.
+ * Ejecuta una secuencia transaccional manual en tres fases:
+ * 1. Inserción del registro maestro en 'historial_plantilla_usuario'.
+ * 2. Clonado de ejercicios desde 'defecto' hacia 'variacion' (configuración inicial).
+ * 3. Inicialización de registros en 'lectura' con valores neutros para comenzar el seguimiento.
  * 
  * @function createRutinaAdmin
  * @param {Object} params - Objeto con los identificadores de usuario y plantilla.
@@ -17,17 +18,17 @@ const { DEFAULT_ERROR } = require("../constants");
  * @param {number} params.id_plantilla - ID de la plantilla base a clonar.
  * 
  * @returns {Promise<Object>} Promesa que resuelve con el ID del historial creado y mensaje de éxito.
- * @rejects {Object} Rechaza con error 500 si falla la consulta de verificación o inserción.
- * @rejects {Object} Rechaza con error 400 si la plantilla ya está asignada al usuario.
- * @rejects {Object} Rechaza con error 500 si falla la copia de ejercicios o la inicialización de lecturas.
+ * @rejects {Object} Rechaza con error 400 si la plantilla ya está asignada activamente al usuario.
+ * @rejects {Object} Rechaza con error 500 si falla la verificación, la inserción del historial, 
+ *                   la copia de ejercicios o la inicialización de lecturas.
  */
 exports.createRutinaAdmin = (params) => {
-  // 1. Extracción de parámetros y generación de timestamp actual
+  // 1. Extracción de parámetros y generación de timestamp actual (formato YYYY-MM-DD HH:MM:SS)
   const { id_usuario, id_plantilla} = params;
   const fecha = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
   return new Promise((resolve, reject) => {
-    // 2. Verificación de duplicados: Evita asignar la misma plantilla dos veces
+    // 2. Verificación de duplicados: Asegura que no exista ya una asignación activa de esta plantilla al usuario
     db.query(
       `SELECT id FROM historial_plantilla_usuario WHERE id_usuario = ? AND id_plantilla = ?`,
       [id_usuario, id_plantilla],
@@ -47,7 +48,7 @@ exports.createRutinaAdmin = (params) => {
           });
         }
 
-        // 3. Inserción en Historial: Crea el registro principal de la rutina
+        // 3. Inserción en Historial: Crea el registro maestro de la asignación
         db.query(
           `INSERT INTO historial_plantilla_usuario (id_plantilla, id_usuario, fecha) VALUES (?, ?, ?)`,
           [id_plantilla, id_usuario, fecha],
@@ -59,31 +60,33 @@ exports.createRutinaAdmin = (params) => {
                 statusCode: 500,
               });
 
-            // Captura el ID autoincremental generado para usarlo en las tablas hijas
+            // Captura el ID autoincremental generado para vincular las tablas hijas
             const id_historial = result.insertId;
 
-            // 4. Clonado de Ejercicios: Copia de la tabla 'defecto' a 'variacion'
-            // Utiliza INSERT INTO ... SELECT para replicar la estructura de la plantilla
+            // 4. Clonado de Ejercicios (Defecto -> Variacion):
+            // Utiliza 'INSERT INTO ... SELECT' para replicar masivamente los ejercicios de la plantilla.
+            // Se inyectan las claves foráneas del nuevo historial (id_historial, id_usuario) en cada fila copiada.
             db.query(
-              `INSERT INTO variacion (id_historial, id_ejercicio, series, repeticiones, carga, RPE, fecha)
-              SELECT ?, d.id_ejercicio, d.series, d.repeticiones, d.carga, d.RPE, ?
+              `INSERT INTO variacion (id_historial, id_plantilla, id_usuario, id_ejercicio, series, repeticiones, carga, RPE, fecha)
+              SELECT ? as id_historial, ? as id_plantilla, ? as id_usuario, d.id_ejercicio, d.series, d.repeticiones, d.carga, d.RPE, ? as fecha
               FROM defecto d
               WHERE d.id_plantilla = ?;`,
-              [id_historial, fecha, id_plantilla],
+              [id_historial, id_plantilla, id_usuario, fecha, id_plantilla],
               (err, results) => {
                 if (err) return reject({
                   message: "Error al copiar los ejercicios de la plantilla a la rutina.",
                   statusCode: 500,
                 });
 
-                // 5. Inicialización de Lecturas: Crea registros base con valores 0 para seguimiento
-                // Prepara la tabla de progreso para que el usuario comience a registrar sus series
+                /// 5. Inicialización de Lecturas (Defecto -> Lectura):
+                // Crea registros paralelos en la tabla de seguimiento con valores neutros (0 series, 0 reps, RPE=1).
+                // Esto garantiza que exista un espacio de registro para cada ejercicio desde el primer momento.
                 db.query(
-                `INSERT INTO lectura (id_historial, id_usuario, id_ejercicio, series, repeticiones, carga, RPE, fecha)
-                SELECT ?, ?, d.id_ejercicio, 0, 0, 0, 1, ?
+                `INSERT INTO lectura (id_historial, id_plantilla, id_usuario, id_ejercicio, series, repeticiones, carga, RPE, fecha)
+                SELECT ? as id_historial, ? as id_plantilla, ? as id_usuario, d.id_ejercicio, 0, 0, 0, 1, ? as fecha
                 FROM defecto d
                 WHERE d.id_plantilla = ?;`,
-                [id_historial, id_usuario, fecha, id_plantilla],
+                [id_historial, id_plantilla, id_usuario, fecha, id_plantilla],
                 (err, results) => {
                   if (err) return reject({
                     message: "Error al crear las lecturas con valor inicial de la rutina del cliente.",
@@ -111,8 +114,12 @@ exports.createRutinaAdmin = (params) => {
  * Verifica la existencia del historial de rutina y compara el estado actual de las variaciones
  * con los nuevos bloques entrantes mediante una comparación profunda. Si no hay diferencias
  * reales en los datos (series, repeticiones, carga, RPE), aborta la operación para evitar
- * escrituras innecesarias. Si hay cambios, ejecuta una operación de borrado e inserción
- * (DELETE + INSERT múltiple) para sincronizar la tabla de variaciones.
+ * escrituras innecesarias.
+ * 
+ * Si hay cambios, ejecuta una estrategia de "Pizarra Limpia" (Clean Slate): elimina TODAS las
+ * variaciones existentes asociadas a ese historial e inserta de nuevo el conjunto completo
+ * de ejercicios recibidos. Esto sincroniza la tabla de variaciones exactamente con el estado
+ * deseado, simplificando la lógica de actualización frente a modificaciones parciales.
  * 
  * @function updateRutinaAdmin
  * @param {Object} params - Objeto con los datos de actualización.
@@ -122,18 +129,18 @@ exports.createRutinaAdmin = (params) => {
  * @returns {Promise<Object>} Promesa que resuelve con mensaje de éxito o indicación de "sin cambios".
  * @rejects {Object} Rechaza con error 404 si el historial de rutina no existe.
  * @rejects {Object} Rechaza con error 500 si falla la consulta de existencia, la obtención de variaciones,
- *                   el borrado de antiguos ejercicios o la inserción de los nuevos.
+ *                   el borrado de ejercicios antiguos o la inserción de los nuevos.
  */
 exports.updateRutinaAdmin = (params) => {
-  // 1. Extracción de parámetros y generación de timestamp
+  // 1. Extracción de parámetros y generación de timestamp actual (formato YYYY-MM-DD HH:MM:SS)
   const { id_historial, bloques} = params;
   const fecha = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
 
   return new Promise((resolve, reject) => {
-    // 2. Verificación de existencia del registro de historial
+    // 2. Verificación de existencia del registro de historial y obtención de contexto (usuario, plantilla)
     db.query(
-      `SELECT id FROM historial_plantilla_usuario WHERE id = ?`,
+      `SELECT id, id_plantilla, id_usuario FROM historial_plantilla_usuario WHERE id = ?`,
       [id_historial],
       (err, result) => {
         if (err)
@@ -149,7 +156,10 @@ exports.updateRutinaAdmin = (params) => {
           });
         }
 
-        /// 3. Obtención del estado actual de las variaciones en BD
+        id_plantilla = result[0].id_plantilla;
+        id_usuario = result[0].id_usuario;
+
+        // 3. Obtención del estado actual de TODAS las variaciones en BD para comparar
         db.query(
           "SELECT id_ejercicio, series, repeticiones, carga, RPE FROM variacion WHERE id_historial = ?",
           [id_historial],
@@ -161,7 +171,7 @@ exports.updateRutinaAdmin = (params) => {
                 statusCode: 500,
               });
 
-            // 4. Normalización de datos entrantes: Aplanar estructura de bloques a array simple
+            // 4. Normalización de datos entrantes: Aplanar estructura de bloques a array simple de variaciones
             const variacionesActuales = bloques.flatMap((bloque) =>
               bloque.variaciones.map((variacion) => ({
                 id_ejercicio: variacion.id_ejercicio,
@@ -194,7 +204,7 @@ exports.updateRutinaAdmin = (params) => {
               variacionesExistentes,
             );
 
-            // 6. Optimización: Si los datos son idénticos, se resuelve sin tocar la BD
+            // 6. Optimización de escritura: Si los datos son idénticos, se resuelve sin tocar la BD
             if (!bloquesCambiados) {
               return resolve({
                 message: "No se ha introducido ningún cambio.",
@@ -202,9 +212,10 @@ exports.updateRutinaAdmin = (params) => {
               });
             }
         
-            // 7. Ejecución de actualización (Solo si hay cambios)
+            // 7. Ejecución de actualización (Solo si hay cambios detectados)
             if (bloquesCambiados) {
-              // 7.1 Borrado de variaciones anteriores (Clean Slate)
+              // 7.1 Estrategia "Clean Slate": Borrado total de variaciones anteriores.
+              // Se eliminan TODOS los ejercicios de este historial para reconstruirlos desde cero.
               db.query(
                 "DELETE FROM variacion WHERE id_historial = ?",
                 [id_historial],
@@ -216,7 +227,7 @@ exports.updateRutinaAdmin = (params) => {
                       statusCode: 500,
                     });
 
-                  // Caso borde: Si la nueva rutina viene vacía
+                  // Caso borde: Si la nueva rutina viene vacía tras el borrado
                   if (variacionesActuales.length === 0) {
                     return resolve({
                       message:
@@ -225,15 +236,17 @@ exports.updateRutinaAdmin = (params) => {
                     });
                   }
 
-                  // 7.2 Inserción múltiple de nuevas variaciones
+                  // 7.2 Inserción múltiple de nuevas variaciones (Reconstrucción del estado)
                   let variacionesInsertadas = 0;
                   const totalVariaciones = variacionesActuales.length;
 
                   variacionesActuales.forEach((variaciones) => {
                     db.query(
-                      "INSERT INTO variacion (id_historial, id_ejercicio, series, repeticiones, carga, RPE, fecha) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                      "INSERT INTO variacion (id_historial, id_plantilla, id_usuario, id_ejercicio, series, repeticiones, carga, RPE, fecha) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                       [
                         id_historial,
+                        id_plantilla,
+                        id_usuario,
                         variaciones.id_ejercicio,
                         variaciones.series,
                         variaciones.repeticiones,
@@ -248,7 +261,7 @@ exports.updateRutinaAdmin = (params) => {
                             statusCode: 500,
                           });
 
-                        // 7.3 Control de finalización de inserciones paralelas
+                        // 7.3 Control de finalización: Se resuelve cuando todas las inserciones han terminado
                         variacionesInsertadas++;
                         if (variacionesInsertadas === totalVariaciones) {
                           resolve({
@@ -271,28 +284,29 @@ exports.updateRutinaAdmin = (params) => {
 };
 
 /**
- * Modelo: Eliminación de rutina asignada con limpieza en cascada manual.
+ * Modelo: Desvinculación de rutina asignada (Borrado de vista activa).
  * 
- * Verifica la existencia del registro de historial antes de proceder. Ejecuta
- * una secuencia de tres eliminaciones (variaciones, lecturas e historial) en
- * una única llamada a la base de datos mediante sentencias múltiples.
- * Nota: Esta operación requiere que la conexión MySQL tenga habilitada
- * la opción `multipleStatements: true`. Si no existe el registro, resuelve
- * exitosamente con un mensaje 404.
+ * Verifica la existencia del registro de historial antes de proceder.
+ * Implementa un comportamiento idempotente: si el registro no existe, retorna un estado 404 sin error.
+ * Si existe, elimina el registro de la tabla 'historial_plantilla_usuario'.
  * 
- * @function deleteRutinaAdmin
+ * Nota: Gracias a la configuración 'ON DELETE SET NULL' en las claves foráneas de las tablas hijas
+ * ('variacion', 'lectura'), esta eliminación no borra los datos de ejecución, sino que preserva el
+ * histórico al nulificar su referencia al padre (id_historial = NULL).
+ * 
+ * @function unlinkRutinaAdmin
  * @param {Object} params - Objeto con el identificador de la rutina.
  * @param {number} params.id_historial - ID del registro de historial a eliminar.
  * 
- * @returns {Promise<Object>} Promesa que resuelve con mensaje de éxito o indicación de "no encontrado".
- * @rejects {Object} Rechaza con error 500 si falla la consulta de verificación o la eliminación en cascada.
+ * @returns {Promise<Object>} Promesa que resuelve con mensaje de éxito (200) o de "no encontrado" (404).
+ * @rejects {Object} Rechaza con error 500 si falla la consulta de verificación o la eliminación.
  */
-exports.deleteRutinaAdmin = (params) => {
+exports.unlinkRutinaAdmin = (params) => {
   // 1. Extracción del ID de historial
   const { id_historial } = params;
   
    return new Promise((resolve, reject) => {
-    // 2. Verificación de existencia del registro
+    // 2. Verificación de existencia del registro de asignación
     db.query(
       `SELECT id FROM historial_plantilla_usuario WHERE id = ?`,
       [id_historial],
@@ -304,7 +318,7 @@ exports.deleteRutinaAdmin = (params) => {
             statusCode: 500,
           });
         }
-        // 3. Comportamiento Idempotente: Si no existe, se considera "éxito" sin hacer nada
+        // 3. Comportamiento Idempotente: Si no existe, se retorna 404 sin considerar error de servidor
         if (result.length === 0) {
           return resolve({
             message: "Rutina no encontrada.",
@@ -312,13 +326,12 @@ exports.deleteRutinaAdmin = (params) => {
           });
         }
 
-        // 4. Eliminación en Cascada Manual (Requiere multipleStatements: true)
-        // Ejecuta 3 DELETEs en una sola consulta separados por punto y coma
+        // 4. Eliminación del registro de asignación (Vista Activa).
+        // Las tablas hijas ('variacion', 'lectura') conservan sus datos gracias a 'ON DELETE SET NULL',
+        // quedando sus campos 'id_historial' como NULL para preservar el histórico de ejecución.
         db.query(`
-          DELETE FROM variacion WHERE id_historial = ?;
-          DELETE FROM lectura WHERE id_historial = ?;
           DELETE FROM historial_plantilla_usuario WHERE id = ?;`,
-          [id_historial, id_historial, id_historial],
+          [id_historial],
           (err, result) => {
             if (err) {
               return reject({

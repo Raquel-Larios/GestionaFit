@@ -380,12 +380,14 @@ exports.updateProfilePhoto = (params) => {
 }
 
 /**
- * Modelo: Eliminación completa de cliente con limpieza de datos relacionados.
+ * Modelo: Eliminación completa de cliente con limpieza lógica de datos relacionados.
  * 
- * Verifica la existencia del usuario y ejecuta una secuencia de borrado en cascada manual.
- * Primero recupera los IDs de historial para limpiar tablas hijas (variacion), luego elimina
- * registros de asignaciones, lecturas y finalmente el usuario.
- * Nota: Requiere `multipleStatements: true`. 
+ * Verifica la existencia del usuario y ejecuta una secuencia de borrado manual en orden descendente de dependencia.
+ * Primero elimina los registros de las tablas hijas ('variacion', 'lectura') y las asignaciones ('historial_plantilla_usuario'),
+ * para finalmente borrar el usuario. Esto evita conflictos de integridad referencial sin depender de 'ON DELETE CASCADE'.
+ * 
+ * Nota: Requiere que la conexión de base de datos tenga habilitada la opción `multipleStatements: true`
+ * para ejecutar las cuatro sentencias DELETE en una única llamada.
  * 
  * @function deleteUser
  * @param {Object} params - Objeto con el ID del usuario.
@@ -393,14 +395,14 @@ exports.updateProfilePhoto = (params) => {
  * 
  * @returns {Promise<Object>} Promesa que resuelve con mensaje de éxito.
  * @rejects {Object} Rechaza con error 404 si el cliente no existe.
- * @rejects {Object} Rechaza con error 500 si falla alguna consulta de eliminación.
+ * @rejects {Object} Rechaza con error 500 si falla la verificación o la secuencia de eliminación.
  */
 exports.deleteUser = (params) => {
 
   const { id_usuario } = params;
   
    return new Promise((resolve, reject) => {
-    // 1. Verificación de existencia
+    // 1. Verificación de existencia del cliente antes de proceder al borrado
     db.query(`SELECT id FROM usuario WHERE id = ?`, [id_usuario], (err, result) => {
       if (err) {
         return reject({
@@ -416,11 +418,16 @@ exports.deleteUser = (params) => {
         });
       }
 
-      // 2. Limpieza en cascada manual (Requiere multipleStatements: true)
-      // Nota: Se seleccionan los IDs de historial primero para usarlos luego.
-      db.query(`SELECT id FROM historial_plantilla_usuario WHERE id_usuario = ?;
-        DELETE FROM historial_plantilla_usuario WHERE id_usuario = ?;
+      // 2. Ejecución de borrado en secuencia (cascada manual).
+      // ORDEN NECESARIO: 
+      // 1. Hijos directos de historial (variacion, lectura) y el historial mismo.
+      // 2. El usuario (padre).
+      // Se eliminan primero los datos dependientes para liberar las claves foráneas y evitar errores de integridad.
+      // Requiere 'multipleStatements: true' en la configuración de la conexión MySQL.
+      db.query(`
+        DELETE FROM variacion WHERE id_usuario = ?;
         DELETE FROM lectura WHERE id_usuario = ?;
+        DELETE FROM historial_plantilla_usuario WHERE id_usuario = ?;
         DELETE FROM usuario WHERE id = ?;`, [id_usuario, id_usuario, id_usuario, id_usuario], (err, result) => {
         if (err) {
           return reject({
@@ -428,16 +435,6 @@ exports.deleteUser = (params) => {
             message: "Error al eliminar el cliente.",
             statusCode: 500,
           });
-        }
-
-        // 3. Limpieza de tablas hijas del historial (Variaciones)
-        if(result[0].length > 0){
-          const ids_historial = result[0].map(row => row.id);
-          db.query(`DELETE FROM variacion WHERE id_historial IN (?)`, [ids_historial], (err, result) => {
-            if (err) return reject({code: DEFAULT_ERROR, message: "Error al eliminar las plantillas asignadas al usuario.",
-              statusCode: 500,
-            });
-          })
         }
 
         resolve({
@@ -530,7 +527,7 @@ exports.unlinkUserFromTemplate = (params) => {
         if(result[0].length === 0) return reject({ message: "Cliente no encontrado.", statusCode: 404});
         if(result[1].length === 0) return reject({ message: "Plantilla no encontrada.", statusCode: 404});
         
-        db.query(`SELECT id, id_usuario, id_plantilla FROM historial_plantilla_usuario WHERE id_usuario = ? AND id_plantilla = ?`,[id_usuario, id_plantilla],
+        db.query(`SELECT id FROM historial_plantilla_usuario WHERE id_usuario = ? AND id_plantilla = ?`,[id_usuario, id_plantilla],
           (err, result) => {
             if(err) return reject({code: DEFAULT_ERROR, message: "Error buscando la asiganción usuario-plantilla.", statusCode: 500
             });
@@ -538,8 +535,8 @@ exports.unlinkUserFromTemplate = (params) => {
               return reject({message: "Asignación usuario-cliente no encontrada.", statusCode: 404});
             }
             const id_historial = result[0].id;
-            db.query(`DELETE FROM variacion WHERE id_historial = ?;
-              DELETE FROM historial_plantilla_usuario WHERE id = ?;`,[id_historial, id_historial], 
+            db.query(`
+              DELETE FROM historial_plantilla_usuario WHERE id = ?;`,[id_historial], 
               (err, result) => {
                 if(err) return reject({code: DEFAULT_ERROR, message: "Error al eliminar la asignación usuario-plantilla.", statusCode: 500});
                 resolve({

@@ -3,7 +3,7 @@ const {
   updateRutinaAdminValidation,
   deleteRutinaAdminValidation
 } = require("../middleware/validation");
-const { createRutinaAdmin, updateRutinaAdmin, deleteRutinaAdmin} = require("../models/rutinaAdminModel");
+const { createRutinaAdmin, updateRutinaAdmin, unlinkRutinaAdmin} = require("../models/rutinaAdminModel");
 
 /**
  * Controlador: Asignación de plantilla de rutina a un usuario (Admin).
@@ -106,7 +106,7 @@ exports.updateRutinaAdminControl = (req, res, next) => {
  * @rejects {Object} Lanza error 400 si la validación del ID falla.
  * @rejects {Object} Rechaza con error personalizado si falla la eliminación.
  */
-exports.deleteRutinaAdminControl = (req, res, next) => {
+exports.unlinkRutinaAdminControl = (req, res, next) => {
   // 1. Parseo del ID de historial
   const id_historial = parseInt(req.params.id_historial, 10);
   const params = {id_historial};
@@ -116,7 +116,7 @@ exports.deleteRutinaAdminControl = (req, res, next) => {
   if (error) throw { message: error.details[0].message, statusCode: 400 };
 
   // 3. Ejecución asíncrona de la eliminación
-  deleteRutinaAdmin(params)
+  unlinkRutinaAdmin(params)
     .then((result) => {
       const { statusCode = 200, message, data } = result;
       res.status(statusCode).send({ message, data });

@@ -388,12 +388,16 @@ exports.deleteTemplate = (params) => {
 };
 
 /**
- * Modelo: Desvinculación de rutina asignada con limpieza de variaciones.
+ * Modelo: Desvinculación de rutina asignada (Borrado lógico de vista activa).
  * 
- * Busca el registro de historial cruzando usuario y plantilla. Elimina las
- * variaciones asociadas a ese historial y luego el registro de asignación.
- * No elimina la plantilla base ni los ejercicios globales, solo la instancia asignada.
- * Requiere `multipleStatements: true` para ejecutar los DELETEs en secuencia.
+ * Localiza el registro de asignación en 'historial_plantilla_usuario' cruzando usuario y plantilla.
+ * Elimina dicho registro para quitar la rutina de la vista activa del usuario.
+ * 
+ * Gracias a la configuración 'ON DELETE SET NULL' en las claves foráneas de las tablas hijas,
+ * esta operación NO borra los datos de ejecución ('variacion' y 'lectura'), sino que los preserva
+ * como histórico al nulificar su referencia al padre (id_historial = NULL).
+ * 
+ * No elimina la plantilla base ni los ejercicios globales, solo la instancia de asignación.
  * 
  * @function deleteRutinaPlantilla
  * @param {Object} params - Objeto con los identificadores de usuario y plantilla.
@@ -409,7 +413,7 @@ exports.deleteRutinaPlantilla = (params) => {
   const { id_usuario, id_plantilla } = params;
   
    return new Promise((resolve, reject) => {
-    // 1. Búsqueda del registro de historial específico
+    // 1. Búsqueda del registro de asignación (historial) específico para este usuario y plantilla
     db.query(
       `SELECT id FROM historial_plantilla_usuario WHERE id_usuario = ? AND id_plantilla = ?`,
       [id_usuario, id_plantilla],
@@ -430,12 +434,13 @@ exports.deleteRutinaPlantilla = (params) => {
 
         const id_historial = result[0].id
 
-        // 2. Eliminación en Cascada Manual de la asignación
-        // Borra las variaciones (hijos) y luego el historial (padre)
+        // 2. Eliminación del registro de asignación.
+        // Gracias a 'ON DELETE SET NULL' en las tablas hijas (variacion, lectura):
+        // Los registros históricos NO se borran, solo se les establece id_historial = NULL,
+        // preservando así los datos de ejecución (series, cargas, etc.) como histórico puro.
         db.query(`
-          DELETE FROM variacion WHERE id_historial = ?;
           DELETE FROM historial_plantilla_usuario WHERE id = ?;`,
-          [id_historial, id_historial],
+          [id_historial],
           (err, result) => {
             if (err) {
               return reject({

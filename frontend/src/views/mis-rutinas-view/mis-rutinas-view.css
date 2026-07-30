@@ -91,15 +91,23 @@ h4{
   border: 1px solid #e0e0e0;
   padding: 5px 15px;
   border-radius: 4px;
-  flex: 1;
+  font-weight: bold;        
+  text-align: center;       
+  box-sizing: border-box;
+  flex: 0 1 auto;
+}
+
+.exercise-field span {
+  font-size: 0.95em;
+  width: 100%;
+  max-width: 80px;
+  display: inline-block;
 }
 
 .exercise-field input{
-  font-weight: bold;
-  width: 35%;
-  align-items: center;
-  justify-content: center;
   font-size: 0.95em;
+  width: 100%; 
+  max-width: 80px;
 }
 
 

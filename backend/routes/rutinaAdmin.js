@@ -278,6 +278,6 @@ router.put("/:id_historial", verifyToken, rutinaAdminController.updateRutinaAdmi
  * @returns {Object} 404 - Not Found. Rutina no encontrada (o ya eliminada).
  * @returns {Object} 500 - Error interno.
  */
-router.delete("/:id_historial", verifyToken, rutinaAdminController.deleteRutinaAdminControl);
+router.delete("/:id_historial", verifyToken, rutinaAdminController.unlinkRutinaAdminControl);
 
 module.exports = router;
