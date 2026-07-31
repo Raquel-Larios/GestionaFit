@@ -211,8 +211,7 @@ exports.updateExercise = (params) => {
  * Modelo: Eliminación de ejercicio con cascada manual selectiva.
  * 
  * Implementa un borrado seguro eliminando el ejercicio y sus dependencias operativas
- * (defectos, variaciones, demostraciones), pero preserva intencionadamente los registros
- * históricos (ej. tabla 'lectura') para mantener la integridad de las estadísticas.
+ * (defectos, variaciones, lecutras, demostraciones).
  * Ejecuta las sentencias en secuencia dentro de la misma promesa.
  * 
  * @function deleteExercise
@@ -245,13 +244,12 @@ exports.deleteExercise = (params) => {
       }
 
       // 2. Borrado en Cascada Manual (Selective Cascade)
-      // Se eliminan las dependencias operativas antes que el padre para evitar errores de FK.
-      // NOTA: Se excluyen tablas históricas ('lectura') para preservar la integridad de las estadísticas.
       db.query(`
         DELETE FROM defecto WHERE id_ejercicio = ?;
         DELETE FROM variacion WHERE id_ejercicio =?;
+        DELETE FROM lectura WHERE id_ejercicio =?;
         DELETE FROM demostracion WHERE id_ejercicio = ?;
-        DELETE FROM ejercicio WHERE id = ?;`, [id_ejercicio, id_ejercicio, id_ejercicio, id_ejercicio], (err, result) => {
+        DELETE FROM ejercicio WHERE id = ?;`, [id_ejercicio, id_ejercicio, id_ejercicio, id_ejercicio, id_ejercicio], (err, result) => {
         if (err) {
           return reject({
             code: DEFAULT_ERROR,
