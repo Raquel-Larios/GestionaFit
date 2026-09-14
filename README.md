@@ -94,6 +94,7 @@ El sistema utiliza **MySQL 8.0**. Necesitarás una instancia de MySQL local (o u
    ```
    
 4. Ejecuta el Script de Inicialización:
+   
   **Opción 1:** En la carpeta `scripts/` existe un archivo llamado `init_db.sql`, ejecútalo para crear las tablas y cargar los datos de prueba:
    
   ```bash
