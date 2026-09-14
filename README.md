@@ -93,11 +93,15 @@ El sistema utiliza **MySQL 8.0**. Necesitarás una instancia de MySQL local (o u
    CREATE DATABASE gestionafit_prueba CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    ```
    
-4. Ejecuta el Script de Inicialización: En la carpeta `scripts/` existe un archivo llamado `init_db.sql`, ejecútalo para crear las tablas y cargar los datos de prueba:
+4. Ejecuta el Script de Inicialización:
+  **Opción 1:** En la carpeta `scripts/` existe un archivo llamado `init_db.sql`, ejecútalo para crear las tablas y cargar los datos de prueba:
    
   ```bash
   mysql -u tu_usuario -p gestionafit_prueba < scripts/init_db.sql
   ```
+  **Opción 2:** Abre el archivo `init_db.sql` en un editor de texto, copia todo su contenido, pégalo en tu archivo Query de MySQL Workbench y ejecuta la consulta.
+
+  **Opción 3:** Abre el archivo `init_db.sql` desde tu conexión de MySQL WorkBench. (File → Open SQL Script)
 
 ### 4. Variables de Entorno
 > **Importante:** Las credenciales de acceso a la base de datos reales y claves secretas **NO** están en este repositorio por seguridad.
