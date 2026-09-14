@@ -163,6 +163,9 @@ npm run dev
 En una segunda terminal (en la carpeta `frontend/`):
 ```bash
 ng serve
+#Si este comando da error es que no está instalada la CLI de Angular de modo global.
+#Si se diese el caso ve a la carpeta raíz del proyecto y ejecuta: npm install -g @angular/cli
+#Si después de ejecutar el comando anterior sigue sin reconocer el comando ng, asegúrate de que la carpeta donde se encuentran los archivos binarios de npm está incluida en el path de tus variables de entorno. 
 ```
 *La aplicación se iniciará en `http://localhost:4200`.*
 
