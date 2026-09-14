@@ -161,7 +161,7 @@ INSERT INTO usuario (email, nombre, apellidos, contraseña, isPassGenerated, rol
 INSERT INTO plantilla (nombre_plantilla) VALUES 
 ("calentamiento"), 
 ("prueba"), 
-("ejercicios varios") 
+("ejercicios varios"),
 ("prueba 2"); 
 
 INSERT INTO categoria (id, nombre_categoria) VALUES
@@ -210,8 +210,8 @@ INSERT INTO defecto (id_plantilla, id_ejercicio, series, repeticiones, carga, RP
 (4, 2, 2, 3, 5, 5),
 (4, 4, 3, 10, 8, 2);
 
-INSERT INTO variacion (id_historial, id_ejericicio, id_plantilla, id_usuario, series, repeticiones, carga, RPE) VALUES
-(3, 1, 1, 3, 3, 10, 4),
+INSERT INTO variacion (id_historial, id_ejercicio, id_plantilla, id_usuario, series, repeticiones, carga, RPE) VALUES
+(3, 1, 1, 3, 2, 3, 10, 4),
 (3, 2, 1, 3, 1, 2, 2, 3),
 (3, 5, 1, 3, 3, 6, 0, 1),
 (1, 1, 2, 2, 5, 4, 0, 7),
