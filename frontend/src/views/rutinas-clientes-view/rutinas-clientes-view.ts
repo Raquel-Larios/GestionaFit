@@ -326,6 +326,11 @@ export class RutinasClientesView implements OnInit {
   }
 
   refrescarRutinas(): void {
+    this.listaLecturas = [];
+    this.listaRutinas = [];
+    this.listaRutinasCombinadas = [];
+    this.cd.detectChanges();
+
     this.rutinaClienteService.getLecturas(this.cliente.id_usuario, false).subscribe((data) => {
       this.listaLecturas = [...this.toRutinaFormat(data)];
     })

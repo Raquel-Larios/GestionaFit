@@ -145,6 +145,22 @@ export class UserlistView implements OnInit {
     this.refrescarClientes();
   }
 
+  getFotoURL(foto: string){
+    if (!foto || foto.trim() === ''){
+      return mostrarMensajeTemporal("No se encuentra la foto de perfil.", 2000);
+    }
+
+    if(foto.startsWith('http') || foto.startsWith('/')) {
+      return foto.includes('?') ? `${foto}&t=${Date.now()}` : `${foto}?t=${Date.now()}`;
+    }
+    
+    if (!foto.startsWith('data:image')) {
+      return `data:image/png;base64,${foto}`;
+    }
+
+    return foto;
+  }
+
   refrescarClientes(): void {
     if (this.orderOptionSelected === 'Apellidos') {
       this.userService.getClientes(false).subscribe((data) => {
