@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, ChangeDetectorRef} from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, ChangeDetectorRef, SimpleChanges} from '@angular/core';
 import { CommonModule, TitleCasePipe} from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray, FormControl, ValidatorFn, AbstractControl} from '@angular/forms';
 import { FormField } from '../../../assets/models/form-field.interface';
@@ -133,7 +133,12 @@ private passwordMatchValidator(): ValidatorFn {
 }
 
 
-  ngOnChanges() {
+  ngOnChanges(changes: SimpleChanges) {
+
+    if (changes['data'] || changes['fields']) {
+      this.inicializado = false;
+    }
+
     if (this.inicializado) return;
     this.inicializado = true;
     const group: any = {};
@@ -300,7 +305,7 @@ private updateConfirmPasswordField(): void {
 agregarBloque(): void {
   const bloque = this.fb.group({
     id_categoria: ['', Validators.required],
-    defectos: this.fb.array([])
+    [this.getNestedFieldName()]: this.fb.array([])
   });
   this.getBloquesArray().push(bloque);
   this.agregarNestedEnBloque(this.getBloquesArray().length - 1);
